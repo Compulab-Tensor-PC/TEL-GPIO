@@ -36,6 +36,9 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+// HW & SW Revisions
+char HW_REV[] = "V1.0";
+char SW_REV[] = "V0.1";
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -91,32 +94,39 @@ int main(void)
   MX_I2C2_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-  HAL_Delay(1000);
-  char testDataToSend[8] = "!";
-  CDC_Transmit_FS(testDataToSend, 8);
-  // Test Initial GPIO
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 1);
-  HAL_Delay(500);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 0);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, 1);
-  HAL_Delay(500);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, 0);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, 1);
-  HAL_Delay(500);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, 0);
-  // TODO Add eeprom read function to read GPIO old GPIO values
-  /* USER CODE END 2 */
+  HAL_Delay(1500);
+  char testDataToSend[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
 
+
+  // Test Initial GPIO
+  HAL_GPIO_WritePin(GPIOA, LED1_Pin, 1);
+  HAL_GPIO_WritePin(GPIOA, LED2_Pin, 0);
+  HAL_Delay(500);
+  HAL_GPIO_WritePin(GPIOA, LED1_Pin, 0);
+  HAL_GPIO_WritePin(GPIOA, LED2_Pin, 1);
+  HAL_Delay(500);
+  HAL_GPIO_WritePin(GPIOA, LED2_Pin, 0);
+  HAL_GPIO_WritePin(GPIOA, LED1_Pin, 0);
+
+  CDC_Transmit_FS(testDataToSend, sizeof(testDataToSend));
+  HAL_Delay(10);
+  CDC_Transmit_FS(HW_REV, sizeof(HW_REV));
+  HAL_Delay(10);
+  CDC_Transmit_FS(SW_REV, sizeof(SW_REV));
+  HAL_Delay(10);
+//  char testFailure[] = "\a\n\r##### FAILURE ######\n\r";
+  char testFailure[] = "\e[71;\"fdf\"P\n\r##### FAILURE ######\n\r";
+  CDC_Transmit_FS(testFailure, sizeof(testFailure));
+  // TODO Add EEPROM read function to read GPIO old GPIO values
+  /* USER CODE END 2 */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
     /* USER CODE END WHILE */
-//	  APP_RX_DATA_SIZE
-//	  if (UserRxBufferFS[0] == 'A') {
-//	  CDC_Transmit_FS(APP_RX_DATA_SIZE[0], 1);
-//	  }
-	  /* USER CODE BEGIN 3 */
+
+    /* USER CODE BEGIN 3 */
 
   }
   /* USER CODE END 3 */
@@ -174,7 +184,11 @@ void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
-
+#ifdef DEBUGLED
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 1); // RED LED in case of error, only in debug mode
+	char fail[] = "\a\n\r##### FAILURE ######\n\r";
+	CDC_Transmit_FS(fail,sizeof(fail));
+#endif
   /* USER CODE END Error_Handler_Debug */
 }
 
