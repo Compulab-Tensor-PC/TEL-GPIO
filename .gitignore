@@ -66,3 +66,5 @@ Debug/makefile
 *.list
 Debug/TEL-GPIO.list
 Debug/TEL-GPIO.bin
+.mxproject
+*.xml
