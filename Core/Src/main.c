@@ -38,6 +38,8 @@
 // HW & SW Revisions
 char HW_REV[] = "V1.0";
 char SW_REV[] = "V0.1";
+
+#define DEBUGLED
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -106,14 +108,21 @@ int main(void)
 
 
 	// Test Initial GPIO
-	HAL_GPIO_WritePin(GPIOA, LED1_Pin, 1);
-	HAL_GPIO_WritePin(GPIOA, LED2_Pin, 0);
+	// Power ON GPIO
+	HAL_GPIO_WritePin(GPIOB, LED1_Pin, 0);
+	HAL_GPIO_WritePin(GPIOB, LED2_Pin, 0);
 	HAL_Delay(500);
-	HAL_GPIO_WritePin(GPIOA, LED1_Pin, 0);
-	HAL_GPIO_WritePin(GPIOA, LED2_Pin, 1);
-	HAL_Delay(500);
-	HAL_GPIO_WritePin(GPIOA, LED2_Pin, 0);
-	HAL_GPIO_WritePin(GPIOA, LED1_Pin, 0);
+	// Power OFF GPIO
+	HAL_GPIO_WritePin(GPIOB, LED1_Pin, 1);
+	HAL_GPIO_WritePin(GPIOB, LED2_Pin, 1);
+//	HAL_Delay(500);
+//	HAL_GPIO_WritePin(GPIOB, LED2_Pin, 0);
+//	HAL_GPIO_WritePin(GPIOB, LED1_Pin, 0);
+
+	HAL_GPIO_WritePin(GPIOA, GPIO_1_Pin, 1);
+	HAL_GPIO_WritePin(GPIOA, GPIO_2_Pin, 1);
+	HAL_GPIO_WritePin(GPIOA, GPIO_3_Pin, 1);
+	HAL_GPIO_WritePin(GPIOA, GPIO_4_Pin, 1);
 
 
 	CDC_Transmit_FS(testDataToSend, sizeof(testDataToSend));
@@ -137,10 +146,11 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1)
 	{
-
+		HAL_GPIO_TogglePin(GPIOB, LED2_Pin);
+		HAL_Delay(102);
 		if (return_Command == 1) {
 #ifdef DEBUGLED
-			HAL_GPIO_TogglePin(GPIOA, LED2_Pin);					// Toggle Blue LED for debugging
+			HAL_GPIO_TogglePin(GPIOB, LED2_Pin);					// Toggle Blue LED for debugging
 #endif //end if debug led
 			char Entered_Command[] = "\033[HCommand: \r\n";
 			CDC_Transmit_FS(Entered_Command,sizeof(Entered_Command));
@@ -149,7 +159,7 @@ int main(void)
 			ret = strchr(incomig,'#');
 			// Initialize incoming array
 			if (ret >0 ) {
-				HAL_GPIO_WritePin(GPIOA, LED1_Pin, 1);
+				HAL_GPIO_WritePin(GPIOB, LED1_Pin, 0);
 			}
 
 
