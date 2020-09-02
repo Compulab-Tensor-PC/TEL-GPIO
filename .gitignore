@@ -57,3 +57,4 @@ dkms.conf
 #STM32Cube IDE project files
 .cproject
 .project
+*.launch
