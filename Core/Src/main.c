@@ -147,7 +147,11 @@ int main(void)
 	while (1)
 	{
 		HAL_GPIO_TogglePin(GPIOB, LED2_Pin);
-		HAL_Delay(102);
+		HAL_GPIO_TogglePin(GPIOA, GPIO_1_Pin);
+		HAL_GPIO_TogglePin(GPIOA, GPIO_2_Pin);
+		HAL_GPIO_TogglePin(GPIOA, GPIO_3_Pin);
+		HAL_GPIO_TogglePin(GPIOA, GPIO_4_Pin);
+		HAL_Delay(1020);
 		if (return_Command == 1) {
 #ifdef DEBUGLED
 			HAL_GPIO_TogglePin(GPIOB, LED2_Pin);					// Toggle Blue LED for debugging

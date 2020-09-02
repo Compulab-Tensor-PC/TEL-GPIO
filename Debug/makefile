@@ -50,8 +50,8 @@ TEL-GPIO.bin \
 all: TEL-GPIO.elf secondary-outputs
 
 # Tool invocations
-TEL-GPIO.elf: $(OBJS) $(USER_OBJS) D:\Data\Projects\Tensor\TELs\FT.S-GPIO\07-Software\TEL-GPIO\STM32F072CBTX_FLASH.ld
-	arm-none-eabi-gcc -o "TEL-GPIO.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0 -T"D:\Data\Projects\Tensor\TELs\FT.S-GPIO\07-Software\TEL-GPIO\STM32F072CBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="TEL-GPIO.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+TEL-GPIO.elf: $(OBJS) $(USER_OBJS) C:\Users\tesle\Documents\GitHub\TEL-GPIO\STM32F072CBTX_FLASH.ld
+	arm-none-eabi-gcc -o "TEL-GPIO.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m0 -T"C:\Users\tesle\Documents\GitHub\TEL-GPIO\STM32F072CBTX_FLASH.ld" --specs=nosys.specs -Wl,-Map="TEL-GPIO.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
