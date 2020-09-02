@@ -68,3 +68,8 @@ Debug/TEL-GPIO.list
 Debug/TEL-GPIO.bin
 .mxproject
 *.xml
+.settings/language.settings.xml
+Debug/makefile
+Debug/objects.list
+Debug/TEL-GPIO.bin
+Debug/TEL-GPIO.list
