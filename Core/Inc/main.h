@@ -41,7 +41,9 @@ extern "C" {
 
 #define TESTBOARD
 
-
+uint8_t incomig[128];
+uint8_t return_Command;
+//uint8_t MAIN_COMMAND = 0;
 
 /* USER CODE END ET */
 
@@ -56,18 +58,19 @@ extern "C" {
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
-void Error_Handler(void);
-
 /* USER CODE BEGIN EFP */
+void Error_Handler(void);
 
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+/* USER CODE BEGIN Private defines */
+#define LED3_Pin GPIO_PIN_1
+#define LED3_GPIO_Port GPIOA
 #define LED1_Pin GPIO_PIN_2
 #define LED1_GPIO_Port GPIOA
 #define LED2_Pin GPIO_PIN_3
 #define LED2_GPIO_Port GPIOA
-/* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
