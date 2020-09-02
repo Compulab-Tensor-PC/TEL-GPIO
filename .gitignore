@@ -73,3 +73,8 @@ Debug/makefile
 Debug/objects.list
 Debug/TEL-GPIO.bin
 Debug/TEL-GPIO.list
+.mxproject
+Debug/TEL-GPIO.list
+Debug/makefile
+Debug/objects.list
+*.list
