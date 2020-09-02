@@ -53,3 +53,7 @@ dkms.conf
 *.c
 /Debug/
 /Release/
+
+#STM32Cube IDE project files
+.cproject
+.project
