@@ -60,3 +60,9 @@ dkms.conf
 *.launch
 .*
 Debug/
+Debug/makefile
+Debug/makefile
+.mxproject
+*.list
+Debug/TEL-GPIO.list
+Debug/TEL-GPIO.bin
