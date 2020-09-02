@@ -125,6 +125,7 @@ int main(void)
 	HAL_GPIO_WritePin(GPIOA, LED2_Pin, 0);
 	HAL_GPIO_WritePin(GPIOA, LED1_Pin, 0);
 
+
 	CDC_Transmit_FS(testDataToSend, sizeof(testDataToSend));
 	HAL_Delay(10);
 
