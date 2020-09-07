@@ -149,19 +149,18 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1)
 	{
-//		HAL_GPIO_TogglePin(GPIOB, LED2_Pin);
-//		HAL_GPIO_TogglePin(GPIOA, GPIO_1_Pin);
-//		HAL_GPIO_TogglePin(GPIOA, GPIO_2_Pin);
-//		HAL_GPIO_TogglePin(GPIOA, GPIO_3_Pin);
-//		HAL_GPIO_TogglePin(GPIOA, GPIO_4_Pin);
+
 //		HAL_Delay(1020);
 		if (return_Command == 1) {
 			#ifdef DEBUGLED
 				HAL_GPIO_TogglePin(GPIOB, LED2_Pin);					// Toggle Blue LED for debugging
 			#endif //end if debug led
 
-			char Entered_Command[] = "\033[HCommand: \r\n";
-			CDC_Transmit_FS(Entered_Command,sizeof(Entered_Command));
+//			char Entered_Command[] = "\033[HCommand: \r\n";
+			char Entered_Command[] = "Command: \r\n";
+
+//			CDC_Transmit_FS(Entered_Command,sizeof(Entered_Command));
+//			CDC_Transmit_FS(Entered_Command,sizeof(Entered_Command));
 			printHelp();
 			char *ret;
 
@@ -279,7 +278,7 @@ void assert_failed(uint8_t *file, uint32_t line)
 void printHelp() {
 
 
-	char printout = "\033[HPrint Help screen \r\n";
+	char printout = "\r\nPrint Help screen \r\n";
 	CDC_Transmit_FS(printout,sizeof(printout));
 
 }
