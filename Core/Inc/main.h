@@ -111,6 +111,10 @@ void Error_Handler(void);
 
 
 // Define GIPO for LED 1 + 2 
+/*
+Led 1 will serve as general Status LED
+Led 2 will serve as error   Status LED
+*/
 #define LED1_Pin GPIO_PIN_14
 #define LED2_Pin GPIO_PIN_15
 
