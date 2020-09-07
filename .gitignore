@@ -51,7 +51,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 *.c
-/Debug/
+/Debug/*
 /Release/
 
 #STM32Cube IDE project files
@@ -82,3 +82,4 @@ Debug/TEL-GPIO.bin
 Debug/TEL-GPIO.list
 Debug/TEL-GPIO.bin
 Debug/TEL-GPIO.list
+Debug/*
