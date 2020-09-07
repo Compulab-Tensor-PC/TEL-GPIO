@@ -23,6 +23,8 @@
 #include "usb_device.h"
 #include "gpio.h"
 
+
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -36,9 +38,10 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 // HW & SW Revisions
-char HW_REV[] = "V1.0";
-char SW_REV[] = "V0.1";
+char HW_REV[] = "HW: V1.0.0\t";
+char SW_REV[] = "SW: V0.1.1\t";
 
+void printHelp();
 #define DEBUGLED
 /* USER CODE END PD */
 
@@ -103,8 +106,8 @@ int main(void)
   MX_I2C2_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-	HAL_Delay(1500);
-	char testDataToSend[] = "\r\n\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
+  HAL_Delay(1500);
+  char testDataToSend[] = "\r\n\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
 
 
 	// Test Initial GPIO
@@ -146,24 +149,28 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 	while (1)
 	{
-		HAL_GPIO_TogglePin(GPIOB, LED2_Pin);
-		HAL_GPIO_TogglePin(GPIOA, GPIO_1_Pin);
-		HAL_GPIO_TogglePin(GPIOA, GPIO_2_Pin);
-		HAL_GPIO_TogglePin(GPIOA, GPIO_3_Pin);
-		HAL_GPIO_TogglePin(GPIOA, GPIO_4_Pin);
-		HAL_Delay(1020);
+//		HAL_GPIO_TogglePin(GPIOB, LED2_Pin);
+//		HAL_GPIO_TogglePin(GPIOA, GPIO_1_Pin);
+//		HAL_GPIO_TogglePin(GPIOA, GPIO_2_Pin);
+//		HAL_GPIO_TogglePin(GPIOA, GPIO_3_Pin);
+//		HAL_GPIO_TogglePin(GPIOA, GPIO_4_Pin);
+//		HAL_Delay(1020);
 		if (return_Command == 1) {
-#ifdef DEBUGLED
-			HAL_GPIO_TogglePin(GPIOB, LED2_Pin);					// Toggle Blue LED for debugging
-#endif //end if debug led
+			#ifdef DEBUGLED
+				HAL_GPIO_TogglePin(GPIOB, LED2_Pin);					// Toggle Blue LED for debugging
+			#endif //end if debug led
+
 			char Entered_Command[] = "\033[HCommand: \r\n";
 			CDC_Transmit_FS(Entered_Command,sizeof(Entered_Command));
+			printHelp();
 			char *ret;
 
 			ret = strchr(incomig,'#');
 			// Initialize incoming array
 			if (ret >0 ) {
-				HAL_GPIO_WritePin(GPIOB, LED1_Pin, 0);
+				HAL_GPIO_TogglePin(GPIOB, LED1_Pin);
+				CDC_Transmit_FS(*ret,1);
+
 			}
 
 
@@ -266,5 +273,15 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
+
+
+// Print Help screen with all available command and their implimintation.
+void printHelp() {
+
+
+	char printout = "\033[HPrint Help screen \r\n";
+	CDC_Transmit_FS(printout,sizeof(printout));
+
+}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
