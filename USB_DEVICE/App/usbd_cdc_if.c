@@ -266,7 +266,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   /* USER CODE BEGIN 6 */
 		CDC_Transmit_FS(Buf,sizeof(Buf));		// Echo back to user
 #ifdef DEBUGLED
-	HAL_GPIO_WritePin(GPIOA, LED1_Pin, 1);
+		HAL_GPIO_TogglePin(GPIOB, LED1_Pin);
 #endif //end if debug led
 
 	int n = 0;
