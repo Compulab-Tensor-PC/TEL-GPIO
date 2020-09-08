@@ -37,9 +37,12 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
 // HW & SW Revisions
 char HW_REV[] = "HW: V1.0.0\t";
-char SW_REV[] = "SW: V0.1.1\t";
+char SW_REV[] = "SW: V0.1.2\t";
+
+char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
 
 void printHelp();
 #define DEBUGLED
@@ -106,8 +109,8 @@ int main(void)
   MX_I2C2_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-  HAL_Delay(1500);
-  char testDataToSend[] = "\r\n\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
+  HAL_Delay(500);
+  
 
 
 	// Test Initial GPIO
@@ -128,7 +131,7 @@ int main(void)
 	HAL_GPIO_WritePin(GPIOA, GPIO_4_Pin, 1);
 
 // Initial data to send to the terminal 
-	CDC_Transmit_FS(testDataToSend, sizeof(testDataToSend));
+	CDC_Transmit_FS(InitialHeader, sizeof(InitialHeader));
 	HAL_Delay(10);
 	CDC_Transmit_FS(HW_REV, sizeof(HW_REV));
 	HAL_Delay(10);
@@ -152,6 +155,13 @@ int main(void)
 	while (1)
 	{
 
+//		char test1[] = "\e]0;<1,1,1,0>\x07";
+//		CDC_Transmit_FS(test1,sizeof(test1));
+//		HAL_Delay(100);
+//		char test2[] = "\e]0;<1,0,0,0>\x07";
+//		CDC_Transmit_FS(test2,sizeof(test2));
+
+
 //		HAL_Delay(1020);
 		if (return_Command == 1) {
 			#ifdef DEBUGLED
@@ -160,6 +170,9 @@ int main(void)
 
 //			char Entered_Command[] = "\033[HCommand: \r\n";
 			char Entered_Command[] = "Command: \r\n";
+
+			// Test loop for title print test
+
 
 //			CDC_Transmit_FS(Entered_Command,sizeof(Entered_Command));
 //			CDC_Transmit_FS(Entered_Command,sizeof(Entered_Command));
@@ -180,7 +193,7 @@ int main(void)
 			// TODO add parser for the incoming data to find the needed commands.
 		} // close if for Check return string
 
-	
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -271,10 +284,26 @@ void assert_failed(uint8_t *file, uint32_t line)
 
 // Print Help screen with all available command and their implimintation.
 void printHelp() {
+	// TODO Add Terminal dynamic title change based on GPIO input??
+char resetScreen[] = "\ec";  // Return screen to initial state
+//char escape[] = "\e]0;<TEL-GPIO>\x07";
+char escape[] = "\e]0;<TEL-GPIO>\x07";
+char printout[] = "\r\n\n################ HELP ######################### \r\n";
+char setGPIO[] = "# - Set GPIO to High or Low (#1,2) - set high GPIO 2\r\n";
 
-
-	char printout = "\r\nPrint Help screen \r\n";
-	CDC_Transmit_FS(printout,sizeof(printout));
+CDC_Transmit_FS(resetScreen, sizeof(resetScreen));
+HAL_Delay(100);
+CDC_Transmit_FS(escape, sizeof(escape));
+HAL_Delay(10);
+CDC_Transmit_FS(InitialHeader, sizeof(InitialHeader));
+HAL_Delay(10);
+CDC_Transmit_FS(HW_REV, sizeof(HW_REV));
+HAL_Delay(10);
+CDC_Transmit_FS(SW_REV,sizeof(SW_REV));
+HAL_Delay(10);
+CDC_Transmit_FS(printout,sizeof(printout));
+HAL_Delay(10);
+CDC_Transmit_FS(setGPIO,sizeof(setGPIO));
 
 }
 
