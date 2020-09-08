@@ -127,18 +127,20 @@ int main(void)
 	HAL_GPIO_WritePin(GPIOA, GPIO_3_Pin, 1);
 	HAL_GPIO_WritePin(GPIOA, GPIO_4_Pin, 1);
 
-
+// Initial data to send to the terminal 
 	CDC_Transmit_FS(testDataToSend, sizeof(testDataToSend));
 	HAL_Delay(10);
-
 	CDC_Transmit_FS(HW_REV, sizeof(HW_REV));
 	HAL_Delay(10);
 	CDC_Transmit_FS(SW_REV, sizeof(SW_REV));
 	HAL_Delay(10);
-	//  char testFailure[] = "\a\n\r##### FAILURE ######\n\r";
+	char newLine[] = "\r\n";
+	CDC_Transmit_FS(newLine, sizeof(newLine));				// Transmit new line
+
+  
 	char testFailure[] = "\e[71;\"\"P\n\r##### FAILURE ######\n\r";
 	char sendASK[]  = "LEDT\r\n";
-	CDC_Transmit_FS(testFailure, sizeof(testFailure));
+//
 	// TODO Add EEPROM read function to read GPIO old GPIO values
 	// TODO Set Initial GPIO Value (From EEPROM or default?)
 
@@ -176,17 +178,9 @@ int main(void)
 			return_Command = 0;									// Initialize Return Command to zero
 			memset(incomig,0,sizeof(incomig));
 			// TODO add parser for the incoming data to find the needed commands.
-		}
+		} // close if for Check return string
 
-		//	  if (incomig[0] == 'A') {
-		//			  HAL_GPIO_WritePin(GPIOA, LED2_Pin, 1);
-		//			  CDC_Transmit_FS(sendASK, sizeof(sendASK));
-		//			  incomig[0] = 0;
-		//	  }
-		//	  else if (incomig[0] == 'B') {
-		//		  HAL_GPIO_WritePin(GPIOA, LED2_Pin, 0);
-		//		  incomig[0] = 0;
-		//	  }
+	
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
