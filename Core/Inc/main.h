@@ -41,8 +41,11 @@ extern "C" {
 
 #define TESTBOARD
 
-uint8_t incomig[128];
+char incomig[128];
+
 uint8_t return_Command;
+
+
 //uint8_t MAIN_COMMAND = 0;
 
 /* USER CODE END ET */
@@ -88,7 +91,7 @@ void Error_Handler(void);
 #define GPIO_19_Pin GPIO_PIN_6
 #define GPIO_20_Pin GPIO_PIN_7
 
-
+#define GPIO_1_GPIO_Port GPIOA
 #define GPIO_2_GPIO_Port GPIOA
 #define GPIO_3_GPIO_Port GPIOA
 #define GPIO_4_GPIO_Port GPIOA
