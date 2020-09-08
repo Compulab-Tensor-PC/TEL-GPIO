@@ -243,7 +243,8 @@ void Error_Handler(void)
   /* USER CODE BEGIN Error_Handler_Debug */
 	/* User can add his own implementation to report the HAL error return state */
 #ifdef DEBUGLED
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 1); // RED LED in case of error, only in debug mode
+	HAL_GPIO_WritePin(LED1_Pin, LED1_GPIO_Port, 1); // RED LED in case of error, only in debug mode
+  HAL_GPIO_WritePin(LED2_Pin, LED2_GPIO_Port, 1);
 	char fail[] = "\a\n\r##### FAILURE ######\n\r";
 	CDC_Transmit_FS(fail,sizeof(fail));
 #endif
