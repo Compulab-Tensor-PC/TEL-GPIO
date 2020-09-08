@@ -349,20 +349,24 @@ void printHelp() {
 
 }
 
-int set_gpio(uint8_t *array) {
+int set_gpio(uint8_t *set_gpio_cmd_pointer) {
 	uint8_t *state;
 	uint8_t *gpio_num;
 
+	int actual_gpio = 0;
+
+	state = set_gpio_cmd_pointer+1+3; // Should get the set value
 
 
-	state = array+1; // Should get the set value
-
-	if (*state < '0' | *state > '1' ) {
-		return 2; // Error state code (Should be 0 or 1 for High or low)
+	if ((int)(*set_gpio_cmd_pointer+2) == 44 ) {
+		actual_gpio = 0;
 	}
 
+	actual_gpio = (int)(*set_gpio_cmd_pointer+1);
 
-	gpio_num = array+3;
+
+
+
 
 	switch (((int)*gpio_num)-48)
 	{
@@ -378,10 +382,62 @@ int set_gpio(uint8_t *array) {
 	case 4:
 		HAL_GPIO_WritePin(GPIO_4_GPIO_Port, GPIO_4_Pin, ((int)*state)-48);
 		break;
+	case 5:
+		HAL_GPIO_WritePin(GPIO_5_GPIO_Port, GPIO_5_Pin, ((int)*state)-48);
+		break;
+	case 6:
+		HAL_GPIO_WritePin(GPIO_6_GPIO_Port, GPIO_6_Pin, ((int)*state)-48);
+		break;
+	case 7:
+		HAL_GPIO_WritePin(GPIO_7_GPIO_Port, GPIO_7_Pin, ((int)*state)-48);
+		break;
+	case 8:
+		HAL_GPIO_WritePin(GPIO_8_GPIO_Port, GPIO_8_Pin, ((int)*state)-48);
+		break;
+	case 9:
+		HAL_GPIO_WritePin(GPIO_9_GPIO_Port, GPIO_9_Pin, ((int)*state)-48);
+		break;
+	case 10:
+		HAL_GPIO_WritePin(GPIO_10_GPIO_Port, GPIO_10_Pin, ((int)*state)-48);
+		break;
+	case 11:
+		HAL_GPIO_WritePin(GPIO_11_GPIO_Port, GPIO_11_Pin, ((int)*state)-48);
+		break;
+	case 12:
+		HAL_GPIO_WritePin(GPIO_12_GPIO_Port, GPIO_12_Pin, ((int)*state)-48);
+		break;
+	case 13:
+		HAL_GPIO_WritePin(GPIO_13_GPIO_Port, GPIO_13_Pin, ((int)*state)-48);
+		break;
+	case 14:
+		HAL_GPIO_WritePin(GPIO_14_GPIO_Port, GPIO_14_Pin, ((int)*state)-48);
+		break;
+	case 15:
+		HAL_GPIO_WritePin(GPIO_15_GPIO_Port, GPIO_15_Pin, ((int)*state)-48);
+		break;
+	case 16:
+		HAL_GPIO_WritePin(GPIO_16_GPIO_Port, GPIO_16_Pin, ((int)*state)-48);
+		break;
+	case 17:
+		HAL_GPIO_WritePin(GPIO_17_GPIO_Port, GPIO_17_Pin, ((int)*state)-48);
+		break;
+	case 18:
+		HAL_GPIO_WritePin(GPIO_18_GPIO_Port, GPIO_18_Pin, ((int)*state)-48);
+		break;
+	case 19:
+		HAL_GPIO_WritePin(GPIO_19_GPIO_Port, GPIO_19_Pin, ((int)*state)-48);
+		break;
+	case 20:
+		HAL_GPIO_WritePin(GPIO_20_GPIO_Port, GPIO_20_Pin, ((int)*state)-48);
+		break;
 	} // end switch statement
 
-	//	HAL_GPIO_TogglePin(LED2_GPIO_Port, LED2_Pin);
-	//	int i = 1;
+
+//	if (*state < '0' | *state > '1' ) {
+//		return 2; // Error state code (Should be 0 or 1 for High or low)
+//	}
+
+
 
 
 	return 0;
