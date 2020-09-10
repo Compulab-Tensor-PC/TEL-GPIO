@@ -46,7 +46,10 @@ char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
 
 void printHelp();
 int set_gpio(uint8_t*);
+int get_gpio_state(uint8_t*);
+
 int getGPIO(uint8_t*);
+
 
 #define DEBUGLED
 
@@ -147,6 +150,8 @@ int main(void)
 	// Command defines
 	char help_command[] 			= "-H";
 	char set_gpio_command[]			= "#";
+	char get_gpio_command[]			= "@";
+
 	//	char testFailure[] = "\e[71;\"\"P\n\r##### FAILURE ######\n\r";
 	//	char sendASK[]  = "LEDT\r\n";
 	char resetScreen[] = "\ec";  							// Return screen to initial state
@@ -183,11 +188,18 @@ int main(void)
 				char setGPIO[] = "SetGPIO Pressed\r\n";
 				CDC_Transmit_FS(setGPIO,sizeof(setGPIO));
 				HAL_Delay(10);
-
-				//				uint16_t* location = strstr(incomig,set_gpio);
-				//				CDC_Transmit_FS(&location,1);
-
 			}
+
+			else if ((strstr(incomig,get_gpio_command) != NULL)) {
+
+
+
+				funcReturn = get_gpio_state(strstr(incomig,get_gpio_command));
+				char setGPIO[] = "Get GPIO Status Pressed\r\n";
+				CDC_Transmit_FS(setGPIO,sizeof(setGPIO));
+				HAL_Delay(10);
+			}
+
 
 
 
@@ -334,8 +346,8 @@ void printHelp() {
 	//char escape[] = "\e]0;<TEL-GPIO>\x07";
 	char escape[] = "\e]0;<TEL-GPIO>\x07";
 	char printout[] = "\r\n\n################ HELP ######################### \r\n";
-	char setGPIO[] = "# - Set GPIO to High or Low (#1,2) - set high GPIO 2\r\n";
-
+	char setGPIO[] = "# - Set GPIO to High or Low: EXAMPLE: #12,1 - Set GPIO # 12 To HIGH \r\n";
+	char getGPIO[] = "@ - Get GPIO State: EXANPLE: @10 - Will return the GPIO #10 High or Low ";
 	CDC_Transmit_FS(resetScreen, sizeof(resetScreen));
 	HAL_Delay(100);
 	CDC_Transmit_FS(escape, sizeof(escape));
@@ -349,7 +361,8 @@ void printHelp() {
 	CDC_Transmit_FS(printout,sizeof(printout));
 	HAL_Delay(10);
 	CDC_Transmit_FS(setGPIO,sizeof(setGPIO));
-
+	HAL_Delay(10);
+	CDC_Transmit_FS(getGPIO,sizeof(getGPIO));
 }
 
 // If increase or decrease in GPIO numbers needed, Change the Error check for GPIO number max minimum
@@ -479,13 +492,18 @@ int get_gpio(uint8_t *gpioP) {
 	temp_i = gpioP;									// Get the first number
 	temp_n = gpioP + 1 ;							// Get the next number in memory
 
-	if (*temp_n == 44) { 							// Check for ',' in the second number
-		gpio_n = (int)*temp_i-48;
-		return gpio_n;								// Only one number, so return here
+	if ((*temp_n >= 48) & (*temp_n <= 57) ) {
+		gpio_n = ((*temp_n - 48) + ( (*temp_i - 48) * 10 ));
+
+				return gpio_n;
 	}
+//	if (*temp_n == 44) { 							// Check for ',' in the second number
+//		gpio_n = (int)*temp_i-48;
+//		return gpio_n;								// Only one number, so return here
+//	}
 
 	else {											// Calculate two dimension number
-		gpio_n = ((*temp_n - 48) + ( (*temp_i - 48) * 10 ));
+		gpio_n = (int)*temp_i-48;
 		return gpio_n;
 	}
 
@@ -506,5 +524,17 @@ int get_state(uint8_t *stateP) {
 	return state;
 }
 
+
+int get_gpio_state(uint8_t *get_gpioP) {
+//	uint8_t *gpio_num;
+
+	int gpio_number;
+//	int state;
+
+	gpio_number = get_gpio(get_gpioP+1);
+
+
+	return gpio_number;
+}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
