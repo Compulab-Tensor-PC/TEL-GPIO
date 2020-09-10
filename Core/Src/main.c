@@ -46,7 +46,10 @@ char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
 
 void printHelp();
 int set_gpio(uint8_t*);
+int getGPIO(uint8_t*);
+
 #define DEBUGLED
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -349,97 +352,159 @@ void printHelp() {
 
 }
 
-int set_gpio(uint8_t *set_gpio_cmd_pointer) {
-	uint8_t *state;
+// If increase or decrease in GPIO numbers needed, Change the Error check for GPIO number max minimum
+// And switch case statement
+
+
+int set_gpio(uint8_t *set_gpioP) {
+	//	uint8_t *state;
 	uint8_t *gpio_num;
 
-	int actual_gpio = 0;
+	int gpio_number;
+	int state;
 
-	state = set_gpio_cmd_pointer+1+3; // Should get the set value
+	// - Get GPIO Number and validate
+	// - Get command state and validate
+	// - Set the correct GPIO according to command state
 
 
-	if ((int)(*set_gpio_cmd_pointer+2) == 44 ) {
-		actual_gpio = 0;
+	gpio_number = get_gpio(set_gpioP+1);
+
+
+	// Received error from get GPIO function
+	if (gpio_number == 0  ) {
+		char getGpio_error[] = "Error in getGPIO\r\n";
+		CDC_Transmit_FS(getGpio_error,sizeof(getGpio_error));
+	}
+	// Check for max minimum GPOI numbers
+	else if ((gpio_number > 20) | (gpio_number < 0) ) {
+		char getGpio_error[] = "Wrong GPIO number\r\n";
+		CDC_Transmit_FS(getGpio_error,sizeof(getGpio_error));
 	}
 
-	actual_gpio = (int)(*set_gpio_cmd_pointer+1);
+
+	//	int actual_gpio = 0;
+
+	state = get_state(strstr(set_gpioP,","));
+
+	if ((state < 0) | (state > 1)) {
+		char getGpio_error[] = "Wrong State in set GPIO number\r\n";
+		CDC_Transmit_FS(getGpio_error,sizeof(getGpio_error));
+	}
 
 
 
+	//	actual_gpio = (int)(*set_gpioP+1);
+
+	// Add check for the gpio number range
 
 
-	switch (((int)*gpio_num)-48)
+
+	switch (gpio_number)
 	{
 	case 1:
-		HAL_GPIO_WritePin(GPIO_1_GPIO_Port, GPIO_1_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_1_GPIO_Port, GPIO_1_Pin, state);
 		break;
 	case 2:
-		HAL_GPIO_WritePin(GPIO_2_GPIO_Port, GPIO_2_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_2_GPIO_Port, GPIO_2_Pin, state);
 		break;
 	case 3:
-		HAL_GPIO_WritePin(GPIO_3_GPIO_Port, GPIO_3_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_3_GPIO_Port, GPIO_3_Pin, state);
 		break;
 	case 4:
-		HAL_GPIO_WritePin(GPIO_4_GPIO_Port, GPIO_4_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_4_GPIO_Port, GPIO_4_Pin, state);
 		break;
 	case 5:
-		HAL_GPIO_WritePin(GPIO_5_GPIO_Port, GPIO_5_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_5_GPIO_Port, GPIO_5_Pin, state);
 		break;
 	case 6:
-		HAL_GPIO_WritePin(GPIO_6_GPIO_Port, GPIO_6_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_6_GPIO_Port, GPIO_6_Pin, state);
 		break;
 	case 7:
-		HAL_GPIO_WritePin(GPIO_7_GPIO_Port, GPIO_7_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_7_GPIO_Port, GPIO_7_Pin, state);
 		break;
 	case 8:
-		HAL_GPIO_WritePin(GPIO_8_GPIO_Port, GPIO_8_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_8_GPIO_Port, GPIO_8_Pin, state);
 		break;
 	case 9:
-		HAL_GPIO_WritePin(GPIO_9_GPIO_Port, GPIO_9_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_9_GPIO_Port, GPIO_9_Pin, state);
 		break;
 	case 10:
-		HAL_GPIO_WritePin(GPIO_10_GPIO_Port, GPIO_10_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_10_GPIO_Port, GPIO_10_Pin, state);
 		break;
 	case 11:
-		HAL_GPIO_WritePin(GPIO_11_GPIO_Port, GPIO_11_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_11_GPIO_Port, GPIO_11_Pin, state);
 		break;
 	case 12:
-		HAL_GPIO_WritePin(GPIO_12_GPIO_Port, GPIO_12_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_12_GPIO_Port, GPIO_12_Pin, state);
 		break;
 	case 13:
-		HAL_GPIO_WritePin(GPIO_13_GPIO_Port, GPIO_13_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_13_GPIO_Port, GPIO_13_Pin, state);
 		break;
 	case 14:
-		HAL_GPIO_WritePin(GPIO_14_GPIO_Port, GPIO_14_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_14_GPIO_Port, GPIO_14_Pin, state);
 		break;
 	case 15:
-		HAL_GPIO_WritePin(GPIO_15_GPIO_Port, GPIO_15_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_15_GPIO_Port, GPIO_15_Pin, state);
 		break;
 	case 16:
-		HAL_GPIO_WritePin(GPIO_16_GPIO_Port, GPIO_16_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_16_GPIO_Port, GPIO_16_Pin, state);
 		break;
 	case 17:
-		HAL_GPIO_WritePin(GPIO_17_GPIO_Port, GPIO_17_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_17_GPIO_Port, GPIO_17_Pin, state);
 		break;
 	case 18:
-		HAL_GPIO_WritePin(GPIO_18_GPIO_Port, GPIO_18_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_18_GPIO_Port, GPIO_18_Pin, state);
 		break;
 	case 19:
-		HAL_GPIO_WritePin(GPIO_19_GPIO_Port, GPIO_19_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_19_GPIO_Port, GPIO_19_Pin, state);
 		break;
 	case 20:
-		HAL_GPIO_WritePin(GPIO_20_GPIO_Port, GPIO_20_Pin, ((int)*state)-48);
+		HAL_GPIO_WritePin(GPIO_20_GPIO_Port, GPIO_20_Pin, state);
 		break;
 	} // end switch statement
 
 
-//	if (*state < '0' | *state > '1' ) {
-//		return 2; // Error state code (Should be 0 or 1 for High or low)
-//	}
-
-
-
+	//	if (*state < '0' | *state > '1' ) {
+	//		return 2; // Error state code (Should be 0 or 1 for High or low)
+	//	}
 
 	return 0;
 }
+
+int get_gpio(uint8_t *gpioP) {
+	uint8_t *temp_i, *temp_n;
+	int  gpio_n;									// init values needed for the function
+
+	temp_i = gpioP;									// Get the first number
+	temp_n = gpioP + 1 ;							// Get the next number in memory
+
+	if (*temp_n == 44) { 							// Check for ',' in the second number
+		gpio_n = (int)*temp_i-48;
+		return gpio_n;								// Only one number, so return here
+	}
+
+	else {											// Calculate two dimension number
+		gpio_n = ((*temp_n - 48) + ( (*temp_i - 48) * 10 ));
+		return gpio_n;
+	}
+
+	// Should reach this only in case of error (wrong text format entered)
+	return gpio_n;
+
+}
+
+// Return the state number as recived, evaluation for correct number best be handled in the main function
+// As the state number range may change depending on the function calling
+int get_state(uint8_t *stateP) {
+	uint8_t *temp_s;
+	int state = 0;
+
+	temp_s = stateP+1;
+	state = *temp_s -48;
+
+	return state;
+}
+
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
