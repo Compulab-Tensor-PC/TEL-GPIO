@@ -185,18 +185,22 @@ int main(void)
 				}
 
 
-				char setGPIO[] = "SetGPIO Pressed\r\n";
+				char setGPIO[] = "SetGPIO Pressed: \r";
 				CDC_Transmit_FS(setGPIO,sizeof(setGPIO));
 				HAL_Delay(10);
 			}
 
 			else if ((strstr(incomig,get_gpio_command) != NULL)) {
 
+				uint8_t test[1];
+				 test[0] = get_gpio_state(strstr(incomig,get_gpio_command));
 
-
-				funcReturn = get_gpio_state(strstr(incomig,get_gpio_command));
-				char setGPIO[] = "Get GPIO Status Pressed\r\n";
+//				funcReturn = get_gpio_state(strstr(incomig,get_gpio_command));
+				char setGPIO[] = "\nGPIO Status:\t";
+//				strcat(setGPIO,test);
 				CDC_Transmit_FS(setGPIO,sizeof(setGPIO));
+				HAL_Delay(10);
+				CDC_Transmit_FS(test,1);
 				HAL_Delay(10);
 			}
 
@@ -214,6 +218,9 @@ int main(void)
 
 			funcReturn = 0;
 			memset(incomig,0,sizeof(incomig));					// Initialize to zero incoming array
+			CDC_Transmit_FS(newLine,sizeof(newLine));
+							HAL_Delay(10);
+
 		}
 		//		char test1[] = "\e]0;<1,1,1,0>\x07";
 		//		CDC_Transmit_FS(test1,sizeof(test1));
@@ -527,14 +534,78 @@ int get_state(uint8_t *stateP) {
 
 int get_gpio_state(uint8_t *get_gpioP) {
 //	uint8_t *gpio_num;
+	int state = 0;
 
 	int gpio_number;
 //	int state;
 
 	gpio_number = get_gpio(get_gpioP+1);
 
+	switch (gpio_number)
+	{
+	case 1:
+		state = HAL_GPIO_ReadPin(GPIO_1_GPIO_Port, GPIO_1_Pin);
+		break;
+	case 2:
+		state = HAL_GPIO_ReadPin(GPIO_2_GPIO_Port, GPIO_2_Pin);
+		break;
+	case 3:
+		state = HAL_GPIO_ReadPin(GPIO_3_GPIO_Port, GPIO_3_Pin);
+		break;
+	case 4:
+		state = HAL_GPIO_ReadPin(GPIO_4_GPIO_Port, GPIO_4_Pin);
+		break;
+	case 5:
+		state = HAL_GPIO_ReadPin(GPIO_5_GPIO_Port, GPIO_5_Pin);
+		break;
+	case 6:
+		state = HAL_GPIO_ReadPin(GPIO_6_GPIO_Port, GPIO_6_Pin);
+		break;
+	case 7:
+		state = HAL_GPIO_ReadPin(GPIO_7_GPIO_Port, GPIO_7_Pin);
+		break;
+	case 8:
+		state = HAL_GPIO_ReadPin(GPIO_8_GPIO_Port, GPIO_8_Pin);
+		break;
+	case 9:
+		state = HAL_GPIO_ReadPin(GPIO_9_GPIO_Port, GPIO_9_Pin);
+		break;
+	case 10:
+		state = HAL_GPIO_ReadPin(GPIO_10_GPIO_Port, GPIO_10_Pin);
+		break;
+	case 11:
+		state = HAL_GPIO_ReadPin(GPIO_11_GPIO_Port, GPIO_11_Pin);
+		break;
+	case 12:
+		state = HAL_GPIO_ReadPin(GPIO_12_GPIO_Port, GPIO_12_Pin);
+		break;
+	case 13:
+		state = HAL_GPIO_ReadPin(GPIO_13_GPIO_Port, GPIO_13_Pin);
+		break;
+	case 14:
+		state = HAL_GPIO_ReadPin(GPIO_14_GPIO_Port, GPIO_14_Pin);
+		break;
+	case 15:
+		state = HAL_GPIO_ReadPin(GPIO_15_GPIO_Port, GPIO_15_Pin);
+		break;
+	case 16:
+		state = HAL_GPIO_ReadPin(GPIO_16_GPIO_Port, GPIO_16_Pin);
+		break;
+	case 17:
+		state = HAL_GPIO_ReadPin(GPIO_17_GPIO_Port, GPIO_17_Pin);
+		break;
+	case 18:
+		state = HAL_GPIO_ReadPin(GPIO_18_GPIO_Port, GPIO_18_Pin);
+		break;
+	case 19:
+		state = HAL_GPIO_ReadPin(GPIO_19_GPIO_Port, GPIO_19_Pin);
+		break;
+	case 20:
+		state = HAL_GPIO_ReadPin(GPIO_20_GPIO_Port, GPIO_20_Pin);
+		break;
+	} // end switch statement
 
-	return gpio_number;
+	return state;
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
