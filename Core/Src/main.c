@@ -40,13 +40,13 @@
 
 // HW & SW Revisions
 char HW_REV[] = "HW: V1.0.0\t";
-char SW_REV[] = "SW: V0.1.2\t";
+char SW_REV[] = "SW: V0.1.3\t";
 
 char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
 
 void printHelp();
 int set_gpio(uint8_t*);
-int get_gpio_state(uint8_t*);
+uint8_t get_gpio_state(uint8_t*);
 
 int getGPIO(uint8_t*);
 
@@ -192,15 +192,20 @@ int main(void)
 
 			else if ((strstr(incomig,get_gpio_command) != NULL)) {
 
-				uint8_t test[1];
-				 test[0] = get_gpio_state(strstr(incomig,get_gpio_command));
+				char *test;
+//				uint8_t test2;
+//				test = strstr(incomig,get_gpio_command);
+//				test2 =  (char)get_gpio_state(test);
+
+				test = get_gpio_state(strstr(incomig,get_gpio_command));
 
 //				funcReturn = get_gpio_state(strstr(incomig,get_gpio_command));
-				char setGPIO[] = "\nGPIO Status:\t";
-//				strcat(setGPIO,test);
+				char setGPIO[20] = "\nGPIO Status:\t";
+//				setGPIO[14] = test2;
+//				strcat(setGPIO,test2);
 				CDC_Transmit_FS(setGPIO,sizeof(setGPIO));
 				HAL_Delay(10);
-				CDC_Transmit_FS(test,1);
+				CDC_Transmit_FS(test,sizeof(setGPIO));
 				HAL_Delay(10);
 			}
 
@@ -532,9 +537,9 @@ int get_state(uint8_t *stateP) {
 }
 
 
-int get_gpio_state(uint8_t *get_gpioP) {
+uint8_t get_gpio_state(uint8_t *get_gpioP) {
 //	uint8_t *gpio_num;
-	int state = 0;
+	uint8_t state = 0;
 
 	int gpio_number;
 //	int state;
