@@ -210,30 +210,26 @@ int main(void)
 				printHelp();
 			}
 
+
+
+			// Check for set GPIO command
+			else if (strstr(incomig,set_gpio_command) != NULL) {
+				funcReturn = set_gpio(strstr(incomig,set_gpio_command));
+
+				if (funcReturn == 2) {
+					char error_02[] = "Wrong Value in setGPIO command state value should be 0 or 1\r\n";
+					CDC_Transmit_FS(error_02,sizeof(error_02));
+				}
+
+				else {
+
+				write("Pressed Set GPIO\r\n");
+				HAL_Delay(10);
+				}
+			}
+
 			memset(incomig,NULL,sizeof(incomig));	// set the incoming array to zero
 		}
-		//
-		//			_write("Hi All\t\n",20);
-		//			HAL_Delay(10);
-		//
-		//			if (strstr(incomig,help_command) != NULL) {
-		//				printHelp();
-		//			}
-		//
-		//			else if (strstr(incomig,set_gpio_command) != NULL) {
-		//
-		//				funcReturn = set_gpio(strstr(incomig,set_gpio_command));
-		//
-		//				if (funcReturn == 2) {
-		//					char error_02[] = "Wrong Value in setGPIO command state value should be 0 or 1\r\n";
-		//					CDC_Transmit_FS(error_02,sizeof(error_02));
-		//				}
-		//
-		//
-		//				char setGPIO[] = "SetGPIO Pressed: \r";
-		//				CDC_Transmit_FS(setGPIO,sizeof(setGPIO));
-		//				HAL_Delay(10);
-		//			}
 		//
 		//			else if ((strstr(incomig,get_gpio_command) != NULL)) {
 		//
