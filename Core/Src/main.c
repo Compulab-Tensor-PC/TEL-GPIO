@@ -23,7 +23,7 @@
 #include "usb_device.h"
 #include "gpio.h"
 #include "String.h"
-
+#include "stdio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -52,6 +52,34 @@ int getGPIO(uint8_t*);
 
 
 #define DEBUGLED
+
+
+// Write to console function
+// will search for new line string and calculate the print size.
+void write( char *ptr)
+{
+	int len = 0;		// Create int for length
+	char *pterc = ptr;	// copy pointer so can be counted safely
+
+	// Count the array until reached new line (RETURN)
+	for (len = 1 ; *pterc != '\n' ; len++ ) {
+		*pterc++;
+	}
+
+
+	HAL_Delay(10);
+	// Transmit the text
+	CDC_Transmit_FS( ptr, len);
+
+}
+
+int io_putchar(int ch)
+{
+	HAL_Delay(1); // Resolves problems with print
+	CDC_Transmit_FS( (uint8_t *)&ch, 1);
+
+	return ch;
+}
 
 /* USER CODE END PD */
 
@@ -94,11 +122,13 @@ int main(void)
 
 	/* USER CODE BEGIN Init */
 	return_Command = 0;							// Set return command to 0
-	//  int i = 0; 									// General counter
+	//	  int i = 0; 									// General counter
 
 	memset(incomig,0,sizeof(incomig));
 
 
+
+	//write("Test",20);
 	//  for (i = 0 ; i < sizeof(incomig) ; i++) {
 	//	  incomig[i] = 0xFF;
 	//  }
@@ -167,105 +197,125 @@ int main(void)
 	/* USER CODE BEGIN WHILE */
 	while (1)
 	{
-		// Check each time the array for return string
-		// When found start checking the array for meaningful commands
-		if (strstr(incomig,"\r") != NULL ) {
-
-			if (strstr(incomig,help_command) != NULL) {
-				printHelp();
-			}
-
-			else if (strstr(incomig,set_gpio_command) != NULL) {
-
-				funcReturn = set_gpio(strstr(incomig,set_gpio_command));
-
-				if (funcReturn == 2) {
-					char error_02[] = "Wrong Value in setGPIO command state value should be 0 or 1\r\n";
-					CDC_Transmit_FS(error_02,sizeof(error_02));
-				}
 
 
-				char setGPIO[] = "SetGPIO Pressed: \r";
-				CDC_Transmit_FS(setGPIO,sizeof(setGPIO));
-				HAL_Delay(10);
-			}
+		write("Test Write1\r\n");
 
-			else if ((strstr(incomig,get_gpio_command) != NULL)) {
+		write("Test Write1\r\n");
 
-				char *test;
-//				uint8_t test2;
-//				test = strstr(incomig,get_gpio_command);
-//				test2 =  (char)get_gpio_state(test);
+		write("Hi All This is a test if evrething is working\r\n");
 
-				test = get_gpio_state(strstr(incomig,get_gpio_command));
-
-//				funcReturn = get_gpio_state(strstr(incomig,get_gpio_command));
-				char setGPIO[20] = "\nGPIO Status:\t";
-//				setGPIO[14] = test2;
-//				strcat(setGPIO,test2);
-				CDC_Transmit_FS(setGPIO,sizeof(setGPIO));
-				HAL_Delay(10);
-				CDC_Transmit_FS(test,sizeof(setGPIO));
-				HAL_Delay(10);
-			}
+		write("Test Write1\r\n");
+		write("\e[71;\"\"P\r##### FAILURE ######\r\n");
 
 
+		CDC_Transmit_FS("Test Write2\r\n",13);
 
 
-			//			CDC_Transmit_FS(incomig,sizeof(incomig));
+		HAL_Delay(100);
 
-
-
-			//			char erazeBuffer[] = "\e[<128>M";
-			//			CDC_Transmit_FS(resetScreen,sizeof(resetScreen));
-			//			HAL_Delay(10);
-			//			CDC_Transmit_FS(erazeBuffer,sizeof(erazeBuffer));
-
-			funcReturn = 0;
-			memset(incomig,0,sizeof(incomig));					// Initialize to zero incoming array
-			CDC_Transmit_FS(newLine,sizeof(newLine));
-							HAL_Delay(10);
-
-		}
-		//		char test1[] = "\e]0;<1,1,1,0>\x07";
-		//		CDC_Transmit_FS(test1,sizeof(test1));
-		//		HAL_Delay(100);
-		//		char test2[] = "\e]0;<1,0,0,0>\x07";
-		//		CDC_Transmit_FS(test2,sizeof(test2));
-
-
-		//		HAL_Delay(1020);
-		if (return_Command == 1) {
-#ifdef DEBUGLED
-			//			HAL_GPIO_TogglePin(GPIOB, LED2_Pin);					// Toggle Blue LED for debugging
-#endif //end if debug led
-
-			//			char Entered_Command[] = "\033[HCommand: \r\n";
-			char Entered_Command[] = "Command: \r\n";
-
-
-
-
-			//			memset(incomig,NULL,sizeof(incomig));
-			//			char *ret;
-
-			//			ret = strchr(incomig,'#');
-			// Initialize incoming array
-			//			if (ret >0 ) {
-			//				HAL_GPIO_TogglePin(GPIOB, LED1_Pin);
-			//				CDC_Transmit_FS(*ret,1);
-
-			//			}
-
-
-
-			// TODO add parser for the incoming data to find the needed commands.
-		} // close if for Check return string
-
-
-		/* USER CODE END WHILE */
-
-		/* USER CODE BEGIN 3 */
+		//		// Check each time the array for return string
+		//		// When found start checking the array for meaningful commands
+		//		if (strstr(incomig,"\r") != NULL ) {
+		//
+		//			_write("Hi All\t\n",20);
+		//			HAL_Delay(10);
+		//
+		//			if (strstr(incomig,help_command) != NULL) {
+		//				printHelp();
+		//			}
+		//
+		//			else if (strstr(incomig,set_gpio_command) != NULL) {
+		//
+		//				funcReturn = set_gpio(strstr(incomig,set_gpio_command));
+		//
+		//				if (funcReturn == 2) {
+		//					char error_02[] = "Wrong Value in setGPIO command state value should be 0 or 1\r\n";
+		//					CDC_Transmit_FS(error_02,sizeof(error_02));
+		//				}
+		//
+		//
+		//				char setGPIO[] = "SetGPIO Pressed: \r";
+		//				CDC_Transmit_FS(setGPIO,sizeof(setGPIO));
+		//				HAL_Delay(10);
+		//			}
+		//
+		//			else if ((strstr(incomig,get_gpio_command) != NULL)) {
+		//
+		//				char *test;
+		////				uint8_t test2;
+		////				test = strstr(incomig,get_gpio_command);
+		////				test2 =  (char)get_gpio_state(test);
+		//
+		//				test = get_gpio_state(strstr(incomig,get_gpio_command));
+		//
+		////				funcReturn = get_gpio_state(strstr(incomig,get_gpio_command));
+		//				char setGPIO[20] = "\nGPIO Status:\t";
+		////				setGPIO[14] = test2;
+		////				strcat(setGPIO,test2);
+		//				CDC_Transmit_FS(setGPIO,sizeof(setGPIO));
+		//				HAL_Delay(10);
+		//				CDC_Transmit_FS(test,sizeof(setGPIO));
+		//				HAL_Delay(10);
+		//			}
+		//
+		//
+		//
+		//
+		//			//			CDC_Transmit_FS(incomig,sizeof(incomig));
+		//
+		//
+		//
+		//			//			char erazeBuffer[] = "\e[<128>M";
+		//			//			CDC_Transmit_FS(resetScreen,sizeof(resetScreen));
+		//			//			HAL_Delay(10);
+		//			//			CDC_Transmit_FS(erazeBuffer,sizeof(erazeBuffer));
+		//
+		//			funcReturn = 0;
+		//			memset(incomig,0,sizeof(incomig));					// Initialize to zero incoming array
+		//			CDC_Transmit_FS(newLine,sizeof(newLine));
+		//							HAL_Delay(10);
+		//
+		//		}
+		//		//		char test1[] = "\e]0;<1,1,1,0>\x07";
+		//		//		CDC_Transmit_FS(test1,sizeof(test1));
+		//		//		HAL_Delay(100);
+		//		//		char test2[] = "\e]0;<1,0,0,0>\x07";
+		//		//		CDC_Transmit_FS(test2,sizeof(test2));
+		//
+		//
+		//		//		HAL_Delay(1020);
+		//		if (return_Command == 1) {
+		//#ifdef DEBUGLED
+		//			//			HAL_GPIO_TogglePin(GPIOB, LED2_Pin);					// Toggle Blue LED for debugging
+		//#endif //end if debug led
+		//
+		//			//			char Entered_Command[] = "\033[HCommand: \r\n";
+		//			char Entered_Command[] = "Command: \r\n";
+		//
+		//
+		//
+		//
+		//			//			memset(incomig,NULL,sizeof(incomig));
+		//			//			char *ret;
+		//
+		//			//			ret = strchr(incomig,'#');
+		//			// Initialize incoming array
+		//			//			if (ret >0 ) {
+		//			//				HAL_GPIO_TogglePin(GPIOB, LED1_Pin);
+		//			//				CDC_Transmit_FS(*ret,1);
+		//
+		//			//			}
+		//
+		//
+		//
+		//			// TODO add parser for the incoming data to find the needed commands.
+		//		} // close if for Check return string
+		//
+		//
+		//		/* USER CODE END WHILE */
+		//
+		//		/* USER CODE BEGIN 3 */
 
 	}
 	/* USER CODE END 3 */
@@ -507,12 +557,12 @@ int get_gpio(uint8_t *gpioP) {
 	if ((*temp_n >= 48) & (*temp_n <= 57) ) {
 		gpio_n = ((*temp_n - 48) + ( (*temp_i - 48) * 10 ));
 
-				return gpio_n;
+		return gpio_n;
 	}
-//	if (*temp_n == 44) { 							// Check for ',' in the second number
-//		gpio_n = (int)*temp_i-48;
-//		return gpio_n;								// Only one number, so return here
-//	}
+	//	if (*temp_n == 44) { 							// Check for ',' in the second number
+	//		gpio_n = (int)*temp_i-48;
+	//		return gpio_n;								// Only one number, so return here
+	//	}
 
 	else {											// Calculate two dimension number
 		gpio_n = (int)*temp_i-48;
@@ -538,11 +588,11 @@ int get_state(uint8_t *stateP) {
 
 
 uint8_t get_gpio_state(uint8_t *get_gpioP) {
-//	uint8_t *gpio_num;
+	//	uint8_t *gpio_num;
 	uint8_t state = 0;
 
 	int gpio_number;
-//	int state;
+	//	int state;
 
 	gpio_number = get_gpio(get_gpioP+1);
 
