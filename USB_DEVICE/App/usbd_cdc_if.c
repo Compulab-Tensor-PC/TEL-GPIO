@@ -264,17 +264,17 @@ static int8_t CDC_Control_FS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
-//	CDC_Transmit_FS(Buf,sizeof(Buf));		// Echo back to user
-//#ifdef DEBUGLED
-//	HAL_GPIO_TogglePin(GPIOB, LED1_Pin);
-//#endif //end if debug led
+	CDC_Transmit_FS(Buf,sizeof(Buf));		// Echo back to user
+#ifdef DEBUGLED
+	HAL_GPIO_TogglePin(GPIOB, LED1_Pin);
+#endif //end if debug led
 
-//	strcat(incomig,Buf);					// Store the date to the array for parcing
+	strcat(incomig,Buf);					// Store the date to the array for parcing
 
 
 
-//	USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
-//	USBD_CDC_ReceivePacket(&hUsbDeviceFS);
+	USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
+	USBD_CDC_ReceivePacket(&hUsbDeviceFS);
 
 
 
