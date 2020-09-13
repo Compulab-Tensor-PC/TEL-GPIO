@@ -199,24 +199,19 @@ int main(void)
 	{
 
 
-		write("Test Write1\r\n");
 
-		write("Test Write1\r\n");
-
-		write("Hi All This is a test if evrething is working\r\n");
-
-		write("Test Write1\r\n");
-		write("\e[71;\"\"P\r##### FAILURE ######\r\n");
-
-
-		CDC_Transmit_FS("Test Write2\r\n",13);
-
-
-		HAL_Delay(100);
 
 		//		// Check each time the array for return string
 		//		// When found start checking the array for meaningful commands
-		//		if (strstr(incomig,"\r") != NULL ) {
+		if (strstr(incomig,"\r") != NULL ) {
+			write("\r\n");		// If pressed Enter Send new line to terminal
+			// Check if help command recived and print help screen if so.
+			if (strstr(incomig,help_command) != NULL) {
+				printHelp();
+			}
+
+			memset(incomig,NULL,sizeof(incomig));	// set the incoming array to zero
+		}
 		//
 		//			_write("Hi All\t\n",20);
 		//			HAL_Delay(10);
