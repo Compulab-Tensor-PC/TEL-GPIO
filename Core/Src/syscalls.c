@@ -30,7 +30,10 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/times.h>
-
+#include "main.h"
+#include "usbd_cdc_if.h"
+#include "usbd_cdc.h"
+#include "usb_device.h"
 
 /* Variables */
 //#undef errno
@@ -45,6 +48,9 @@ char **environ = __env;
 
 
 /* Functions */
+
+
+
 void initialise_monitor_handles()
 {
 }

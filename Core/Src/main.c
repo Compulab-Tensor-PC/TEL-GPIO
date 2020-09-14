@@ -17,20 +17,13 @@
  ******************************************************************************
  */
 /* USER CODE END Header */
-/*
- * Available commands:
- * 	# - Set GPIO to High or LOW (#x.1) -- x-GPIO #, 1-HIGH status, 0-INPUT
- * 	$ - Set GPIO to input or output($x.1) -- x-GPIO#, 1-OUTPUT, 0-INPUT
- *
- *	TODO Initial state of all GPIO should be Input pullUp
- */
-
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "i2c.h"
 #include "usb_device.h"
 #include "gpio.h"
-#include "string.h"
+#include "String.h"
+#include "stdio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -44,9 +37,50 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
 // HW & SW Revisions
-char HW_REV[] = "V1.0";
-char SW_REV[] = "V0.1";
+char HW_REV[] = "HW: V1.0.0\t";
+char SW_REV[] = "SW: V0.1.5\t";
+
+char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
+
+void printHelp();
+int set_gpio(uint8_t*);
+uint8_t get_gpio_state(uint8_t*);
+
+int getGPIO(uint8_t*);
+
+
+#define DEBUGLED
+
+
+// Write to console function
+// will search for new line string and calculate the print size.
+void write( char *ptr)
+{
+	int len = 0;		// Create int for length
+	char *pterc = ptr;	// copy pointer so can be counted safely
+
+	// Count the array until reached new line (RETURN)
+	for (len = 1 ; *pterc != '\n' ; len++ ) {
+		*pterc++;
+	}
+
+
+	HAL_Delay(10);
+	// Transmit the text
+	CDC_Transmit_FS( ptr, len);
+
+}
+
+int io_putchar(int ch)
+{
+	HAL_Delay(1); // Resolves problems with print
+	CDC_Transmit_FS( (uint8_t *)&ch, 1);
+
+	return ch;
+}
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -62,7 +96,6 @@ char SW_REV[] = "V0.1";
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-int getCommand();
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -89,11 +122,13 @@ int main(void)
 
 	/* USER CODE BEGIN Init */
 	return_Command = 0;							// Set return command to 0
-	//  int i = 0; 									// General counter
+	//	  int i = 0; 									// General counter
 
 	memset(incomig,0,sizeof(incomig));
 
 
+
+	//write("Test",20);
 	//  for (i = 0 ; i < sizeof(incomig) ; i++) {
 	//	  incomig[i] = 0xFF;
 	//  }
@@ -111,34 +146,51 @@ int main(void)
 	MX_I2C2_Init();
 	MX_USB_DEVICE_Init();
 	/* USER CODE BEGIN 2 */
-	HAL_Delay(1500);
-	char testDataToSend[] = "\r\n\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
+	HAL_Delay(500);
+
 
 
 	// Test Initial GPIO
-	HAL_GPIO_WritePin(GPIOA, LED1_Pin, 1);
-	HAL_GPIO_WritePin(GPIOA, LED2_Pin, 0);
+	// Power ON GPIO
+	HAL_GPIO_WritePin(GPIOB, LED1_Pin, 0);
+	HAL_GPIO_WritePin(GPIOB, LED2_Pin, 0);
 	HAL_Delay(500);
-	HAL_GPIO_WritePin(GPIOA, LED1_Pin, 0);
-	HAL_GPIO_WritePin(GPIOA, LED2_Pin, 1);
-	HAL_Delay(500);
-	HAL_GPIO_WritePin(GPIOA, LED2_Pin, 0);
-	HAL_GPIO_WritePin(GPIOA, LED1_Pin, 0);
+	// Power OFF GPIO
+	HAL_GPIO_WritePin(GPIOB, LED1_Pin, 1);
+	HAL_GPIO_WritePin(GPIOB, LED2_Pin, 1);
+	//	HAL_Delay(500);
+	//	HAL_GPIO_WritePin(GPIOB, LED2_Pin, 0);
+	//	HAL_GPIO_WritePin(GPIOB, LED1_Pin, 0);
 
+	HAL_GPIO_WritePin(GPIOA, GPIO_1_Pin, 1);
+	HAL_GPIO_WritePin(GPIOA, GPIO_2_Pin, 1);
+	HAL_GPIO_WritePin(GPIOA, GPIO_3_Pin, 1);
+	HAL_GPIO_WritePin(GPIOA, GPIO_4_Pin, 1);
 
-	CDC_Transmit_FS(testDataToSend, sizeof(testDataToSend));
+	// Initial data to send to the terminal
+	CDC_Transmit_FS(InitialHeader, sizeof(InitialHeader));
 	HAL_Delay(10);
-
 	CDC_Transmit_FS(HW_REV, sizeof(HW_REV));
 	HAL_Delay(10);
 	CDC_Transmit_FS(SW_REV, sizeof(SW_REV));
 	HAL_Delay(10);
-	//  char testFailure[] = "\a\n\r##### FAILURE ######\n\r";
-	char testFailure[] = "\e[71;\"\"P\n\r##### FAILURE ######\n\r";
-	char sendASK[]  = "LEDT\r\n";
-	CDC_Transmit_FS(testFailure, sizeof(testFailure));
+	char newLine[] = "\r\n";
+	CDC_Transmit_FS(newLine, sizeof(newLine));				// Transmit new line
+
+	// Command defines
+	char help_command[] 			= "-H";
+	char set_gpio_command[]			= "#";
+	char get_gpio_command[]			= "@";
+
+	//	char testFailure[] = "\e[71;\"\"P\n\r##### FAILURE ######\n\r";
+	//	char sendASK[]  = "LEDT\r\n";
+	char resetScreen[] = "\ec";  							// Return screen to initial state
+	int funcReturn = 0;
+	//
 	// TODO Add EEPROM read function to read GPIO old GPIO values
 	// TODO Set Initial GPIO Value (From EEPROM or default?)
+	// TODO add array with error codes that will check user input and issue correct error,
+	// TODO add some memory location to store all device constants
 
 
 	/* USER CODE END 2 */
@@ -148,38 +200,62 @@ int main(void)
 	while (1)
 	{
 
-		if (return_Command == 1) {
-#ifdef DEBUGLED
-			HAL_GPIO_TogglePin(GPIOA, LED2_Pin);					// Toggle Blue LED for debugging
-#endif //end if debug led
-			char Entered_Command[] = "\033[HCommand: \r\n";
-			CDC_Transmit_FS(Entered_Command,sizeof(Entered_Command));
-			char *ret;
-
-			ret = strchr(incomig,'#');
-			// Initialize incoming array
-			if (ret >0 ) {
-				HAL_GPIO_WritePin(GPIOA, LED1_Pin, 1);
-			}
 
 
-			return_Command = 0;									// Initialize Return Command to zero
-			memset(incomig,0,sizeof(incomig));
-			// TODO add parser for the incoming data to find the needed commands.
+
+		//		// Check each time the array for return string
+		//		// When found start checking the array for meaningful commands
+		if (strstr(incomig,"\r") != NULL ) {
+			write("\r\n");		// If pressed Enter Send new line to terminal
+			// Check if help command recived and print help screen if so.
+			if (strstr(incomig,help_command) != NULL) {
+				printHelp();
+			} // Close if for print help function
+
+			// Check for set GPIO command
+			else if (strstr(incomig,set_gpio_command) != NULL) {
+				funcReturn = set_gpio(strstr(incomig,set_gpio_command));
+
+				char setGPIO_string[2];
+				itoa (funcReturn,setGPIO_string,10); // Convert from int to char
+
+				char setGPIO[20] = "Set GPIO #:   \r\n";
+
+				setGPIO[12] =  setGPIO_string[0]; // Place in the correct array location
+				setGPIO[13] =  setGPIO_string[1];
+				//				strstr(setGPIO,funcReturn);
+
+				write(setGPIO);			// Print
+
+			} // Close if for setGPIO command check
+
+			// Get GPIO 1,0 - Note that GPIO needed to be configured to input for correct result.
+			// Otherwise the result will be what programmed in setGPIO
+			else if ((strstr(incomig,get_gpio_command) != NULL)) {
+
+				char *test;
+				char getGPIO_string[2];
+
+				funcReturn = get_gpio_state(strstr(incomig,get_gpio_command));
+
+				itoa (funcReturn,getGPIO_string,10); // Convert from int to char
+				char getGPIO[20] = "get GPIO #:   \r\n";
+
+				getGPIO[12] =  getGPIO_string[0]; // Place in the correct array location
+				getGPIO[13] =  getGPIO_string[1];
+				//				strstr(setGPIO,funcReturn);
+
+				write(getGPIO);
+
+			} // Close if for getGPIO command check
+
+			memset(incomig,NULL,sizeof(incomig));	// set the incoming array to zero
 		}
 
-		//	  if (incomig[0] == 'A') {
-		//			  HAL_GPIO_WritePin(GPIOA, LED2_Pin, 1);
-		//			  CDC_Transmit_FS(sendASK, sizeof(sendASK));
-		//			  incomig[0] = 0;
-		//	  }
-		//	  else if (incomig[0] == 'B') {
-		//		  HAL_GPIO_WritePin(GPIOA, LED2_Pin, 0);
-		//		  incomig[0] = 0;
-		//	  }
-		/* USER CODE END WHILE */
 
-		/* USER CODE BEGIN 3 */
+		//		/* USER CODE END WHILE */
+		//
+		//		/* USER CODE BEGIN 3 */
 
 	}
 	/* USER CODE END 3 */
@@ -195,7 +271,8 @@ void SystemClock_Config(void)
 	RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 	RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
-	/** Initializes the CPU, AHB and APB busses clocks
+	/** Initializes the RCC Oscillators according to the specified parameters
+	 * in the RCC_OscInitTypeDef structure.
 	 */
 	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI48;
 	RCC_OscInitStruct.HSI48State = RCC_HSI48_ON;
@@ -204,7 +281,7 @@ void SystemClock_Config(void)
 	{
 		Error_Handler();
 	}
-	/** Initializes the CPU, AHB and APB busses clocks
+	/** Initializes the CPU, AHB and APB buses clocks
 	 */
 	RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
 			|RCC_CLOCKTYPE_PCLK1;
@@ -238,7 +315,8 @@ void Error_Handler(void)
 	/* USER CODE BEGIN Error_Handler_Debug */
 	/* User can add his own implementation to report the HAL error return state */
 #ifdef DEBUGLED
-	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_1, 1); // RED LED in case of error, only in debug mode
+	HAL_GPIO_WritePin(LED1_Pin, LED1_GPIO_Port, 1); // RED LED in case of error, only in debug mode
+	HAL_GPIO_WritePin(LED2_Pin, LED2_GPIO_Port, 1);
 	char fail[] = "\a\n\r##### FAILURE ######\n\r";
 	CDC_Transmit_FS(fail,sizeof(fail));
 #endif
@@ -254,7 +332,7 @@ void Error_Handler(void)
  * @retval None
  */
 void assert_failed(uint8_t *file, uint32_t line)
-{ 
+{
 	/* USER CODE BEGIN 6 */
 	/* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
@@ -262,13 +340,264 @@ void assert_failed(uint8_t *file, uint32_t line)
 }
 #endif /* USE_FULL_ASSERT */
 
-int getCommand() {
-	int i = -1 ;
-	i = memchr(incomig,'#',sizeof(incomig));
+
+// Print Help screen with all available command and their implimintation.
+void printHelp() {
+	// TODO Add Terminal dynamic title change based on GPIO input??
+	char resetScreen[] = "\ec";  // Return screen to initial state
+	//char escape[] = "\e]0;<TEL-GPIO>\x07";
+	char escape[] = "\e]0;<TEL-GPIO>\x07";
+	char printout[] = "\r\n\n################ HELP ######################### \r\n";
+
+	CDC_Transmit_FS(resetScreen, sizeof(resetScreen));
+	HAL_Delay(100);
+	CDC_Transmit_FS(escape, sizeof(escape));
+	HAL_Delay(10);
+	CDC_Transmit_FS(InitialHeader, sizeof(InitialHeader));
+	HAL_Delay(10);
+	CDC_Transmit_FS(HW_REV, sizeof(HW_REV));
+	HAL_Delay(10);
+	CDC_Transmit_FS(SW_REV,sizeof(SW_REV));
+	HAL_Delay(10);
+	CDC_Transmit_FS(printout,sizeof(printout));
+	write("# - Set GPIO to 1 or 0 : \tEXAMPLE: #12,1 - Set GPIO # 12 To HIGH \r\n");
+	write("@ - Get GPIO State: \t\tEXANPLE: @10 - Will return GPIO #10 High or Low\r\n ");
+
+}
+
+// If increase or decrease in GPIO numbers needed, Change the Error check for GPIO number max minimum
+// And switch case statement
+
+
+int set_gpio(uint8_t *set_gpioP) {
+	//	uint8_t *state;
+	uint8_t *gpio_num;
+
+	int gpio_number;
+	int state;
+
+	// - Get GPIO Number and validate
+	// - Get command state and validate
+	// - Set the correct GPIO according to command state
+
+
+	gpio_number = get_gpio(set_gpioP+1);
+
+	// Received error from get GPIO function
+	if (gpio_number == 0  ) {
+		char getGpio_error[] = "Error in getGPIO\r\n";
+		CDC_Transmit_FS(getGpio_error,sizeof(getGpio_error));
+	}
+	// Check for max minimum GPOI numbers
+	else if ((gpio_number > 20) | (gpio_number < 0) ) {
+		char getGpio_error[] = "Wrong GPIO number\r\n";
+		CDC_Transmit_FS(getGpio_error,sizeof(getGpio_error));
+	}
+
+
+	//	int actual_gpio = 0;
+
+	state = get_state(strstr(set_gpioP,","));
+
+	if ((state < 0) | (state > 1)) {
+		char getGpio_error[] = "Wrong State in set GPIO number\r\n";
+		CDC_Transmit_FS(getGpio_error,sizeof(getGpio_error));
+	}
 
 
 
-	return i;
+	//	actual_gpio = (int)(*set_gpioP+1);
+
+	// Add check for the gpio number range
+
+
+
+	switch (gpio_number)
+	{
+	case 1:
+		HAL_GPIO_WritePin(GPIO_1_GPIO_Port, GPIO_1_Pin, state);
+		break;
+	case 2:
+		HAL_GPIO_WritePin(GPIO_2_GPIO_Port, GPIO_2_Pin, state);
+		break;
+	case 3:
+		HAL_GPIO_WritePin(GPIO_3_GPIO_Port, GPIO_3_Pin, state);
+		break;
+	case 4:
+		HAL_GPIO_WritePin(GPIO_4_GPIO_Port, GPIO_4_Pin, state);
+		break;
+	case 5:
+		HAL_GPIO_WritePin(GPIO_5_GPIO_Port, GPIO_5_Pin, state);
+		break;
+	case 6:
+		HAL_GPIO_WritePin(GPIO_6_GPIO_Port, GPIO_6_Pin, state);
+		break;
+	case 7:
+		HAL_GPIO_WritePin(GPIO_7_GPIO_Port, GPIO_7_Pin, state);
+		break;
+	case 8:
+		HAL_GPIO_WritePin(GPIO_8_GPIO_Port, GPIO_8_Pin, state);
+		break;
+	case 9:
+		HAL_GPIO_WritePin(GPIO_9_GPIO_Port, GPIO_9_Pin, state);
+		break;
+	case 10:
+		HAL_GPIO_WritePin(GPIO_10_GPIO_Port, GPIO_10_Pin, state);
+		break;
+	case 11:
+		HAL_GPIO_WritePin(GPIO_11_GPIO_Port, GPIO_11_Pin, state);
+		break;
+	case 12:
+		HAL_GPIO_WritePin(GPIO_12_GPIO_Port, GPIO_12_Pin, state);
+		break;
+	case 13:
+		HAL_GPIO_WritePin(GPIO_13_GPIO_Port, GPIO_13_Pin, state);
+		break;
+	case 14:
+		HAL_GPIO_WritePin(GPIO_14_GPIO_Port, GPIO_14_Pin, state);
+		break;
+	case 15:
+		HAL_GPIO_WritePin(GPIO_15_GPIO_Port, GPIO_15_Pin, state);
+		break;
+	case 16:
+		HAL_GPIO_WritePin(GPIO_16_GPIO_Port, GPIO_16_Pin, state);
+		break;
+	case 17:
+		HAL_GPIO_WritePin(GPIO_17_GPIO_Port, GPIO_17_Pin, state);
+		break;
+	case 18:
+		HAL_GPIO_WritePin(GPIO_18_GPIO_Port, GPIO_18_Pin, state);
+		break;
+	case 19:
+		HAL_GPIO_WritePin(GPIO_19_GPIO_Port, GPIO_19_Pin, state);
+		break;
+	case 20:
+		HAL_GPIO_WritePin(GPIO_20_GPIO_Port, GPIO_20_Pin, state);
+		break;
+	} // end switch statement
+
+
+	//	if (*state < '0' | *state > '1' ) {
+	//		return 2; // Error state code (Should be 0 or 1 for High or low)
+	//	}
+
+	return gpio_number;
+}
+
+int get_gpio(uint8_t *gpioP) {
+	uint8_t *temp_i, *temp_n;
+	int  gpio_n;									// init values needed for the function
+
+	temp_i = gpioP;									// Get the first number
+	temp_n = gpioP + 1 ;							// Get the next number in memory
+
+	if ((*temp_n >= 48) & (*temp_n <= 57) ) {
+		gpio_n = ((*temp_n - 48) + ( (*temp_i - 48) * 10 ));
+
+		return gpio_n;
+	}
+	//	if (*temp_n == 44) { 							// Check for ',' in the second number
+	//		gpio_n = (int)*temp_i-48;
+	//		return gpio_n;								// Only one number, so return here
+	//	}
+
+	else {											// Calculate two dimension number
+		gpio_n = (int)*temp_i-48;
+		return gpio_n;
+	}
+
+	// Should reach this only in case of error (wrong text format entered)
+	return gpio_n;
+
+}
+
+// Return the state number as received, evaluation for correct number best be handled in the main function
+// As the state number range may change depending on the function calling
+int get_state(uint8_t *stateP) {
+	uint8_t *temp_s;
+	int state = 0;
+
+	temp_s = stateP+1;
+	state = *temp_s -48;
+
+	return state;
+}
+
+
+uint8_t get_gpio_state(uint8_t *get_gpioP) {
+	//	uint8_t *gpio_num;
+	uint8_t state = 0;
+
+	int gpio_number;
+	//	int state;
+
+	gpio_number = get_gpio(get_gpioP+1);
+
+	switch (gpio_number)
+	{
+	case 1:
+		state = HAL_GPIO_ReadPin(GPIO_1_GPIO_Port, GPIO_1_Pin);
+		break;
+	case 2:
+		state = HAL_GPIO_ReadPin(GPIO_2_GPIO_Port, GPIO_2_Pin);
+		break;
+	case 3:
+		state = HAL_GPIO_ReadPin(GPIO_3_GPIO_Port, GPIO_3_Pin);
+		break;
+	case 4:
+		state = HAL_GPIO_ReadPin(GPIO_4_GPIO_Port, GPIO_4_Pin);
+		break;
+	case 5:
+		state = HAL_GPIO_ReadPin(GPIO_5_GPIO_Port, GPIO_5_Pin);
+		break;
+	case 6:
+		state = HAL_GPIO_ReadPin(GPIO_6_GPIO_Port, GPIO_6_Pin);
+		break;
+	case 7:
+		state = HAL_GPIO_ReadPin(GPIO_7_GPIO_Port, GPIO_7_Pin);
+		break;
+	case 8:
+		state = HAL_GPIO_ReadPin(GPIO_8_GPIO_Port, GPIO_8_Pin);
+		break;
+	case 9:
+		state = HAL_GPIO_ReadPin(GPIO_9_GPIO_Port, GPIO_9_Pin);
+		break;
+	case 10:
+		state = HAL_GPIO_ReadPin(GPIO_10_GPIO_Port, GPIO_10_Pin);
+		break;
+	case 11:
+		state = HAL_GPIO_ReadPin(GPIO_11_GPIO_Port, GPIO_11_Pin);
+		break;
+	case 12:
+		state = HAL_GPIO_ReadPin(GPIO_12_GPIO_Port, GPIO_12_Pin);
+		break;
+	case 13:
+		state = HAL_GPIO_ReadPin(GPIO_13_GPIO_Port, GPIO_13_Pin);
+		break;
+	case 14:
+		state = HAL_GPIO_ReadPin(GPIO_14_GPIO_Port, GPIO_14_Pin);
+		break;
+	case 15:
+		state = HAL_GPIO_ReadPin(GPIO_15_GPIO_Port, GPIO_15_Pin);
+		break;
+	case 16:
+		state = HAL_GPIO_ReadPin(GPIO_16_GPIO_Port, GPIO_16_Pin);
+		break;
+	case 17:
+		state = HAL_GPIO_ReadPin(GPIO_17_GPIO_Port, GPIO_17_Pin);
+		break;
+	case 18:
+		state = HAL_GPIO_ReadPin(GPIO_18_GPIO_Port, GPIO_18_Pin);
+		break;
+	case 19:
+		state = HAL_GPIO_ReadPin(GPIO_19_GPIO_Port, GPIO_19_Pin);
+		break;
+	case 20:
+		state = HAL_GPIO_ReadPin(GPIO_20_GPIO_Port, GPIO_20_Pin);
+		break;
+	} // end switch statement
+
+	return state;
 }
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
