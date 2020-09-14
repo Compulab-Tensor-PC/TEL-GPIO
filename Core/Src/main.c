@@ -347,8 +347,7 @@ void printHelp() {
 	//char escape[] = "\e]0;<TEL-GPIO>\x07";
 	char escape[] = "\e]0;<TEL-GPIO>\x07";
 	char printout[] = "\r\n\n################ HELP ######################### \r\n";
-	char setGPIO[] = "# - Set GPIO to High or Low: EXAMPLE: #12,1 - Set GPIO # 12 To HIGH \r\n";
-	char getGPIO[] = "@ - Get GPIO State: EXANPLE: @10 - Will return the GPIO #10 High or Low ";
+
 	CDC_Transmit_FS(resetScreen, sizeof(resetScreen));
 	HAL_Delay(100);
 	CDC_Transmit_FS(escape, sizeof(escape));
@@ -360,10 +359,10 @@ void printHelp() {
 	CDC_Transmit_FS(SW_REV,sizeof(SW_REV));
 	HAL_Delay(10);
 	CDC_Transmit_FS(printout,sizeof(printout));
-	HAL_Delay(10);
-	CDC_Transmit_FS(setGPIO,sizeof(setGPIO));
-	HAL_Delay(10);
-	CDC_Transmit_FS(getGPIO,sizeof(getGPIO));
+	write("# - Set GPIO to 1 or 0 : \tEXAMPLE: #12,1 - Set GPIO # 12 To HIGH \r\n");
+	write("@ - Get GPIO State: \t\tEXANPLE: @10 - Will return GPIO #10 High or Low\r\n ");
+
+
 }
 
 // If increase or decrease in GPIO numbers needed, Change the Error check for GPIO number max minimum
