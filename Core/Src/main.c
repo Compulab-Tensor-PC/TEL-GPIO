@@ -40,7 +40,7 @@
 
 // HW & SW Revisions
 char HW_REV[] = "HW: V1.0.0\t";
-char SW_REV[] = "SW: V0.1.3\t";
+char SW_REV[] = "SW: V0.1.5\t";
 
 char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
 
@@ -361,7 +361,6 @@ void printHelp() {
 	CDC_Transmit_FS(printout,sizeof(printout));
 	write("# - Set GPIO to 1 or 0 : \tEXAMPLE: #12,1 - Set GPIO # 12 To HIGH \r\n");
 	write("@ - Get GPIO State: \t\tEXANPLE: @10 - Will return GPIO #10 High or Low\r\n ");
-
 
 }
 
