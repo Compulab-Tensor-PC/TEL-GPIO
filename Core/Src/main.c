@@ -535,7 +535,7 @@ int set_gpio(uint8_t *set_gpioP) {
 	//		return 2; // Error state code (Should be 0 or 1 for High or low)
 	//	}
 
-	return 0;
+	return gpio_number;
 }
 
 int get_gpio(uint8_t *gpioP) {
