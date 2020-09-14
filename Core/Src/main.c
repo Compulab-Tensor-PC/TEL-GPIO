@@ -216,27 +216,35 @@ int main(void)
 			else if (strstr(incomig,set_gpio_command) != NULL) {
 				funcReturn = set_gpio(strstr(incomig,set_gpio_command));
 
-				char test[2];
-				itoa (funcReturn,test,10); // Convert from int to char
+				char setGPIO_string[2];
+				itoa (funcReturn,setGPIO_string,10); // Convert from int to char
 
 				char setGPIO[20] = "Set GPIO #:   \r\n";
 
-				setGPIO[12] =  test[0]; // Place in the correct array location
-				setGPIO[13] =  test[1];
-//				strstr(setGPIO,funcReturn);
+				setGPIO[12] =  setGPIO_string[0]; // Place in the correct array location
+				setGPIO[13] =  setGPIO_string[1];
+				//				strstr(setGPIO,funcReturn);
 
 				write(setGPIO);			// Print
 
-//				if (funcReturn == 2) {
-//					char error_02[] = "Wrong Value in setGPIO command state value should be 0 or 1\r\n";
-//					CDC_Transmit_FS(error_02,sizeof(error_02));
-//				}
+			}
 
-//				else {
-//
-//				write("Pressed Set GPIO\r\n");
-//				HAL_Delay(10);
-//				}
+			else if ((strstr(incomig,get_gpio_command) != NULL)) {
+
+				char *test;
+				char getGPIO_string[2];
+
+				funcReturn = get_gpio_state(strstr(incomig,get_gpio_command));
+
+				itoa (funcReturn,getGPIO_string,10); // Convert from int to char
+				char getGPIO[20] = "get GPIO #:   \r\n";
+
+				getGPIO[12] =  getGPIO_string[0]; // Place in the correct array location
+				getGPIO[13] =  getGPIO_string[1];
+				//				strstr(setGPIO,funcReturn);
+
+				write(getGPIO);
+
 			}
 
 			memset(incomig,NULL,sizeof(incomig));	// set the incoming array to zero
@@ -575,7 +583,7 @@ int get_gpio(uint8_t *gpioP) {
 
 }
 
-// Return the state number as recived, evaluation for correct number best be handled in the main function
+// Return the state number as received, evaluation for correct number best be handled in the main function
 // As the state number range may change depending on the function calling
 int get_state(uint8_t *stateP) {
 	uint8_t *temp_s;
