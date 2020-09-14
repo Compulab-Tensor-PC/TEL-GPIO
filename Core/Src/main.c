@@ -190,6 +190,7 @@ int main(void)
 	// TODO Add EEPROM read function to read GPIO old GPIO values
 	// TODO Set Initial GPIO Value (From EEPROM or default?)
 	// TODO add array with error codes that will check user input and issue correct error,
+	// TODO add some memory location to store all device constants
 
 
 	/* USER CODE END 2 */
