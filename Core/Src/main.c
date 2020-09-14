@@ -189,6 +189,7 @@ int main(void)
 	//
 	// TODO Add EEPROM read function to read GPIO old GPIO values
 	// TODO Set Initial GPIO Value (From EEPROM or default?)
+	// TODO add array with error codes that will check user input and issue correct error,
 
 
 	/* USER CODE END 2 */
@@ -208,9 +209,7 @@ int main(void)
 			// Check if help command recived and print help screen if so.
 			if (strstr(incomig,help_command) != NULL) {
 				printHelp();
-			}
-
-
+			} // Close if for print help function
 
 			// Check for set GPIO command
 			else if (strstr(incomig,set_gpio_command) != NULL) {
@@ -227,8 +226,10 @@ int main(void)
 
 				write(setGPIO);			// Print
 
-			}
+			} // Close if for setGPIO command check
 
+			// Get GPIO 1,0 - Note that GPIO needed to be configured to input for correct result.
+			// Otherwise the result will be what programmed in setGPIO
 			else if ((strstr(incomig,get_gpio_command) != NULL)) {
 
 				char *test;
@@ -245,84 +246,12 @@ int main(void)
 
 				write(getGPIO);
 
-			}
+			} // Close if for getGPIO command check
 
 			memset(incomig,NULL,sizeof(incomig));	// set the incoming array to zero
 		}
-		//
-		//			else if ((strstr(incomig,get_gpio_command) != NULL)) {
-		//
-		//				char *test;
-		////				uint8_t test2;
-		////				test = strstr(incomig,get_gpio_command);
-		////				test2 =  (char)get_gpio_state(test);
-		//
-		//				test = get_gpio_state(strstr(incomig,get_gpio_command));
-		//
-		////				funcReturn = get_gpio_state(strstr(incomig,get_gpio_command));
-		//				char setGPIO[20] = "\nGPIO Status:\t";
-		////				setGPIO[14] = test2;
-		////				strcat(setGPIO,test2);
-		//				CDC_Transmit_FS(setGPIO,sizeof(setGPIO));
-		//				HAL_Delay(10);
-		//				CDC_Transmit_FS(test,sizeof(setGPIO));
-		//				HAL_Delay(10);
-		//			}
-		//
-		//
-		//
-		//
-		//			//			CDC_Transmit_FS(incomig,sizeof(incomig));
-		//
-		//
-		//
-		//			//			char erazeBuffer[] = "\e[<128>M";
-		//			//			CDC_Transmit_FS(resetScreen,sizeof(resetScreen));
-		//			//			HAL_Delay(10);
-		//			//			CDC_Transmit_FS(erazeBuffer,sizeof(erazeBuffer));
-		//
-		//			funcReturn = 0;
-		//			memset(incomig,0,sizeof(incomig));					// Initialize to zero incoming array
-		//			CDC_Transmit_FS(newLine,sizeof(newLine));
-		//							HAL_Delay(10);
-		//
-		//		}
-		//		//		char test1[] = "\e]0;<1,1,1,0>\x07";
-		//		//		CDC_Transmit_FS(test1,sizeof(test1));
-		//		//		HAL_Delay(100);
-		//		//		char test2[] = "\e]0;<1,0,0,0>\x07";
-		//		//		CDC_Transmit_FS(test2,sizeof(test2));
-		//
-		//
-		//		//		HAL_Delay(1020);
-		//		if (return_Command == 1) {
-		//#ifdef DEBUGLED
-		//			//			HAL_GPIO_TogglePin(GPIOB, LED2_Pin);					// Toggle Blue LED for debugging
-		//#endif //end if debug led
-		//
-		//			//			char Entered_Command[] = "\033[HCommand: \r\n";
-		//			char Entered_Command[] = "Command: \r\n";
-		//
-		//
-		//
-		//
-		//			//			memset(incomig,NULL,sizeof(incomig));
-		//			//			char *ret;
-		//
-		//			//			ret = strchr(incomig,'#');
-		//			// Initialize incoming array
-		//			//			if (ret >0 ) {
-		//			//				HAL_GPIO_TogglePin(GPIOB, LED1_Pin);
-		//			//				CDC_Transmit_FS(*ret,1);
-		//
-		//			//			}
-		//
-		//
-		//
-		//			// TODO add parser for the incoming data to find the needed commands.
-		//		} // close if for Check return string
-		//
-		//
+
+
 		//		/* USER CODE END WHILE */
 		//
 		//		/* USER CODE BEGIN 3 */
