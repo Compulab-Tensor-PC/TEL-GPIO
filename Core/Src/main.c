@@ -178,9 +178,11 @@ int main(void)
 	CDC_Transmit_FS(newLine, sizeof(newLine));				// Transmit new line
 
 	// Command defines
-	char help_command[] 			= "-H";
-	char set_gpio_command[]			= "#";
-	char get_gpio_command[]			= "@";
+	char help_command[] 			= "-H";					// Print Help screen Command
+	char set_gpio_command[]			= "#";					// Set GPIO Output direction
+	char get_gpio_command[]			= "@";					// Get GPIO direction
+	char set_io_command[]			= "&";					// Set GPIO Input or Output direction
+
 
 	//	char testFailure[] = "\e[71;\"\"P\n\r##### FAILURE ######\n\r";
 	//	char sendASK[]  = "LEDT\r\n";
@@ -233,7 +235,7 @@ int main(void)
 			// Otherwise the result will be what programmed in setGPIO
 			else if ((strstr(incomig,get_gpio_command) != NULL)) {
 
-				char *test;
+				//				char *test;
 				char getGPIO_string[2];
 
 				funcReturn = get_gpio_state(strstr(incomig,get_gpio_command));
@@ -248,6 +250,19 @@ int main(void)
 				write(getGPIO);
 
 			} // Close if for getGPIO command check
+
+			// set_io_command
+			else if ((strstr(incomig,set_io_command) != NULL)) {
+				write("Set IO direction\r\n");
+
+				char getGPIO_string[2];
+
+				funcReturn = get_gpio_state(strstr(incomig,get_gpio_command));
+				char getGPIOIO[20] = "set GPIO #:   \r\n";
+				getGPIOIO[12] =  getGPIO_string[0]; // Place in the correct array location
+				getGPIOIO[13] =  getGPIO_string[1];
+				write(getGPIOIO);
+			}
 
 			memset(incomig,NULL,sizeof(incomig));	// set the incoming array to zero
 		}
