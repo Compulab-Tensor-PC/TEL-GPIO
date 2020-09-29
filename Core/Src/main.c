@@ -40,7 +40,7 @@
 
 // HW & SW Revisions
 char HW_REV[] = "HW: V1.0.0\t";
-char SW_REV[] = "SW: V0.1.5\t";
+char SW_REV[] = "SW: V0.1.6\t";
 
 char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
 
@@ -179,9 +179,16 @@ int main(void)
 
 	// Command defines
 	char help_command[] 			= "-H";					// Print Help screen Command
-	char set_gpio_command[]			= "#";					// Set GPIO Output direction
-	char get_gpio_command[]			= "@";					// Get GPIO direction
-	char set_io_command[]			= "&";					// Set GPIO Input or Output direction
+//	char set_output_dir_cmd[]			= "#";					// Set GPIO Output direction
+//	char get_input_cmd[]			= "@";					// Get GPIO direction
+//	char set_output_cmd[]			= "&";					// Set GPIO Input or Output direction
+
+	char set_output_cmd[]			= "&";					// Set GPIO to Output Command
+	char set_input_cmd[]			= "%";					// Set GPIO to Input Command
+	char set_output_dir_cmd[]		= "#";					// Set GPIO Output direction
+	char get_input_cmd[]			= "@";					// Get GPIO Input direction
+
+
 
 
 	//	char testFailure[] = "\e[71;\"\"P\n\r##### FAILURE ######\n\r";
@@ -215,8 +222,8 @@ int main(void)
 			} // Close if for print help function
 
 			// Check for set GPIO command
-			else if (strstr(incomig,set_gpio_command) != NULL) {
-				funcReturn = set_gpio(strstr(incomig,set_gpio_command));
+			else if (strstr(incomig,set_output_dir_cmd) != NULL) {
+				funcReturn = set_gpio(strstr(incomig,set_output_dir_cmd));
 
 				char setGPIO_string[2];
 				itoa (funcReturn,setGPIO_string,10); // Convert from int to char
@@ -233,12 +240,12 @@ int main(void)
 
 			// Get GPIO 1,0 - Note that GPIO needed to be configured to input for correct result.
 			// Otherwise the result will be what programmed in setGPIO
-			else if ((strstr(incomig,get_gpio_command) != NULL)) {
+			else if ((strstr(incomig,get_input_cmd) != NULL)) {
 
 				//				char *test;
 				char getGPIO_string[2];
 
-				funcReturn = get_gpio_state(strstr(incomig,get_gpio_command));
+				funcReturn = get_gpio_state(strstr(incomig,get_input_cmd));
 
 				itoa (funcReturn,getGPIO_string,10); // Convert from int to char
 				char getGPIO[20] = "get GPIO #:   \r\n";
@@ -251,13 +258,13 @@ int main(void)
 
 			} // Close if for getGPIO command check
 
-			// set_io_command
-			else if ((strstr(incomig,set_io_command) != NULL)) {
+			// set_output_cmd
+			else if ((strstr(incomig,set_output_cmd) != NULL)) {
 				write("Set IO direction\r\n");
 
 				char getGPIO_string[2];
 
-				funcReturn = get_gpio_state(strstr(incomig,get_gpio_command));
+				funcReturn = get_gpio_state(strstr(incomig,get_input_cmd));
 				char getGPIOIO[20] = "set GPIO #:   \r\n";
 				getGPIOIO[12] =  getGPIO_string[0]; // Place in the correct array location
 				getGPIOIO[13] =  getGPIO_string[1];
@@ -375,8 +382,11 @@ void printHelp() {
 	CDC_Transmit_FS(SW_REV,sizeof(SW_REV));
 	HAL_Delay(10);
 	CDC_Transmit_FS(printout,sizeof(printout));
-	write("# - Set GPIO to 1 or 0 : \tEXAMPLE: #12,1 - Set GPIO # 12 To HIGH \r\n");
-	write("@ - Get GPIO State: \t\tEXANPLE: @10 - Will return GPIO #10 High or Low\r\n ");
+	write("& - Set GPIO As Output Pin: \t\tEXAMPLE: &12 - Set GPIO # 12 To Output \r\n");
+	write("% - Set GPIO As Input Pin:  \t\tEXANPLE: %10 - Will Set GPIO # 10 to Input\r\n ");
+	write("# - Set GPIO Output Direction on Pin: \tEXAMPLE: #12,1 - Set GPIO # 12 To HIGH \r\n");
+	write("@ - Get GPIO Input Value \t\tEXANPLE: @10 - Will return GPIO #10 High or Low\r\n ");
+
 
 }
 
