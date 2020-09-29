@@ -209,9 +209,6 @@ int main(void)
 	while (1)
 	{
 
-
-
-
 		//		// Check each time the array for return string
 		//		// When found start checking the array for meaningful commands
 		if (strstr(incomig,"\r") != NULL ) {
@@ -221,7 +218,8 @@ int main(void)
 				printHelp();
 			} // Close if for print help function
 
-			// Check for set GPIO command
+			// Check for set GPIO To Output
+			// ### Set GPIO OUTPUT DIRECTION ###
 			else if (strstr(incomig,set_output_dir_cmd) != NULL) {
 				funcReturn = set_gpio(strstr(incomig,set_output_dir_cmd));
 
@@ -236,12 +234,13 @@ int main(void)
 
 				write(setGPIO);			// Print
 
-			} // Close if for setGPIO command check
+			} // Close if for Set GPIO to Output
+
 
 			// Get GPIO 1,0 - Note that GPIO needed to be configured to input for correct result.
 			// Otherwise the result will be what programmed in setGPIO
+			// ### GET GPIO INPUT STATE ###
 			else if ((strstr(incomig,get_input_cmd) != NULL)) {
-
 				//				char *test;
 				char getGPIO_string[2];
 
@@ -256,11 +255,12 @@ int main(void)
 
 				write(getGPIO);
 
-			} // Close if for getGPIO command check
+			} // Close if for getGPIO command
 
 			// set_output_cmd
+			// ### SET GPIO TO OUTPUT ###
 			else if ((strstr(incomig,set_output_cmd) != NULL)) {
-				write("Set IO direction\r\n");
+				write("Set GPIO To OUTPUT\r\n");
 
 				char getGPIO_string[2];
 
@@ -269,8 +269,14 @@ int main(void)
 				getGPIOIO[12] =  getGPIO_string[0]; // Place in the correct array location
 				getGPIOIO[13] =  getGPIO_string[1];
 				write(getGPIOIO);
-			}
+			}	// Close set GPIO to OUTPUT
 
+			// Set GPIO to Input
+			// ### SET GPIO TO INPUT ###
+			else if ((strstr(incomig,set_input_cmd) != NULL)) {
+				write("Set GPIO to Input\r\n");
+
+			} // Close set GPIO to Input
 			memset(incomig,NULL,sizeof(incomig));	// set the incoming array to zero
 		}
 
