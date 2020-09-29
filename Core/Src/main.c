@@ -46,7 +46,9 @@ char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
 
 void printHelp();
 int set_gpio(uint8_t*);
+int set_gpio_output(uint8_t*);
 uint8_t get_gpio_state(uint8_t*);
+int testGPIO(int);
 
 int getGPIO(uint8_t*);
 
@@ -179,9 +181,9 @@ int main(void)
 
 	// Command defines
 	char help_command[] 			= "-H";					// Print Help screen Command
-//	char set_output_dir_cmd[]			= "#";					// Set GPIO Output direction
-//	char get_input_cmd[]			= "@";					// Get GPIO direction
-//	char set_output_cmd[]			= "&";					// Set GPIO Input or Output direction
+	//	char set_output_dir_cmd[]			= "#";					// Set GPIO Output direction
+	//	char get_input_cmd[]			= "@";					// Get GPIO direction
+	//	char set_output_cmd[]			= "&";					// Set GPIO Input or Output direction
 
 	char set_output_cmd[]			= "&";					// Set GPIO to Output Command
 	char set_input_cmd[]			= "%";					// Set GPIO to Input Command
@@ -260,11 +262,16 @@ int main(void)
 			// set_output_cmd
 			// ### SET GPIO TO OUTPUT ###
 			else if ((strstr(incomig,set_output_cmd) != NULL)) {
-				write("Set GPIO To OUTPUT\r\n");
+
+
+				funcReturn = set_gpio_output(strstr(incomig,set_output_cmd));
+
 
 				char getGPIO_string[2];
 
-				funcReturn = get_gpio_state(strstr(incomig,get_input_cmd));
+				//				funcReturn = set_gpio_output(strstr(incomig,set_output_cmd));
+
+
 				char getGPIOIO[20] = "set GPIO #:   \r\n";
 				getGPIOIO[12] =  getGPIO_string[0]; // Place in the correct array location
 				getGPIOIO[13] =  getGPIO_string[1];
@@ -278,6 +285,7 @@ int main(void)
 
 			} // Close set GPIO to Input
 			memset(incomig,NULL,sizeof(incomig));	// set the incoming array to zero
+			funcReturn = 0;
 		}
 
 
@@ -398,8 +406,6 @@ void printHelp() {
 
 // If increase or decrease in GPIO numbers needed, Change the Error check for GPIO number max minimum
 // And switch case statement
-
-
 int set_gpio(uint8_t *set_gpioP) {
 	//	uint8_t *state;
 	uint8_t *gpio_num;
@@ -515,6 +521,8 @@ int set_gpio(uint8_t *set_gpioP) {
 	return gpio_number;
 }
 
+
+// parse incoming buffer and  return the int value after the given pointer (will not check nothing here)
 int get_gpio(uint8_t *gpioP) {
 	uint8_t *temp_i, *temp_n;
 	int  gpio_n;									// init values needed for the function
@@ -630,5 +638,154 @@ uint8_t get_gpio_state(uint8_t *get_gpioP) {
 
 	return state;
 }
+
+/**
+ * @brief  Invoked after parsing incoming data buffer for set GPIO to OUTPUT command
+ *
+ *
+ *        @note
+ *        This function should return GPIO number that is changed to OUTPUT state
+ *        and return 0 if something went wrong:
+ *        - Wrong GPIO number (above or below limit)
+ *        - Wrong string format (char instead of GPIO number after command)
+ *        Correct or incorrect GPIO tested by testGPIO function.
+ *
+ * @param  set_gpio_out: Pointer to parsed command char
+ * @retval Return the changed to OUTPUT GPIO, will return 0 on ERROR.
+ */
+int set_gpio_output(uint8_t *set_gpio_out) {
+
+	int gpio_number;
+	//#include "gpio.h"
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+	// Mode, SPEED, PuulUP will be configured here.
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+
+	gpio_number = get_gpio(set_gpio_out+1);
+
+	if (testGPIO(gpio_number) == 0) {
+		write("set GPIO number OK\r\n");
+		switch (gpio_number)
+
+		{
+		case 1:
+			GPIO_InitStruct.Pin = GPIO_1_Pin;
+			HAL_GPIO_Init(GPIO_1_GPIO_Port, &GPIO_InitStruct);
+			break;
+		case 2:
+			GPIO_InitStruct.Pin = GPIO_2_Pin;
+			HAL_GPIO_Init(GPIO_2_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 3:
+			GPIO_InitStruct.Pin = GPIO_3_Pin;
+			HAL_GPIO_Init(GPIO_3_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 4:
+			GPIO_InitStruct.Pin = GPIO_4_Pin;
+			HAL_GPIO_Init(GPIO_4_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 5:
+			GPIO_InitStruct.Pin = GPIO_5_Pin;
+			HAL_GPIO_Init(GPIO_5_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 6:
+			GPIO_InitStruct.Pin = GPIO_6_Pin;
+			HAL_GPIO_Init(GPIO_6_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 7:
+			GPIO_InitStruct.Pin = GPIO_7_Pin;
+			HAL_GPIO_Init(GPIO_7_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 8:
+			GPIO_InitStruct.Pin = GPIO_8_Pin;
+			HAL_GPIO_Init(GPIO_8_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 9:
+			GPIO_InitStruct.Pin = GPIO_9_Pin;
+			HAL_GPIO_Init(GPIO_9_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 10:
+			GPIO_InitStruct.Pin = GPIO_10_Pin;
+			HAL_GPIO_Init(GPIO_10_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 11:
+			GPIO_InitStruct.Pin = GPIO_11_Pin;
+			HAL_GPIO_Init(GPIO_11_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 12:
+			GPIO_InitStruct.Pin = GPIO_12_Pin;
+			HAL_GPIO_Init(GPIO_12_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 13:
+			GPIO_InitStruct.Pin = GPIO_13_Pin;
+			HAL_GPIO_Init(GPIO_13_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 14:
+			GPIO_InitStruct.Pin = GPIO_14_Pin;
+			HAL_GPIO_Init(GPIO_14_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 15:
+			GPIO_InitStruct.Pin = GPIO_15_Pin;
+			HAL_GPIO_Init(GPIO_15_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 16:
+			GPIO_InitStruct.Pin = GPIO_16_Pin;
+			HAL_GPIO_Init(GPIO_16_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 17:
+			GPIO_InitStruct.Pin = GPIO_17_Pin;
+			HAL_GPIO_Init(GPIO_17_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 18:
+			GPIO_InitStruct.Pin = GPIO_18_Pin;
+			HAL_GPIO_Init(GPIO_18_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 19:
+			GPIO_InitStruct.Pin = GPIO_19_Pin;
+			HAL_GPIO_Init(GPIO_19_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 20:
+			GPIO_InitStruct.Pin = GPIO_20_Pin;
+			HAL_GPIO_Init(GPIO_20_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		}
+	}
+	else {
+		write("Set GPIO Number wrong\r\n ");
+	}
+	// TODO Add function that will check GPIO number
+
+
+	return gpio_number;
+
+}
+
+
+// Perform test on the received GPIO, for now only the max and min GPIO number
+/**
+ * @brief  Receive and test GPIO number
+ *
+ *
+ *        @note
+ *        This function test's GPIO number, for now (09/20) only maximum
+ *        and minimum number range, later maybe some conditional test will be needed.
+ *        return 0 on OK and 1 on error
+ *
+ * @param  GPIO number to be tested
+ * @retval Test result 0 on OK evrething else error.
+ */
+int testGPIO(int GPIO_NUM) {
+
+	// Check if GPIO is in correct range
+	if ((GPIO_NUM > 0) & (GPIO_NUM <= 20)) {
+		return 0;
+	}
+	else
+		return 1;
+}
+
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
