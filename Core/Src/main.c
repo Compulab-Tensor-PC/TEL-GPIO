@@ -228,6 +228,8 @@ int main(void)
 			else if (strstr(incomig,set_output_dir_cmd) != NULL) {
 				funcReturn = set_gpio(strstr(incomig,set_output_dir_cmd));
 
+				if (funcReturn != 0) {
+
 				char setGPIO_string[2];
 				itoa (funcReturn,setGPIO_string,10); // Convert from int to char
 
@@ -238,6 +240,8 @@ int main(void)
 				//				strstr(setGPIO,funcReturn);
 
 				write(setGPIO);			// Print
+				}
+
 
 			} // Close if for Set GPIO to Output
 
@@ -284,7 +288,7 @@ int main(void)
 			// Set GPIO to Input
 			// ### SET GPIO TO INPUT ###
 			else if ((strstr(incomig,set_input_cmd) != NULL)) {
-//				write("Set GPIO to Input\r\n");
+				//				write("Set GPIO to Input\r\n");
 
 				funcReturn = set_gpio_input(strstr(incomig,set_input_cmd));
 
@@ -434,105 +438,105 @@ int set_gpio(uint8_t *set_gpioP) {
 
 	gpio_number = get_gpio(set_gpioP+1);
 
-	// Received error from get GPIO function
-	if (gpio_number == 0  ) {
-		char getGpio_error[] = "Error in getGPIO\r\n";
-		CDC_Transmit_FS(getGpio_error,sizeof(getGpio_error));
-	}
-	// Check for max minimum GPOI numbers
-	else if ((gpio_number > 20) | (gpio_number < 0) ) {
-		char getGpio_error[] = "Wrong GPIO number\r\n";
-		CDC_Transmit_FS(getGpio_error,sizeof(getGpio_error));
-	}
+	// TEST GPIO LIMIT
+	if (testGPIO(gpio_number) == 0) {
+		state = get_state(strstr(set_gpioP,","));
+
+		if ((state < 0) | (state > 1)) {
+			write("Wrong state in set OUTPUT Direction/r/n");
+			return 0;
+		}
+
+
+		switch (gpio_number)
+		{
+		case 1:
+			HAL_GPIO_WritePin(GPIO_1_GPIO_Port, GPIO_1_Pin, state);
+			break;
+		case 2:
+			HAL_GPIO_WritePin(GPIO_2_GPIO_Port, GPIO_2_Pin, state);
+			break;
+		case 3:
+			HAL_GPIO_WritePin(GPIO_3_GPIO_Port, GPIO_3_Pin, state);
+			break;
+		case 4:
+			HAL_GPIO_WritePin(GPIO_4_GPIO_Port, GPIO_4_Pin, state);
+			break;
+		case 5:
+			HAL_GPIO_WritePin(GPIO_5_GPIO_Port, GPIO_5_Pin, state);
+			break;
+		case 6:
+			HAL_GPIO_WritePin(GPIO_6_GPIO_Port, GPIO_6_Pin, state);
+			break;
+		case 7:
+			HAL_GPIO_WritePin(GPIO_7_GPIO_Port, GPIO_7_Pin, state);
+			break;
+		case 8:
+			HAL_GPIO_WritePin(GPIO_8_GPIO_Port, GPIO_8_Pin, state);
+			break;
+		case 9:
+			HAL_GPIO_WritePin(GPIO_9_GPIO_Port, GPIO_9_Pin, state);
+			break;
+		case 10:
+			HAL_GPIO_WritePin(GPIO_10_GPIO_Port, GPIO_10_Pin, state);
+			break;
+		case 11:
+			HAL_GPIO_WritePin(GPIO_11_GPIO_Port, GPIO_11_Pin, state);
+			break;
+		case 12:
+			HAL_GPIO_WritePin(GPIO_12_GPIO_Port, GPIO_12_Pin, state);
+			break;
+		case 13:
+			HAL_GPIO_WritePin(GPIO_13_GPIO_Port, GPIO_13_Pin, state);
+			break;
+		case 14:
+			HAL_GPIO_WritePin(GPIO_14_GPIO_Port, GPIO_14_Pin, state);
+			break;
+		case 15:
+			HAL_GPIO_WritePin(GPIO_15_GPIO_Port, GPIO_15_Pin, state);
+			break;
+		case 16:
+			HAL_GPIO_WritePin(GPIO_16_GPIO_Port, GPIO_16_Pin, state);
+			break;
+		case 17:
+			HAL_GPIO_WritePin(GPIO_17_GPIO_Port, GPIO_17_Pin, state);
+			break;
+		case 18:
+			HAL_GPIO_WritePin(GPIO_18_GPIO_Port, GPIO_18_Pin, state);
+			break;
+		case 19:
+			HAL_GPIO_WritePin(GPIO_19_GPIO_Port, GPIO_19_Pin, state);
+			break;
+		case 20:
+			HAL_GPIO_WritePin(GPIO_20_GPIO_Port, GPIO_20_Pin, state);
+			break;
+		} // end switch statement
+
+		return gpio_number;
+
+	}	// Close If Check for GPIO limit
+
+	else {
+		write("GPIO Number out of limits\r\n");
+		return 0;
+	} // Close else for GPIO limit
+
+
+	//	// Received error from get GPIO function
+	//	if (gpio_number == 0  ) {
+	//		char getGpio_error[] = "Error in getGPIO\r\n";
+	//		CDC_Transmit_FS(getGpio_error,sizeof(getGpio_error));
+	//	}
+	//	// Check for max minimum GPOI numbers
+	//	else if ((gpio_number > 20) | (gpio_number < 0) ) {
+	//		char getGpio_error[] = "Wrong GPIO number\r\n";
+	//		CDC_Transmit_FS(getGpio_error,sizeof(getGpio_error));
+	//	}
 
 
 	//	int actual_gpio = 0;
 
-	state = get_state(strstr(set_gpioP,","));
 
-	if ((state < 0) | (state > 1)) {
-		char getGpio_error[] = "Wrong State in set GPIO number\r\n";
-		CDC_Transmit_FS(getGpio_error,sizeof(getGpio_error));
-	}
-
-
-
-	//	actual_gpio = (int)(*set_gpioP+1);
-
-	// Add check for the gpio number range
-
-
-
-	switch (gpio_number)
-	{
-	case 1:
-		HAL_GPIO_WritePin(GPIO_1_GPIO_Port, GPIO_1_Pin, state);
-		break;
-	case 2:
-		HAL_GPIO_WritePin(GPIO_2_GPIO_Port, GPIO_2_Pin, state);
-		break;
-	case 3:
-		HAL_GPIO_WritePin(GPIO_3_GPIO_Port, GPIO_3_Pin, state);
-		break;
-	case 4:
-		HAL_GPIO_WritePin(GPIO_4_GPIO_Port, GPIO_4_Pin, state);
-		break;
-	case 5:
-		HAL_GPIO_WritePin(GPIO_5_GPIO_Port, GPIO_5_Pin, state);
-		break;
-	case 6:
-		HAL_GPIO_WritePin(GPIO_6_GPIO_Port, GPIO_6_Pin, state);
-		break;
-	case 7:
-		HAL_GPIO_WritePin(GPIO_7_GPIO_Port, GPIO_7_Pin, state);
-		break;
-	case 8:
-		HAL_GPIO_WritePin(GPIO_8_GPIO_Port, GPIO_8_Pin, state);
-		break;
-	case 9:
-		HAL_GPIO_WritePin(GPIO_9_GPIO_Port, GPIO_9_Pin, state);
-		break;
-	case 10:
-		HAL_GPIO_WritePin(GPIO_10_GPIO_Port, GPIO_10_Pin, state);
-		break;
-	case 11:
-		HAL_GPIO_WritePin(GPIO_11_GPIO_Port, GPIO_11_Pin, state);
-		break;
-	case 12:
-		HAL_GPIO_WritePin(GPIO_12_GPIO_Port, GPIO_12_Pin, state);
-		break;
-	case 13:
-		HAL_GPIO_WritePin(GPIO_13_GPIO_Port, GPIO_13_Pin, state);
-		break;
-	case 14:
-		HAL_GPIO_WritePin(GPIO_14_GPIO_Port, GPIO_14_Pin, state);
-		break;
-	case 15:
-		HAL_GPIO_WritePin(GPIO_15_GPIO_Port, GPIO_15_Pin, state);
-		break;
-	case 16:
-		HAL_GPIO_WritePin(GPIO_16_GPIO_Port, GPIO_16_Pin, state);
-		break;
-	case 17:
-		HAL_GPIO_WritePin(GPIO_17_GPIO_Port, GPIO_17_Pin, state);
-		break;
-	case 18:
-		HAL_GPIO_WritePin(GPIO_18_GPIO_Port, GPIO_18_Pin, state);
-		break;
-	case 19:
-		HAL_GPIO_WritePin(GPIO_19_GPIO_Port, GPIO_19_Pin, state);
-		break;
-	case 20:
-		HAL_GPIO_WritePin(GPIO_20_GPIO_Port, GPIO_20_Pin, state);
-		break;
-	} // end switch statement
-
-
-	//	if (*state < '0' | *state > '1' ) {
-	//		return 2; // Error state code (Should be 0 or 1 for High or low)
-	//	}
-
-	return gpio_number;
 }
 
 
@@ -675,7 +679,7 @@ int set_gpio_output(uint8_t *set_gpio_out) {
 
 	// Mode, SPEED, PuulUP will be configured here.
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-//	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+	//	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 
@@ -802,7 +806,7 @@ int set_gpio_input(uint8_t *set_gpio_in) {
 	gpio_number = get_gpio(set_gpio_in+1);
 
 	if (testGPIO(gpio_number) == 0) {
-//		write("set GPIO input OK\r\n");
+		//		write("set GPIO input OK\r\n");
 		switch (gpio_number)
 
 		{
