@@ -284,7 +284,7 @@ int main(void)
 			// Set GPIO to Input
 			// ### SET GPIO TO INPUT ###
 			else if ((strstr(incomig,set_input_cmd) != NULL)) {
-				write("Set GPIO to Input\r\n");
+//				write("Set GPIO to Input\r\n");
 
 				funcReturn = set_gpio_input(strstr(incomig,set_input_cmd));
 
@@ -675,13 +675,13 @@ int set_gpio_output(uint8_t *set_gpio_out) {
 
 	// Mode, SPEED, PuulUP will be configured here.
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+//	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 
 	gpio_number = get_gpio(set_gpio_out+1);
 
 	if (testGPIO(gpio_number) == 0) {
-		write("set GPIO number OK\r\n");
 		switch (gpio_number)
 
 		{
@@ -770,7 +770,6 @@ int set_gpio_output(uint8_t *set_gpio_out) {
 	else {
 		write("Set GPIO Number wrong\r\n ");
 	}
-	// TODO Add function that will check GPIO number
 	return gpio_number;
 }
 
@@ -803,7 +802,7 @@ int set_gpio_input(uint8_t *set_gpio_in) {
 	gpio_number = get_gpio(set_gpio_in+1);
 
 	if (testGPIO(gpio_number) == 0) {
-		write("set GPIO input OK\r\n");
+//		write("set GPIO input OK\r\n");
 		switch (gpio_number)
 
 		{
@@ -892,7 +891,6 @@ int set_gpio_input(uint8_t *set_gpio_in) {
 	else {
 		write("Set GPIO Input Number wrong\r\n ");
 	}
-	// TODO Add function that will check GPIO number
 	return gpio_number;
 }
 
