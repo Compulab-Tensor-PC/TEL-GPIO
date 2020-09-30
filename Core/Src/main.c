@@ -44,13 +44,14 @@ char SW_REV[] = "SW: V0.2.0\t";
 
 char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
 
-int GPIO_DIR[20] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+int GPIO_DIR[MAX_GPIO];
 
 void printHelp();
 int set_gpio(uint8_t*);
 int set_gpio_output(uint8_t*);
 int set_gpio_input(uint8_t *);
 
+void updateGlobalDir();
 uint8_t get_gpio_state(uint8_t*);
 
 int testGPIO(int);
@@ -220,7 +221,8 @@ int main(void)
 		//		// When found start checking the array for meaningful commands
 		if (strstr(incomig,"\r") != NULL ) {
 			write("\r\n");		// If pressed Enter Send new line to terminal
-			// Check if help command recived and print help screen if so.
+
+			// ### HELP SCREEN ###
 			if (strstr(incomig,help_command) != NULL) {
 				printHelp();
 			} // Close if for print help function
@@ -424,6 +426,7 @@ void printHelp() {
 	write("% - Set GPIO As Input Pin:  \t\tEXANPLE: %10 - Will Set GPIO # 10 to Input\r\n ");
 	write("# - Set GPIO Output Direction on Pin: \tEXAMPLE: #12,1 - Set GPIO # 12 To HIGH \r\n");
 	write("@ - Get GPIO Input Value \t\tEXANPLE: @10 - Will return GPIO #10 High or Low\r\n ");
+	updateGlobalDir();
 
 
 }
@@ -932,12 +935,64 @@ int set_gpio_input(uint8_t *set_gpio_in) {
 int testGPIO(int GPIO_NUM) {
 
 	// Check if GPIO is in correct range
-	if ((GPIO_NUM > 0) & (GPIO_NUM <= 20)) {
+	if ((GPIO_NUM > 0) & (GPIO_NUM <= MAX_GPIO)) {
 		return 0;
 	}
 	else
 		return 1;
 }
 
+void updateGlobalDir() {
+
+	char GPIO_INPUT_PRINT[50] = "GPIO Input: ";
+	char getGPIO_string[2];
+
+
+	GPIO_DIR[0] = HAL_GPIO_ReadPin(GPIO_1_GPIO_Port, GPIO_1_Pin);
+	GPIO_DIR[1] = HAL_GPIO_ReadPin(GPIO_2_GPIO_Port, GPIO_2_Pin);
+	GPIO_DIR[2] = HAL_GPIO_ReadPin(GPIO_3_GPIO_Port, GPIO_3_Pin);
+	GPIO_DIR[3] = HAL_GPIO_ReadPin(GPIO_4_GPIO_Port, GPIO_4_Pin);
+	GPIO_DIR[4] = HAL_GPIO_ReadPin(GPIO_5_GPIO_Port, GPIO_5_Pin);
+	GPIO_DIR[5] = HAL_GPIO_ReadPin(GPIO_6_GPIO_Port, GPIO_6_Pin);
+	GPIO_DIR[6] = HAL_GPIO_ReadPin(GPIO_7_GPIO_Port, GPIO_7_Pin);
+	GPIO_DIR[7] = HAL_GPIO_ReadPin(GPIO_8_GPIO_Port, GPIO_8_Pin);
+	GPIO_DIR[8] = HAL_GPIO_ReadPin(GPIO_9_GPIO_Port, GPIO_9_Pin);
+	GPIO_DIR[9] = HAL_GPIO_ReadPin(GPIO_10_GPIO_Port, GPIO_10_Pin);
+	GPIO_DIR[10] = HAL_GPIO_ReadPin(GPIO_11_GPIO_Port, GPIO_11_Pin);
+	GPIO_DIR[11] = HAL_GPIO_ReadPin(GPIO_12_GPIO_Port, GPIO_12_Pin);
+	GPIO_DIR[12] = HAL_GPIO_ReadPin(GPIO_13_GPIO_Port, GPIO_13_Pin);
+	GPIO_DIR[13] = HAL_GPIO_ReadPin(GPIO_14_GPIO_Port, GPIO_14_Pin);
+	GPIO_DIR[14] = HAL_GPIO_ReadPin(GPIO_15_GPIO_Port, GPIO_15_Pin);
+	GPIO_DIR[15] = HAL_GPIO_ReadPin(GPIO_16_GPIO_Port, GPIO_16_Pin);
+	GPIO_DIR[16] = HAL_GPIO_ReadPin(GPIO_17_GPIO_Port, GPIO_17_Pin);
+	GPIO_DIR[17] = HAL_GPIO_ReadPin(GPIO_18_GPIO_Port, GPIO_18_Pin);
+	GPIO_DIR[18] = HAL_GPIO_ReadPin(GPIO_19_GPIO_Port, GPIO_19_Pin);
+	GPIO_DIR[19] = HAL_GPIO_ReadPin(GPIO_20_GPIO_Port, GPIO_20_Pin);
+
+
+	for (int n = 0 ; n < MAX_GPIO ; n++) {
+
+		itoa (GPIO_DIR[n],getGPIO_string,10); // Convert from int to char
+		strcat(GPIO_INPUT_PRINT,getGPIO_string);
+		if (n < MAX_GPIO-1)
+			strcat(GPIO_INPUT_PRINT,",");
+
+	}
+
+
+
+
+
+//	strcat(GPIO_INPUT_PRINT, ((char)GPIO_DIR[0])-48);
+
+
+	strcat(GPIO_INPUT_PRINT, "\r\n");
+	write(GPIO_INPUT_PRINT);
+
+
+
+
+
+}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
