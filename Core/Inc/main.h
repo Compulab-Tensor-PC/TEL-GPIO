@@ -40,8 +40,10 @@ extern "C" {
 #define DEBUGLED   // Enables various LEDS debug points
 
 #define TESTBOARD
+#define MAX_GPIO 20
 
 char incomig[128];
+
 
 uint8_t return_Command;
 
