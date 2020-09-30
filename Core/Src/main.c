@@ -286,17 +286,14 @@ int main(void)
 			else if ((strstr(incomig,set_input_cmd) != NULL)) {
 				write("Set GPIO to Input\r\n");
 
-				funcReturn = set_gpio_output(strstr(incomig,set_output_cmd));
-
+				funcReturn = set_gpio_input(strstr(incomig,set_input_cmd));
 
 				char getGPIO_string[2];
 
 				itoa (funcReturn,getGPIO_string,10); // Convert from int to char
-
-
-				char getGPIOIO[25] = "Set Output GPIO #:   \r\n";
-				getGPIOIO[19] =  getGPIO_string[0]; // Place in the correct array location
-				getGPIOIO[20] =  getGPIO_string[1];
+				char getGPIOIO[25] = "Set Input GPIO #:   \r\n";
+				getGPIOIO[18] =  getGPIO_string[0]; // Place in the correct array location
+				getGPIOIO[19] =  getGPIO_string[1];
 				write(getGPIOIO);
 
 
@@ -798,8 +795,9 @@ int set_gpio_input(uint8_t *set_gpio_in) {
 	GPIO_InitTypeDef GPIO_InitStruct = {0};
 
 	// Mode, SPEED, PuulUP will be configured here.
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+	//	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Pull = GPIO_PULLUP;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 
 	gpio_number = get_gpio(set_gpio_in+1);
