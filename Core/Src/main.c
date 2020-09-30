@@ -47,7 +47,10 @@ char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
 void printHelp();
 int set_gpio(uint8_t*);
 int set_gpio_output(uint8_t*);
+int set_gpio_input(uint8_t *);
+
 uint8_t get_gpio_state(uint8_t*);
+
 int testGPIO(int);
 
 int getGPIO(uint8_t*);
@@ -269,12 +272,12 @@ int main(void)
 
 				char getGPIO_string[2];
 
-				//				funcReturn = set_gpio_output(strstr(incomig,set_output_cmd));
+				itoa (funcReturn,getGPIO_string,10); // Convert from int to char
 
 
-				char getGPIOIO[20] = "set GPIO #:   \r\n";
-				getGPIOIO[12] =  getGPIO_string[0]; // Place in the correct array location
-				getGPIOIO[13] =  getGPIO_string[1];
+				char getGPIOIO[25] = "Set Output GPIO #:   \r\n";
+				getGPIOIO[19] =  getGPIO_string[0]; // Place in the correct array location
+				getGPIOIO[20] =  getGPIO_string[1];
 				write(getGPIOIO);
 			}	// Close set GPIO to OUTPUT
 
@@ -282,6 +285,20 @@ int main(void)
 			// ### SET GPIO TO INPUT ###
 			else if ((strstr(incomig,set_input_cmd) != NULL)) {
 				write("Set GPIO to Input\r\n");
+
+				funcReturn = set_gpio_output(strstr(incomig,set_output_cmd));
+
+
+				char getGPIO_string[2];
+
+				itoa (funcReturn,getGPIO_string,10); // Convert from int to char
+
+
+				char getGPIOIO[25] = "Set Output GPIO #:   \r\n";
+				getGPIOIO[19] =  getGPIO_string[0]; // Place in the correct array location
+				getGPIOIO[20] =  getGPIO_string[1];
+				write(getGPIOIO);
+
 
 			} // Close set GPIO to Input
 			memset(incomig,NULL,sizeof(incomig));	// set the incoming array to zero
@@ -757,12 +774,129 @@ int set_gpio_output(uint8_t *set_gpio_out) {
 		write("Set GPIO Number wrong\r\n ");
 	}
 	// TODO Add function that will check GPIO number
-
-
 	return gpio_number;
-
 }
 
+/**
+ * @brief  Change GPIO to Input state
+ *
+ *
+ *        @note
+ *        This function should return GPIO number that is changed to INPUT state
+ *        and return 0 if something went wrong:
+ *        - Wrong GPIO number (above or below limit)
+ *        - Wrong string format (char instead of GPIO number after command)
+ *        Correct or incorrect GPIO tested by testGPIO function.
+ *
+ * @param  set_gpio_out: Pointer to parsed command char
+ * @retval Return the changed to INPUT GPIO, will return 0 on ERROR.
+ */
+int set_gpio_input(uint8_t *set_gpio_in) {
+
+	int gpio_number;
+	//#include "gpio.h"
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+	// Mode, SPEED, PuulUP will be configured here.
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+
+	gpio_number = get_gpio(set_gpio_in+1);
+
+	if (testGPIO(gpio_number) == 0) {
+		write("set GPIO input OK\r\n");
+		switch (gpio_number)
+
+		{
+		case 1:
+			GPIO_InitStruct.Pin = GPIO_1_Pin;
+			HAL_GPIO_Init(GPIO_1_GPIO_Port, &GPIO_InitStruct);
+			break;
+		case 2:
+			GPIO_InitStruct.Pin = GPIO_2_Pin;
+			HAL_GPIO_Init(GPIO_2_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 3:
+			GPIO_InitStruct.Pin = GPIO_3_Pin;
+			HAL_GPIO_Init(GPIO_3_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 4:
+			GPIO_InitStruct.Pin = GPIO_4_Pin;
+			HAL_GPIO_Init(GPIO_4_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 5:
+			GPIO_InitStruct.Pin = GPIO_5_Pin;
+			HAL_GPIO_Init(GPIO_5_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 6:
+			GPIO_InitStruct.Pin = GPIO_6_Pin;
+			HAL_GPIO_Init(GPIO_6_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 7:
+			GPIO_InitStruct.Pin = GPIO_7_Pin;
+			HAL_GPIO_Init(GPIO_7_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 8:
+			GPIO_InitStruct.Pin = GPIO_8_Pin;
+			HAL_GPIO_Init(GPIO_8_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 9:
+			GPIO_InitStruct.Pin = GPIO_9_Pin;
+			HAL_GPIO_Init(GPIO_9_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 10:
+			GPIO_InitStruct.Pin = GPIO_10_Pin;
+			HAL_GPIO_Init(GPIO_10_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 11:
+			GPIO_InitStruct.Pin = GPIO_11_Pin;
+			HAL_GPIO_Init(GPIO_11_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 12:
+			GPIO_InitStruct.Pin = GPIO_12_Pin;
+			HAL_GPIO_Init(GPIO_12_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 13:
+			GPIO_InitStruct.Pin = GPIO_13_Pin;
+			HAL_GPIO_Init(GPIO_13_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 14:
+			GPIO_InitStruct.Pin = GPIO_14_Pin;
+			HAL_GPIO_Init(GPIO_14_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 15:
+			GPIO_InitStruct.Pin = GPIO_15_Pin;
+			HAL_GPIO_Init(GPIO_15_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 16:
+			GPIO_InitStruct.Pin = GPIO_16_Pin;
+			HAL_GPIO_Init(GPIO_16_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 17:
+			GPIO_InitStruct.Pin = GPIO_17_Pin;
+			HAL_GPIO_Init(GPIO_17_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 18:
+			GPIO_InitStruct.Pin = GPIO_18_Pin;
+			HAL_GPIO_Init(GPIO_18_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 19:
+			GPIO_InitStruct.Pin = GPIO_19_Pin;
+			HAL_GPIO_Init(GPIO_19_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 20:
+			GPIO_InitStruct.Pin = GPIO_20_Pin;
+			HAL_GPIO_Init(GPIO_20_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		}
+	}
+	else {
+		write("Set GPIO Input Number wrong\r\n ");
+	}
+	// TODO Add function that will check GPIO number
+	return gpio_number;
+}
 
 // Perform test on the received GPIO, for now only the max and min GPIO number
 /**
