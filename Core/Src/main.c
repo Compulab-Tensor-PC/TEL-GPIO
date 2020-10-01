@@ -57,7 +57,10 @@ int set_gpio(uint8_t*);
 int set_gpio_output(uint8_t*);
 int set_gpio_input(uint8_t *);
 
+
 void updateGlobalDir();
+
+void printGlobalState();
 uint8_t get_gpio_state(uint8_t*);
 
 int testGPIO(int);
@@ -433,6 +436,7 @@ void printHelp() {
 	write("# - Set GPIO Output Direction on Pin: \tEXAMPLE: #12,1 - Set GPIO # 12 To HIGH \r\n");
 	write("@ - Get GPIO Input Value \t\tEXANPLE: @10 - Will return GPIO #10 High or Low\r\n ");
 	updateGlobalDir();
+	printGlobalState();
 
 
 }
@@ -1023,24 +1027,24 @@ void printGlobalState() {
 		switch (GPIO_STATE[n])
 
 		{
-		case 0:
+		case 0: // Input Pin case
 			strcat(GPIO_STATE_PRINT,"0");
 			break;
-		case 1:
+		case 1:	// Output pin Case
 			strcat(GPIO_STATE_PRINT,"1");
 			break;
-		case 3:
+		case 3:	// Not Connected pin case
 			strcat(GPIO_STATE_PRINT,"X");
 			break;
-		default:
+		default:	// Error pin case
 			strcat(GPIO_STATE_PRINT,"y");
 
 		}
 
-
-
 	}
 
+	strcat(GPIO_STATE_PRINT, "\r\n");
+	write(GPIO_STATE_PRINT);
 
 }
 
