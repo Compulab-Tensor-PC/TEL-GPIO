@@ -46,6 +46,12 @@ char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
 
 int GPIO_DIR[MAX_GPIO];
 
+// Store the Global GPIO state of each GPIO in the format:
+// 	0 - Input
+//	1 - Output
+//  3 - Not Connected
+int GPIO_STATE[MAX_GPIO];
+
 void printHelp();
 int set_gpio(uint8_t*);
 int set_gpio_output(uint8_t*);
@@ -983,7 +989,7 @@ void updateGlobalDir() {
 
 
 
-//	strcat(GPIO_INPUT_PRINT, ((char)GPIO_DIR[0])-48);
+	//	strcat(GPIO_INPUT_PRINT, ((char)GPIO_DIR[0])-48);
 
 
 	strcat(GPIO_INPUT_PRINT, "\r\n");
@@ -991,6 +997,49 @@ void updateGlobalDir() {
 
 
 
+
+
+}
+
+/**
+ * @brief  Print the global State of Each GPIO pin
+ *
+ *
+ *        @note
+ *        Print from the global array GPIO_STATE
+ *        The printout is in the following format:
+ *        	1 - GPIO is in Output state
+ *        	2 - GPIO is in Input state
+ *        	x - Not Connected
+ */
+void printGlobalState() {
+
+	char GPIO_STATE_PRINT[50] = "GPIO State: ";
+
+
+
+	for (int n = 0 ; n < MAX_GPIO ; n++) {
+
+		switch (GPIO_STATE[n])
+
+		{
+		case 0:
+			strcat(GPIO_STATE_PRINT,"0");
+			break;
+		case 1:
+			strcat(GPIO_STATE_PRINT,"1");
+			break;
+		case 3:
+			strcat(GPIO_STATE_PRINT,"X");
+			break;
+		default:
+			strcat(GPIO_STATE_PRINT,"y");
+
+		}
+
+
+
+	}
 
 
 }
