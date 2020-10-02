@@ -288,29 +288,6 @@ int main(void)
 				toggleEcho();
 			}
 
-			// Check for set GPIO To Output
-			// ### Set GPIO OUTPUT DIRECTION ###
-			else if (strstr(incomig,set_output_dir_cmd) != NULL) {
-				funcReturn = set_gpio(strstr(incomig,set_output_dir_cmd),1);
-
-				if (funcReturn != 0) {
-
-					char setGPIO_string[2];
-					itoa (funcReturn,setGPIO_string,10); // Convert from int to char
-
-					char setGPIO[20] = "Set GPIO #:   \r\n";
-
-					setGPIO[12] =  setGPIO_string[0]; // Place in the correct array location
-					setGPIO[13] =  setGPIO_string[1];
-					//				strstr(setGPIO,funcReturn);
-
-					write(setGPIO);			// Print
-				}
-
-
-			} // Close if for Set GPIO to Output
-
-
 			// Get GPIO 1,0 - Note that GPIO needed to be configured to input for correct result.
 			// Otherwise the result will be what programmed in setGPIO
 			// ### GET GPIO INPUT STATE ###
@@ -485,7 +462,7 @@ void printHelp() {
 	CDC_Transmit_FS(printout,sizeof(printout));
 	write("& - Set GPIO As Output Pin: \t\tEXAMPLE: &12 - Set GPIO # 12 To Output \r\n");
 	write("% - Set GPIO As Input Pin:  \t\tEXANPLE: %10 - Will Set GPIO # 10 to Input\r\n ");
-	write("# - Set GPIO Output Direction on Pin: \tEXAMPLE: #12,1 - Set GPIO # 12 To HIGH \r\n");
+//	write("# - Set GPIO Output Direction on Pin: \tEXAMPLE: #12,1 - Set GPIO # 12 To HIGH \r\n");
 	write("@ - Get GPIO Input Value \t\tEXANPLE: @10 - Will return GPIO #10 High or Low\r\n ");
 	write("^ - Set GPIO LEVEL HIGH '^##'\t\tEXAMPLE: '^3' - Will Set GPIO # 3 To High Level\r\n");
 	write("_ - Set GPIO LEVEL LOW  '_##'\t\tEXAMPLE: '_06' - Will set GPIO # 6 To Low Level\r\n");
@@ -637,7 +614,7 @@ int set_gpio_number(int gpioNum, int level) {
 }
 
 
-// parse incoming buffer and  return the int value after the given pointer (will not check nothing here)
+// parse incoming buffer and  return the GPIO integer value
 int get_gpio(uint8_t *gpioP) {
 	uint8_t *temp_i, *temp_n;
 	int  gpio_n;									// init values needed for the function
