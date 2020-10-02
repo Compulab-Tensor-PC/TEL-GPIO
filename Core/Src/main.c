@@ -53,7 +53,7 @@ int GPIO_DIR[MAX_GPIO];
 int GPIO_STATE[MAX_GPIO];
 
 void printHelp();
-int set_gpio(uint8_t*);
+int set_gpio(uint8_t*,int);
 int set_gpio_output(uint8_t*);
 int set_gpio_input(uint8_t *);
 
@@ -202,8 +202,12 @@ int main(void)
 
 	char set_output_cmd[]			= "&";					// Set GPIO to Output Command
 	char set_input_cmd[]			= "%";					// Set GPIO to Input Command
-	char set_output_dir_cmd[]		= "#";					// Set GPIO Output direction
+	char set_output_dir_cmd[]		= "#";					// Set GPIO Output direction TODO remove after level fix commands
 	char get_input_cmd[]			= "@";					// Get GPIO Input direction
+
+	char set_level_high[]			= "^";					// Set Output GPIO to level High
+	char set_level_low[]			= "_";					// Set Output GPIO to level Low
+
 
 
 
@@ -236,10 +240,50 @@ int main(void)
 				printHelp();
 			} // Close if for print help function
 
+			// ### SET GPIO LEVEL HIGH ###
+			else if (strstr(incomig,set_level_high) != NULL) {
+				//				write("SET GPIO LEVEL HIGH\r\n");
+				funcReturn = set_gpio(strstr(incomig,set_level_high),1);
+
+				if (funcReturn != 0) {
+
+					char setGPIO_string[2];
+					itoa (funcReturn,setGPIO_string,10); // Convert from int to char
+
+					char setGPIO[30] = "Set GPIO #:   to High\r\n";
+
+					setGPIO[11] =  setGPIO_string[0]; // Place in the correct array location
+					setGPIO[12] =  setGPIO_string[1];
+					//				strstr(setGPIO,funcReturn);
+
+					write(setGPIO);			// Print
+				}
+			}
+			//set_level_low
+			else if (strstr(incomig,set_level_low) != NULL) {
+							//				write("SET GPIO LEVEL HIGH\r\n");
+							funcReturn = set_gpio(strstr(incomig,set_level_low),0);
+
+							if (funcReturn != 0) {
+
+								char setGPIO_string[2];
+								itoa (funcReturn,setGPIO_string,10); // Convert from int to char
+
+								char setGPIO[30] = "Set GPIO #:   to Low\r\n";
+
+								setGPIO[11] =  setGPIO_string[0]; // Place in the correct array location
+								setGPIO[12] =  setGPIO_string[1];
+								//				strstr(setGPIO,funcReturn);
+
+								write(setGPIO);			// Print
+							}
+						}
+
+
 			// Check for set GPIO To Output
 			// ### Set GPIO OUTPUT DIRECTION ###
 			else if (strstr(incomig,set_output_dir_cmd) != NULL) {
-				funcReturn = set_gpio(strstr(incomig,set_output_dir_cmd));
+				funcReturn = set_gpio(strstr(incomig,set_output_dir_cmd),1);
 
 				if (funcReturn != 0) {
 
@@ -435,6 +479,10 @@ void printHelp() {
 	write("% - Set GPIO As Input Pin:  \t\tEXANPLE: %10 - Will Set GPIO # 10 to Input\r\n ");
 	write("# - Set GPIO Output Direction on Pin: \tEXAMPLE: #12,1 - Set GPIO # 12 To HIGH \r\n");
 	write("@ - Get GPIO Input Value \t\tEXANPLE: @10 - Will return GPIO #10 High or Low\r\n ");
+	write("^ - Set GPIO LEVEL HIGH '^##'\t\tEXAMPLE: '^3' - Will Set GPIO # 3 To High Level\r\n");
+	write("_ - Set GPIO LEVEL LOW  '_##'\t\tEXAMPLE: '_06' - Will set GPIO # 6 To Low Level\r\n");
+	write("NOTE: GPIO can be entered as 03 or 3 for the same GPIO number\r\n");
+	write("-----------------------------------------------------------------------\r\n");
 	updateGlobalDir();
 	printGlobalState();
 
@@ -443,7 +491,7 @@ void printHelp() {
 
 // If increase or decrease in GPIO numbers needed, Change the Error check for GPIO number max minimum
 // And switch case statement
-int set_gpio(uint8_t *set_gpioP) {
+int set_gpio(uint8_t *set_gpioP,int level) {
 	//	uint8_t *state;
 	uint8_t *gpio_num;
 
@@ -459,9 +507,10 @@ int set_gpio(uint8_t *set_gpioP) {
 
 	// TEST GPIO LIMIT
 	if (testGPIO(gpio_number) == 0) {
-		state = get_state(strstr(set_gpioP,","));
+		//		state = get_state(strstr(set_gpioP,","));
 
-		if ((state < 0) | (state > 1)) {
+
+		if ((level < 0) | (level > 1)) {
 			write("Wrong state in set OUTPUT Direction/r/n");
 			return 0;
 		}
@@ -470,64 +519,64 @@ int set_gpio(uint8_t *set_gpioP) {
 		switch (gpio_number)
 		{
 		case 1:
-			HAL_GPIO_WritePin(GPIO_1_GPIO_Port, GPIO_1_Pin, state);
+			HAL_GPIO_WritePin(GPIO_1_GPIO_Port, GPIO_1_Pin, level);
 			break;
 		case 2:
-			HAL_GPIO_WritePin(GPIO_2_GPIO_Port, GPIO_2_Pin, state);
+			HAL_GPIO_WritePin(GPIO_2_GPIO_Port, GPIO_2_Pin, level);
 			break;
 		case 3:
-			HAL_GPIO_WritePin(GPIO_3_GPIO_Port, GPIO_3_Pin, state);
+			HAL_GPIO_WritePin(GPIO_3_GPIO_Port, GPIO_3_Pin, level);
 			break;
 		case 4:
-			HAL_GPIO_WritePin(GPIO_4_GPIO_Port, GPIO_4_Pin, state);
+			HAL_GPIO_WritePin(GPIO_4_GPIO_Port, GPIO_4_Pin, level);
 			break;
 		case 5:
-			HAL_GPIO_WritePin(GPIO_5_GPIO_Port, GPIO_5_Pin, state);
+			HAL_GPIO_WritePin(GPIO_5_GPIO_Port, GPIO_5_Pin, level);
 			break;
 		case 6:
-			HAL_GPIO_WritePin(GPIO_6_GPIO_Port, GPIO_6_Pin, state);
+			HAL_GPIO_WritePin(GPIO_6_GPIO_Port, GPIO_6_Pin, level);
 			break;
 		case 7:
-			HAL_GPIO_WritePin(GPIO_7_GPIO_Port, GPIO_7_Pin, state);
+			HAL_GPIO_WritePin(GPIO_7_GPIO_Port, GPIO_7_Pin, level);
 			break;
 		case 8:
-			HAL_GPIO_WritePin(GPIO_8_GPIO_Port, GPIO_8_Pin, state);
+			HAL_GPIO_WritePin(GPIO_8_GPIO_Port, GPIO_8_Pin, level);
 			break;
 		case 9:
-			HAL_GPIO_WritePin(GPIO_9_GPIO_Port, GPIO_9_Pin, state);
+			HAL_GPIO_WritePin(GPIO_9_GPIO_Port, GPIO_9_Pin, level);
 			break;
 		case 10:
-			HAL_GPIO_WritePin(GPIO_10_GPIO_Port, GPIO_10_Pin, state);
+			HAL_GPIO_WritePin(GPIO_10_GPIO_Port, GPIO_10_Pin, level);
 			break;
 		case 11:
-			HAL_GPIO_WritePin(GPIO_11_GPIO_Port, GPIO_11_Pin, state);
+			HAL_GPIO_WritePin(GPIO_11_GPIO_Port, GPIO_11_Pin, level);
 			break;
 		case 12:
-			HAL_GPIO_WritePin(GPIO_12_GPIO_Port, GPIO_12_Pin, state);
+			HAL_GPIO_WritePin(GPIO_12_GPIO_Port, GPIO_12_Pin, level);
 			break;
 		case 13:
-			HAL_GPIO_WritePin(GPIO_13_GPIO_Port, GPIO_13_Pin, state);
+			HAL_GPIO_WritePin(GPIO_13_GPIO_Port, GPIO_13_Pin, level);
 			break;
 		case 14:
-			HAL_GPIO_WritePin(GPIO_14_GPIO_Port, GPIO_14_Pin, state);
+			HAL_GPIO_WritePin(GPIO_14_GPIO_Port, GPIO_14_Pin, level);
 			break;
 		case 15:
-			HAL_GPIO_WritePin(GPIO_15_GPIO_Port, GPIO_15_Pin, state);
+			HAL_GPIO_WritePin(GPIO_15_GPIO_Port, GPIO_15_Pin, level);
 			break;
 		case 16:
-			HAL_GPIO_WritePin(GPIO_16_GPIO_Port, GPIO_16_Pin, state);
+			HAL_GPIO_WritePin(GPIO_16_GPIO_Port, GPIO_16_Pin, level);
 			break;
 		case 17:
-			HAL_GPIO_WritePin(GPIO_17_GPIO_Port, GPIO_17_Pin, state);
+			HAL_GPIO_WritePin(GPIO_17_GPIO_Port, GPIO_17_Pin, level);
 			break;
 		case 18:
-			HAL_GPIO_WritePin(GPIO_18_GPIO_Port, GPIO_18_Pin, state);
+			HAL_GPIO_WritePin(GPIO_18_GPIO_Port, GPIO_18_Pin, level);
 			break;
 		case 19:
-			HAL_GPIO_WritePin(GPIO_19_GPIO_Port, GPIO_19_Pin, state);
+			HAL_GPIO_WritePin(GPIO_19_GPIO_Port, GPIO_19_Pin, level);
 			break;
 		case 20:
-			HAL_GPIO_WritePin(GPIO_20_GPIO_Port, GPIO_20_Pin, state);
+			HAL_GPIO_WritePin(GPIO_20_GPIO_Port, GPIO_20_Pin, level);
 			break;
 		} // end switch statement
 
@@ -683,9 +732,6 @@ uint8_t get_gpio_state(uint8_t *get_gpioP) {
 		write("Get GPIO stat GPIO # out of limits\r\n");
 		return 2;
 	}
-
-
-
 }
 
 /**
