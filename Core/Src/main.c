@@ -46,6 +46,8 @@ char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
 
 int GPIO_DIR[MAX_GPIO];
 
+
+
 // Store the Global GPIO state of each GPIO in the format:
 // 	0 - Input
 //	1 - Output
@@ -67,7 +69,7 @@ int testGPIO(int);
 
 int getGPIO(uint8_t*);
 
-
+void toggleEcho();
 #define DEBUGLED
 
 
@@ -129,7 +131,8 @@ void SystemClock_Config(void);
 int main(void)
 {
 	/* USER CODE BEGIN 1 */
-
+	// Enable echo to USB serial console
+	ECHO_ENABLE = 1;
 	/* USER CODE END 1 */
 
 	/* MCU Configuration--------------------------------------------------------*/
@@ -207,6 +210,7 @@ int main(void)
 
 	char set_level_high[]			= "^";					// Set Output GPIO to level High
 	char set_level_low[]			= "_";					// Set Output GPIO to level Low
+	char toggle_echo[]				= "!";					// Toggle echo to USB serial printout
 
 
 
@@ -279,6 +283,10 @@ int main(void)
 				}
 			}
 
+			// ### TOGGLE ECHO ###
+			else if (strstr(incomig,toggle_echo) != NULL) {
+				toggleEcho();
+			}
 
 			// Check for set GPIO To Output
 			// ### Set GPIO OUTPUT DIRECTION ###
@@ -482,6 +490,9 @@ void printHelp() {
 	write("^ - Set GPIO LEVEL HIGH '^##'\t\tEXAMPLE: '^3' - Will Set GPIO # 3 To High Level\r\n");
 	write("_ - Set GPIO LEVEL LOW  '_##'\t\tEXAMPLE: '_06' - Will set GPIO # 6 To Low Level\r\n");
 	write("NOTE: GPIO can be entered as 03 or 3 for the same GPIO number\r\n");
+	write("################ SETTINGS n################\r\n");
+	write("\r\n");
+	write("! - Toggle Echo printout on the USB serial console\r\n");
 	write("-----------------------------------------------------------------------\r\n");
 	updateGlobalDir();
 	printGlobalState();
@@ -1091,6 +1102,18 @@ void printGlobalState() {
 
 	strcat(GPIO_STATE_PRINT, "\r\n");
 	write(GPIO_STATE_PRINT);
+
+}
+
+
+/**
+ * @brief  Toggle echo printout to user
+ * @param  None
+ * @retval None
+ */
+void toggleEcho() {
+
+	ECHO_ENABLE = !ECHO_ENABLE;
 
 }
 

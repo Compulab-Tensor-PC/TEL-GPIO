@@ -47,6 +47,8 @@ char incomig[128];
 
 uint8_t return_Command;
 
+// Enable Echo to serial global setting
+int ECHO_ENABLE;
 
 //uint8_t MAIN_COMMAND = 0;
 
