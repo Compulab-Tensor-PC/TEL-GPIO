@@ -171,21 +171,21 @@ int main(void)
 
 
 	// Test Initial GPIO
-	// Power ON GPIO
-	HAL_GPIO_WritePin(GPIOB, LED1_Pin, 0);
-	HAL_GPIO_WritePin(GPIOB, LED2_Pin, 0);
-	HAL_Delay(500);
-	// Power OFF GPIO
-	HAL_GPIO_WritePin(GPIOB, LED1_Pin, 1);
-	HAL_GPIO_WritePin(GPIOB, LED2_Pin, 1);
-	//	HAL_Delay(500);
-	//	HAL_GPIO_WritePin(GPIOB, LED2_Pin, 0);
-	//	HAL_GPIO_WritePin(GPIOB, LED1_Pin, 0);
-
-	HAL_GPIO_WritePin(GPIOA, GPIO_1_Pin, 1);
-	HAL_GPIO_WritePin(GPIOA, GPIO_2_Pin, 1);
-	HAL_GPIO_WritePin(GPIOA, GPIO_3_Pin, 1);
-	HAL_GPIO_WritePin(GPIOA, GPIO_4_Pin, 1);
+//	// Power ON GPIO
+//	HAL_GPIO_WritePin(GPIOB, LED1_Pin, 0);
+//	HAL_GPIO_WritePin(GPIOB, LED2_Pin, 0);
+//	HAL_Delay(500);
+//	// Power OFF GPIO
+//	HAL_GPIO_WritePin(GPIOB, LED1_Pin, 1);
+//	HAL_GPIO_WritePin(GPIOB, LED2_Pin, 1);
+//	//	HAL_Delay(500);
+//	//	HAL_GPIO_WritePin(GPIOB, LED2_Pin, 0);
+//	//	HAL_GPIO_WritePin(GPIOB, LED1_Pin, 0);
+//
+//	HAL_GPIO_WritePin(GPIOA, GPIO_1_Pin, 1);
+//	HAL_GPIO_WritePin(GPIOA, GPIO_2_Pin, 1);
+//	HAL_GPIO_WritePin(GPIOA, GPIO_3_Pin, 1);
+//	HAL_GPIO_WritePin(GPIOA, GPIO_4_Pin, 1);
 
 	// Initial data to send to the terminal
 	CDC_Transmit_FS(InitialHeader, sizeof(InitialHeader));
@@ -205,7 +205,7 @@ int main(void)
 
 	char set_output_cmd[]			= "&";					// Set GPIO to Output Command
 	char set_input_cmd[]			= "%";					// Set GPIO to Input Command
-	char set_output_dir_cmd[]		= "#";					// Set GPIO Output direction TODO remove after level fix commands
+//	char set_output_dir_cmd[]		= "#";					// Set GPIO Output direction TODO remove after level fix commands
 	char get_input_cmd[]			= "@";					// Get GPIO Input direction
 
 	char set_level_high[]			= "^";					// Set Output GPIO to level High
