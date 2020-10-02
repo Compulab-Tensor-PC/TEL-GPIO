@@ -261,23 +261,23 @@ int main(void)
 			}
 			//set_level_low
 			else if (strstr(incomig,set_level_low) != NULL) {
-							//				write("SET GPIO LEVEL HIGH\r\n");
-							funcReturn = set_gpio(strstr(incomig,set_level_low),0);
+				//				write("SET GPIO LEVEL HIGH\r\n");
+				funcReturn = set_gpio(strstr(incomig,set_level_low),0);
 
-							if (funcReturn != 0) {
+				if (funcReturn != 0) {
 
-								char setGPIO_string[2];
-								itoa (funcReturn,setGPIO_string,10); // Convert from int to char
+					char setGPIO_string[2];
+					itoa (funcReturn,setGPIO_string,10); // Convert from int to char
 
-								char setGPIO[30] = "Set GPIO #:   to Low\r\n";
+					char setGPIO[30] = "Set GPIO #:   to Low\r\n";
 
-								setGPIO[11] =  setGPIO_string[0]; // Place in the correct array location
-								setGPIO[12] =  setGPIO_string[1];
-								//				strstr(setGPIO,funcReturn);
+					setGPIO[11] =  setGPIO_string[0]; // Place in the correct array location
+					setGPIO[12] =  setGPIO_string[1];
+					//				strstr(setGPIO,funcReturn);
 
-								write(setGPIO);			// Print
-							}
-						}
+					write(setGPIO);			// Print
+				}
+			}
 
 
 			// Check for set GPIO To Output
