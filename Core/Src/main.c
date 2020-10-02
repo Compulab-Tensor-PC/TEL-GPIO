@@ -68,6 +68,7 @@ uint8_t get_gpio_state(uint8_t*);
 int testGPIO(int);
 
 int getGPIO(uint8_t*);
+uint8_t get_gpio_state_number(uint8_t);
 
 void toggleEcho();
 #define DEBUGLED
@@ -654,7 +655,13 @@ int get_state(uint8_t *stateP) {
 	return state;
 }
 
-
+/**
+ * @brief Get the GPIO level state
+ *
+ *
+ * @param  	Pointer to GPIO number
+ * @retval 	Return GPIO level state 0 - for low 1 - for High 2 - for ERROR
+ */
 uint8_t get_gpio_state(uint8_t *get_gpioP) {
 	//	uint8_t *gpio_num;
 	uint8_t state = 0;
@@ -666,69 +673,8 @@ uint8_t get_gpio_state(uint8_t *get_gpioP) {
 
 	// Test GPIO limits
 	if (testGPIO(gpio_number) == 0) {
-		switch (gpio_number)
-		{
-		case 1:
-			state = HAL_GPIO_ReadPin(GPIO_1_GPIO_Port, GPIO_1_Pin);
-			break;
-		case 2:
-			state = HAL_GPIO_ReadPin(GPIO_2_GPIO_Port, GPIO_2_Pin);
-			break;
-		case 3:
-			state = HAL_GPIO_ReadPin(GPIO_3_GPIO_Port, GPIO_3_Pin);
-			break;
-		case 4:
-			state = HAL_GPIO_ReadPin(GPIO_4_GPIO_Port, GPIO_4_Pin);
-			break;
-		case 5:
-			state = HAL_GPIO_ReadPin(GPIO_5_GPIO_Port, GPIO_5_Pin);
-			break;
-		case 6:
-			state = HAL_GPIO_ReadPin(GPIO_6_GPIO_Port, GPIO_6_Pin);
-			break;
-		case 7:
-			state = HAL_GPIO_ReadPin(GPIO_7_GPIO_Port, GPIO_7_Pin);
-			break;
-		case 8:
-			state = HAL_GPIO_ReadPin(GPIO_8_GPIO_Port, GPIO_8_Pin);
-			break;
-		case 9:
-			state = HAL_GPIO_ReadPin(GPIO_9_GPIO_Port, GPIO_9_Pin);
-			break;
-		case 10:
-			state = HAL_GPIO_ReadPin(GPIO_10_GPIO_Port, GPIO_10_Pin);
-			break;
-		case 11:
-			state = HAL_GPIO_ReadPin(GPIO_11_GPIO_Port, GPIO_11_Pin);
-			break;
-		case 12:
-			state = HAL_GPIO_ReadPin(GPIO_12_GPIO_Port, GPIO_12_Pin);
-			break;
-		case 13:
-			state = HAL_GPIO_ReadPin(GPIO_13_GPIO_Port, GPIO_13_Pin);
-			break;
-		case 14:
-			state = HAL_GPIO_ReadPin(GPIO_14_GPIO_Port, GPIO_14_Pin);
-			break;
-		case 15:
-			state = HAL_GPIO_ReadPin(GPIO_15_GPIO_Port, GPIO_15_Pin);
-			break;
-		case 16:
-			state = HAL_GPIO_ReadPin(GPIO_16_GPIO_Port, GPIO_16_Pin);
-			break;
-		case 17:
-			state = HAL_GPIO_ReadPin(GPIO_17_GPIO_Port, GPIO_17_Pin);
-			break;
-		case 18:
-			state = HAL_GPIO_ReadPin(GPIO_18_GPIO_Port, GPIO_18_Pin);
-			break;
-		case 19:
-			state = HAL_GPIO_ReadPin(GPIO_19_GPIO_Port, GPIO_19_Pin);
-			break;
-		case 20:
-			state = HAL_GPIO_ReadPin(GPIO_20_GPIO_Port, GPIO_20_Pin);
-			break;
-		} // end switch statement
+
+		state = get_gpio_state_number(gpio_number);
 
 		return state;
 
@@ -740,6 +686,85 @@ uint8_t get_gpio_state(uint8_t *get_gpioP) {
 	}
 }
 
+
+/**
+ * @brief Get the GPIO level state
+ *
+ *
+ * @param  	Integer GPIO number
+ * @retval 	Return GPIO level state 0 - for low 1 - for High 3 - for ERROR
+ */
+uint8_t get_gpio_state_number(uint8_t gpioNumber) {
+
+
+	uint8_t state;
+
+	switch (gpioNumber)
+			{
+			case 1:
+				state = HAL_GPIO_ReadPin(GPIO_1_GPIO_Port, GPIO_1_Pin);
+				break;
+			case 2:
+				state = HAL_GPIO_ReadPin(GPIO_2_GPIO_Port, GPIO_2_Pin);
+				break;
+			case 3:
+				state = HAL_GPIO_ReadPin(GPIO_3_GPIO_Port, GPIO_3_Pin);
+				break;
+			case 4:
+				state = HAL_GPIO_ReadPin(GPIO_4_GPIO_Port, GPIO_4_Pin);
+				break;
+			case 5:
+				state = HAL_GPIO_ReadPin(GPIO_5_GPIO_Port, GPIO_5_Pin);
+				break;
+			case 6:
+				state = HAL_GPIO_ReadPin(GPIO_6_GPIO_Port, GPIO_6_Pin);
+				break;
+			case 7:
+				state = HAL_GPIO_ReadPin(GPIO_7_GPIO_Port, GPIO_7_Pin);
+				break;
+			case 8:
+				state = HAL_GPIO_ReadPin(GPIO_8_GPIO_Port, GPIO_8_Pin);
+				break;
+			case 9:
+				state = HAL_GPIO_ReadPin(GPIO_9_GPIO_Port, GPIO_9_Pin);
+				break;
+			case 10:
+				state = HAL_GPIO_ReadPin(GPIO_10_GPIO_Port, GPIO_10_Pin);
+				break;
+			case 11:
+				state = HAL_GPIO_ReadPin(GPIO_11_GPIO_Port, GPIO_11_Pin);
+				break;
+			case 12:
+				state = HAL_GPIO_ReadPin(GPIO_12_GPIO_Port, GPIO_12_Pin);
+				break;
+			case 13:
+				state = HAL_GPIO_ReadPin(GPIO_13_GPIO_Port, GPIO_13_Pin);
+				break;
+			case 14:
+				state = HAL_GPIO_ReadPin(GPIO_14_GPIO_Port, GPIO_14_Pin);
+				break;
+			case 15:
+				state = HAL_GPIO_ReadPin(GPIO_15_GPIO_Port, GPIO_15_Pin);
+				break;
+			case 16:
+				state = HAL_GPIO_ReadPin(GPIO_16_GPIO_Port, GPIO_16_Pin);
+				break;
+			case 17:
+				state = HAL_GPIO_ReadPin(GPIO_17_GPIO_Port, GPIO_17_Pin);
+				break;
+			case 18:
+				state = HAL_GPIO_ReadPin(GPIO_18_GPIO_Port, GPIO_18_Pin);
+				break;
+			case 19:
+				state = HAL_GPIO_ReadPin(GPIO_19_GPIO_Port, GPIO_19_Pin);
+				break;
+			case 20:
+				state = HAL_GPIO_ReadPin(GPIO_20_GPIO_Port, GPIO_20_Pin);
+				break;
+			default:
+				return 3; // Error state
+			} // end switch statement
+}
 /**
  * @brief  Invoked after parsing incoming data buffer for set GPIO to OUTPUT command
  *
