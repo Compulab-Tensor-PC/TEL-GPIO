@@ -40,7 +40,7 @@
 
 // HW & SW Revisions
 char HW_REV[] = "HW: V1.0.0\t";
-char SW_REV[] = "SW: V0.2.1\t";
+char SW_REV[] = "SW: V0.2.3\t";
 
 char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
 
@@ -58,7 +58,7 @@ void printHelp();
 int set_gpio(uint8_t*,int);
 int set_gpio_output(uint8_t*);
 int set_gpio_input(uint8_t *);
-
+int set_gpio_number(int,int);
 
 void updateGlobalDir();
 
@@ -496,8 +496,6 @@ void printHelp() {
 	write("-----------------------------------------------------------------------\r\n");
 	updateGlobalDir();
 	printGlobalState();
-
-
 }
 
 // If increase or decrease in GPIO numbers needed, Change the Error check for GPIO number max minimum
@@ -526,8 +524,37 @@ int set_gpio(uint8_t *set_gpioP,int level) {
 			return 0;
 		}
 
+		set_gpio_number(gpio_number,level);
 
-		switch (gpio_number)
+
+		return gpio_number;
+
+	}	// Close If Check for GPIO limit
+
+	else {
+		write("GPIO Number out of limits\r\n");
+		return 0;
+	} // Close else for GPIO limit
+} // Close function set GPIO
+
+/**
+ * @brief Set GPIO to the received level state
+ *
+ *
+ *        @note
+ *        Get GPOI number and desired level of the GPIO
+ *        Will test and return 0 on any wrong number
+ *        Enable DEBUG for printout regarding specific error if any
+ *
+ * @param  	GPIO number in Integer
+ * @param	GPIO level in integer 1 for High 0 for Low
+ * @retval Return the changed to OUTPUT GPIO, will return 0 on ERROR.
+ */
+int set_gpio_number(int gpioNum, int level) {
+
+	if ((level == 0) | (level==1) ) {
+
+		switch (gpioNum)
 		{
 		case 1:
 			HAL_GPIO_WritePin(GPIO_1_GPIO_Port, GPIO_1_Pin, level);
@@ -589,33 +616,24 @@ int set_gpio(uint8_t *set_gpioP,int level) {
 		case 20:
 			HAL_GPIO_WritePin(GPIO_20_GPIO_Port, GPIO_20_Pin, level);
 			break;
+		default:
+		{
+			// Will print this error only if debug enabled.
+#ifdef DEBUG
+			write("GPIO number Out of bounds\r\n");
+#endif //end if debug led
+			return 0;
+		}
 		} // end switch statement
-
-		return gpio_number;
-
-	}	// Close If Check for GPIO limit
-
+	} // Close if check for level number
 	else {
-		write("GPIO Number out of limits\r\n");
+		// Will print this error only if debug enabled.
+#ifdef DEBUG
+		write("level out of bounds error\r\n");
+#endif //end if debug led
 		return 0;
-	} // Close else for GPIO limit
-
-
-	//	// Received error from get GPIO function
-	//	if (gpio_number == 0  ) {
-	//		char getGpio_error[] = "Error in getGPIO\r\n";
-	//		CDC_Transmit_FS(getGpio_error,sizeof(getGpio_error));
-	//	}
-	//	// Check for max minimum GPOI numbers
-	//	else if ((gpio_number > 20) | (gpio_number < 0) ) {
-	//		char getGpio_error[] = "Wrong GPIO number\r\n";
-	//		CDC_Transmit_FS(getGpio_error,sizeof(getGpio_error));
-	//	}
-
-
-	//	int actual_gpio = 0;
-
-
+	}
+	return gpioNum;
 }
 
 
