@@ -165,24 +165,18 @@ int main(void)
 
 	// Command defines
 	char help_command[] 			= "-H";					// Print Help screen Command
-	char detect_connected[]			= "-D";					// Detect Connected and update global array.
+	char detect_connected[]			= "-D";					// Detect Connected GPIO's.  // TODO Not implimented
+
 	char set_output_cmd[]			= "&";					// Set GPIO to Output Command
 	char set_input_cmd[]			= "%";					// Set GPIO to Input Command
-	//	char set_output_dir_cmd[]		= "#";					// Set GPIO Output direction TODO remove after level fix commands
 	char get_input_cmd[]			= "@";					// Get GPIO Input direction
-
+	char get_gpio_state[]			= "?";					// Get GPIO state
 	char set_level_high[]			= "^";					// Set Output GPIO to level High
 	char set_level_low[]			= "_";					// Set Output GPIO to level Low
+
 	char toggle_echo[]				= "!";					// Toggle echo to USB serial printout
-	char get_gpio_state[]			= "?";					// Get GPIO state
+	
 
-
-
-
-
-
-	//	char testFailure[] = "\e[71;\"\"P\n\r##### FAILURE ######\n\r";
-	//	char sendASK[]  = "LEDT\r\n";
 	char resetScreen[] = "\ec";  							// Return screen to initial state
 	int funcReturn = 0;
 
@@ -199,15 +193,13 @@ int main(void)
 	// TODO Set Initial GPIO Value (From EEPROM or default?)
 	// TODO add array with error codes that will check user input and issue correct error,
 	// TODO add some memory location to store all device constants
-
-
+	// TODO Add Terminal dynamic title change based on GPIO input??
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	while (1)
 	{
-
 		//		// Check each time the array for return string
 		//		// When found start checking the array for meaningful commands
 		if (strstr(incomig,"\r") != NULL ) {
@@ -285,7 +277,6 @@ int main(void)
 
 
 			} // Close if for getGPIO command
-
 			// set_output_cmd
 			// ### SET GPIO TO OUTPUT ###
 			else if ((strstr(incomig,set_output_cmd) != NULL)) {
@@ -355,16 +346,9 @@ int main(void)
 			} // Close set GPIO to Input
 			memset(incomig,NULL,sizeof(incomig));	// set the incoming array to zero
 			funcReturn = 0;
-		}
-
-
-		//		/* USER CODE END WHILE */
-		//
-		//		/* USER CODE BEGIN 3 */
-
-	}
-	/* USER CODE END 3 */
-}
+		} // Close if (if pressed Enter)
+	}	// Close main while loop
+}	// Close main()
 
 /**
  * @brief System Clock Configuration
@@ -446,9 +430,12 @@ void assert_failed(uint8_t *file, uint32_t line)
 #endif /* USE_FULL_ASSERT */
 
 
-// Print Help screen with all available command and their implimintation.
+/**
+ * @brief  Print to USB serial Help informarion
+ * @param  None
+ * @retval None
+ */
 void printHelp() {
-	// TODO Add Terminal dynamic title change based on GPIO input??
 	char resetScreen[] = "\ec";  // Return screen to initial state
 	//char escape[] = "\e]0;<TEL-GPIO>\x07";
 	char escape[] = "\e]0;<TEL-GPIO>\x07";
@@ -1145,6 +1132,16 @@ void detectConnected() {
 		}
 	}
 
+
+}
+
+/**
+ * @brief	Parse recive pointer to a GPIO command 
+ * @param	command - 
+ * @param	state - State to be updated to 0 - In, 1 - Out	
+ * @retval	None
+ */
+int parseCommand(){
 
 }
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
