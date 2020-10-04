@@ -47,17 +47,17 @@ char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
 int GPIO_DIR[MAX_GPIO];
 
 
-
 // Store the Global GPIO state of each GPIO in the format:
 // 	0 - Input
 //	1 - Output
 //  3 - Not Connected
 int GPIO_STATE[MAX_GPIO];
+int GPIO_CONNECTED[MAX_GPIO];
 
-void printHelp();
+
 int set_gpio(uint8_t*,int);
 int set_gpio_output(uint8_t*);
-int set_gpio_input(uint8_t *);
+int set_gpio_input(uint8_t*);
 int set_gpio_number(int,int);
 
 void updateGlobalDir();
@@ -149,67 +149,23 @@ int main(void)
 
 	/* USER CODE BEGIN Init */
 	return_Command = 0;							// Set return command to 0
-	//	  int i = 0; 									// General counter
-
-	memset(incomig,0,sizeof(incomig));
-
-
-
-	//write("Test",20);
-	//  for (i = 0 ; i < sizeof(incomig) ; i++) {
-	//	  incomig[i] = 0xFF;
-	//  }
+	memset(incomig,0,sizeof(incomig));			// Init Incoming memory array.
 	/* USER CODE END Init */
-
 	/* Configure the system clock */
 	SystemClock_Config();
-
 	/* USER CODE BEGIN SysInit */
-
 	/* USER CODE END SysInit */
-
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
 	MX_I2C2_Init();
 	MX_USB_DEVICE_Init();
 	/* USER CODE BEGIN 2 */
-	HAL_Delay(500);
+	HAL_Delay(500);								// General delay for pin init
 
-
-
-	// Test Initial GPIO
-	//	// Power ON GPIO
-	//	HAL_GPIO_WritePin(GPIOB, LED1_Pin, 0);
-	//	HAL_GPIO_WritePin(GPIOB, LED2_Pin, 0);
-	//	HAL_Delay(500);
-	//	// Power OFF GPIO
-	//	HAL_GPIO_WritePin(GPIOB, LED1_Pin, 1);
-	//	HAL_GPIO_WritePin(GPIOB, LED2_Pin, 1);
-	//	//	HAL_Delay(500);
-	//	//	HAL_GPIO_WritePin(GPIOB, LED2_Pin, 0);
-	//	//	HAL_GPIO_WritePin(GPIOB, LED1_Pin, 0);
-	//
-	//	HAL_GPIO_WritePin(GPIOA, GPIO_1_Pin, 1);
-	//	HAL_GPIO_WritePin(GPIOA, GPIO_2_Pin, 1);
-	//	HAL_GPIO_WritePin(GPIOA, GPIO_3_Pin, 1);
-	//	HAL_GPIO_WritePin(GPIOA, GPIO_4_Pin, 1);
-
-	// Initial data to send to the terminal
-	CDC_Transmit_FS(InitialHeader, sizeof(InitialHeader));
-	HAL_Delay(10);
-	CDC_Transmit_FS(HW_REV, sizeof(HW_REV));
-	HAL_Delay(10);
-	CDC_Transmit_FS(SW_REV, sizeof(SW_REV));
-	HAL_Delay(10);
-	char newLine[] = "\r\n";
-	CDC_Transmit_FS(newLine, sizeof(newLine));				// Transmit new line
 
 	// Command defines
 	char help_command[] 			= "-H";					// Print Help screen Command
-	//	char set_output_dir_cmd[]			= "#";					// Set GPIO Output direction
-	//	char get_input_cmd[]			= "@";					// Get GPIO direction
-	//	char set_output_cmd[]			= "&";					// Set GPIO Input or Output direction
-
+	char detect_connected[]			= "-D";					// Detect Connected and update global array.
 	char set_output_cmd[]			= "&";					// Set GPIO to Output Command
 	char set_input_cmd[]			= "%";					// Set GPIO to Input Command
 	//	char set_output_dir_cmd[]		= "#";					// Set GPIO Output direction TODO remove after level fix commands
@@ -224,10 +180,20 @@ int main(void)
 
 
 
+
 	//	char testFailure[] = "\e[71;\"\"P\n\r##### FAILURE ######\n\r";
 	//	char sendASK[]  = "LEDT\r\n";
 	char resetScreen[] = "\ec";  							// Return screen to initial state
 	int funcReturn = 0;
+
+	// Initial screen print
+	write(InitialHeader);
+	CDC_Transmit_FS(HW_REV, sizeof(HW_REV));
+	HAL_Delay(10);
+	CDC_Transmit_FS(SW_REV, sizeof(SW_REV));
+	HAL_Delay(10);
+	char newLine[] = "\r\n";
+	CDC_Transmit_FS(newLine, sizeof(newLine));				// Transmit new line
 	//
 	// TODO Add EEPROM read function to read GPIO old GPIO values
 	// TODO Set Initial GPIO Value (From EEPROM or default?)
@@ -874,14 +840,15 @@ uint8_t change_gpio_level_number(uint8_t gpioNumber, uint8_t state) {
 		GPIO_InitTypeDef GPIO_InitStruct = {0};
 
 		switch (state) {
-		case 0:
+		case 0:    										// Input
 			GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
 			GPIO_InitStruct.Pull = GPIO_NOPULL;
+//			GPIO_InitStruct.Pull = GPIO_PULLDOWN;
 			//			write("State INPUT\r\n");
 			updateGIPO_state(gpioNumber,0);				// Update global array for GPIO state
 
 			break;
-		case 1:
+		case 1: 										// Output
 			GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 			GPIO_InitStruct.Pull = GPIO_PULLUP;
 			updateGIPO_state(gpioNumber,1);				// Update global array for GPIO state
@@ -1115,21 +1082,31 @@ void toggleEcho() {
 
 }
 
-// Set the global GPIO state array to its initial state
-void setGPIO_state() {
 
+/**
+ * @brief  Update GPIO state array to its initial state
+ * @param  None
+ * @retval None
+ */
+void setGPIO_state() {
 	for (int n = 0; n < MAX_GPIO; n++ ){
 		GPIO_STATE[n] = 1;
 	}
 }
 
-// Update global GPIO state array, Update only on correct GPIO value
+/**
+ * @brief	Update GPIO state array by the given number and state
+ * 			No update will happen on icorrect GPIO number. 
+ * 			State number is not tested
+ * @param	gpio - gpio number to be updated
+ * @param	state - State to be updated to 0 - In, 1 - Out	
+ * @retval	None
+ */
 void updateGIPO_state(int gpio, int state){
-
+	// Test GPIO range and update the currect array location with the desired state
 	if (testGPIO(gpio) == 0) {
 		GPIO_STATE[gpio-1] = state;
 	}
-
 }
 
 // Return the passed GPIO number state (INPUT / OUTPUT)
@@ -1144,9 +1121,30 @@ int getGPIO_state(uint8_t gpio) {
 		GPIO_state = GPIO_STATE[gpio-1];
 	}
 	else
-		GPIO_state = 3;		// Error return code
+		GPIO_state = ERROR_01;		// Error return code
 
 	return GPIO_state;
 }
 
+/* Check and Update the global array for connected GPIOs
+ * The test should be as follows:
+ * Set All GPIO's As Input PD and test all up are connected.
+ * Set all GPIO's as Input PU and test all down are connected.
+ */
+void detectConnected() {
+	// GPIO_CONNECTED
+	// GPIO_STATE[]
+	// GPIO_DIR[]
+	for (int n = 0 ; n < MAX_GPIO; n++) {
+		change_gpio_level_number(n,0);
+	}
+	updateGlobalDir();
+	for (int i = 0 ; i < MAX_GPIO; i++) {
+		if ( GPIO_DIR[i] == 1) {
+			GPIO_CONNECTED[i] = 1;
+		}
+	}
+
+
+}
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

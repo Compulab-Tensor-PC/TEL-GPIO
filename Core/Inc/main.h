@@ -37,10 +37,24 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-#define DEBUGLED   // Enables various LEDS debug points
 
-#define TESTBOARD
+// General configurations 
+#define DEBUGLED   // Enables various LEDS debug points
+#define DEBUG     // Enable debug messages output 
+// #define TESTBOARD   // Enable test board configuration
+
+
 #define MAX_GPIO 20
+
+// Global defines for GPIO states, names...
+
+#define IN                    0
+#define OUT                   1
+
+#define NOT_CONNECTED         3
+
+// Error code return, each error should have his own code and definition
+#define ERROR_01              21    // Error from get GPIO state function        
 
 char incomig[128];
 
@@ -70,6 +84,8 @@ void Error_Handler(void);
 /* USER CODE BEGIN EFP */
 void Error_Handler(void);
 
+// Print to USB serial
+void printHelp();
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
