@@ -164,18 +164,18 @@ int main(void)
 	HAL_Delay(500);								// General delay for pin init
 
 
-	// Command defines
-	char help_command[] 			= "-H";					// Print Help screen Command
-	char detect_connected[]			= "-D";					// Detect Connected GPIO's.  // TODO Not implimented
-
-	char set_output_cmd[]			= "&";					// Set GPIO to Output Command
-	char set_input_cmd[]			= "%";					// Set GPIO to Input Command
-	char get_input_cmd[]			= "@";					// Get GPIO Input direction
-	char get_gpio_state[]			= "?";					// Get GPIO state
-	char set_level_high[]			= "^";					// Set Output GPIO to level High
-	char set_level_low[]			= "_";					// Set Output GPIO to level Low
-
-	char toggle_echo[]				= "!";					// Toggle echo to USB serial printout
+//	// Command defines
+//	char help_command[] 			= "-H";					// Print Help screen Command
+//	char detect_connected[]			= "-D";					// Detect Connected GPIO's.  // TODO Not implimented
+//
+//	char set_output_cmd[]			= "&";					// Set GPIO to Output Command
+//	char set_input_cmd[]			= "%";					// Set GPIO to Input Command
+//	char get_input_cmd[]			= "@";					// Get GPIO Input direction
+//	char get_gpio_state[]			= "?";					// Get GPIO state
+//	char set_level_high[]			= "^";					// Set Output GPIO to level High
+//	char set_level_low[]			= "_";					// Set Output GPIO to level Low
+//
+//	char toggle_echo[]				= "!";					// Toggle echo to USB serial printout
 
 
 	char resetScreen[] = "\ec";  							// Return screen to initial state
@@ -203,7 +203,7 @@ int main(void)
 	{
 
 		/*
-		 * After each return value recived the incoming buffer is evaluated,
+		 * After each return value received the incoming buffer is evaluated,
 		 * and searched for command value on first matched command the appropriate
 		 * function is executed.
 		 */
@@ -390,7 +390,7 @@ int main(void)
 //				write(getGPIOIO);
 //
 //			} // Close set GPIO to Input
-			memset(incomig,NULL,sizeof(incomig));	// set the incoming array to zero
+			memset(incomig,(char)NULL,sizeof(incomig));	// set the incoming array to zero
 			funcReturn = 0;
 			command_code = 0;
 		} // Close if (if pressed Enter)
@@ -562,7 +562,7 @@ int parse_command(char* incomingBuffer) {
  */
 int parse_gpio(char *gpioP) {
 	char *temp_i, *temp_n;
-	int  gpio_n;									// init values needed for the function
+	int  gpio_n;
 
 	temp_i = gpioP;									// Get the first number
 	temp_n = gpioP + 1 ;							// Get the next number in memory
@@ -571,20 +571,16 @@ int parse_gpio(char *gpioP) {
 		gpio_n = ((*temp_n - 48) + ( (*temp_i - 48) * 10 ));
 
 		return gpio_n;
-	}
-	//	if (*temp_n == 44) { 							// Check for ',' in the second number
-	//		gpio_n = (int)*temp_i-48;
-	//		return gpio_n;								// Only one number, so return here
-	//	}
-
+	} 	// Close if test for integer number test
 	else {											// Calculate two dimension number
 		gpio_n = (int)*temp_i-48;
 		return gpio_n;
-	}
+	}	// Close else
 
 	// Should reach this only in case of error (wrong text format entered)
 	return gpio_n;
 }
+
 
 /**
  * @brief  	Set GPIO as per command received, handles all the set gpio commands
@@ -606,7 +602,7 @@ int set_gpio(char *buffer,int command) {
 		switch (command)
 		{
 		case (COMMAND_SET_HIGH):{
-			write("001 - set gPIO High\r\n");
+			write("001 - set GPIO High\r\n");
 			break;
 			}
 		case (COMMAND_SET_LOW):{
@@ -615,10 +611,12 @@ int set_gpio(char *buffer,int command) {
 			}
 		case (COMMAND_SET_OUTPUT):{
 			write("003 - Set GPIO Output\r\n");
+			set_gpio_state(gpio_number,1);
 			break;
 			}
 		case (COMMAND_SET_INPUT):{
 			write("004 - Set GPIO Input\r\n");
+			set_gpio_state(gpio_number,0);
 			break;
 			}
 		}
@@ -631,6 +629,142 @@ int set_gpio(char *buffer,int command) {
 	} // Close else for GPIO limit
 } // Close function set GPIO
 
+
+
+/**
+ * @brief Set GPIO state( output / input)
+ *
+ *
+ * @param  	int GPIO number in Integer
+ * @param	int GPIO level in integer 1 -Output 0 - Input
+ * @retval Return the changed to OUTPUT GPIO, will return 0 on ERROR. TODO add ERROR code
+ */
+int set_gpio_state(int gpioNumber, int state) {
+
+	// Validate GPIO range
+	if (testGPIO(gpioNumber) == 0) {
+
+
+		//#include "gpio.h"
+		GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+		switch (state) {
+		case 0:    										// Input
+			GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+			GPIO_InitStruct.Pull = GPIO_NOPULL;
+			//			GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+			//			write("State INPUT\r\n");
+			updateGIPO_state(gpioNumber,0);				// Update global array for GPIO state
+
+			break;
+		case 1: 										// Output
+			GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+			GPIO_InitStruct.Pull = GPIO_PULLUP;
+			updateGIPO_state(gpioNumber,1);				// Update global array for GPIO state
+			break;
+		default:
+			write("State wrong\r\n");
+			return 0;
+		}
+
+
+		//	GPIO_InitStruct.Pull = GPIO_NOPULL;
+
+		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+
+
+
+		//		write("set GPIO input OK\r\n");
+		switch (gpioNumber)
+
+		{
+		case 1:
+			GPIO_InitStruct.Pin = GPIO_1_Pin;
+			HAL_GPIO_Init(GPIO_1_GPIO_Port, &GPIO_InitStruct);
+			break;
+		case 2:
+			GPIO_InitStruct.Pin = GPIO_2_Pin;
+			HAL_GPIO_Init(GPIO_2_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 3:
+			GPIO_InitStruct.Pin = GPIO_3_Pin;
+			HAL_GPIO_Init(GPIO_3_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 4:
+			GPIO_InitStruct.Pin = GPIO_4_Pin;
+			HAL_GPIO_Init(GPIO_4_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 5:
+			GPIO_InitStruct.Pin = GPIO_5_Pin;
+			HAL_GPIO_Init(GPIO_5_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 6:
+			GPIO_InitStruct.Pin = GPIO_6_Pin;
+			HAL_GPIO_Init(GPIO_6_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 7:
+			GPIO_InitStruct.Pin = GPIO_7_Pin;
+			HAL_GPIO_Init(GPIO_7_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 8:
+			GPIO_InitStruct.Pin = GPIO_8_Pin;
+			HAL_GPIO_Init(GPIO_8_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 9:
+			GPIO_InitStruct.Pin = GPIO_9_Pin;
+			HAL_GPIO_Init(GPIO_9_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 10:
+			GPIO_InitStruct.Pin = GPIO_10_Pin;
+			HAL_GPIO_Init(GPIO_10_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 11:
+			GPIO_InitStruct.Pin = GPIO_11_Pin;
+			HAL_GPIO_Init(GPIO_11_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 12:
+			GPIO_InitStruct.Pin = GPIO_12_Pin;
+			HAL_GPIO_Init(GPIO_12_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 13:
+			GPIO_InitStruct.Pin = GPIO_13_Pin;
+			HAL_GPIO_Init(GPIO_13_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 14:
+			GPIO_InitStruct.Pin = GPIO_14_Pin;
+			HAL_GPIO_Init(GPIO_14_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 15:
+			GPIO_InitStruct.Pin = GPIO_15_Pin;
+			HAL_GPIO_Init(GPIO_15_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 16:
+			GPIO_InitStruct.Pin = GPIO_16_Pin;
+			HAL_GPIO_Init(GPIO_16_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 17:
+			GPIO_InitStruct.Pin = GPIO_17_Pin;
+			HAL_GPIO_Init(GPIO_17_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 18:
+			GPIO_InitStruct.Pin = GPIO_18_Pin;
+			HAL_GPIO_Init(GPIO_18_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 19:
+			GPIO_InitStruct.Pin = GPIO_19_Pin;
+			HAL_GPIO_Init(GPIO_19_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 20:
+			GPIO_InitStruct.Pin = GPIO_20_Pin;
+			HAL_GPIO_Init(GPIO_20_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		}
+	}
+	else {
+		write("Set GPIO Input Number wrong\r\n ");
+	}
+	return gpioNumber;
+}
 
 /**
  * @brief Set GPIO to the received level state
@@ -942,133 +1076,7 @@ int set_gpio_input(uint8_t *set_gpio_in) {
 }
 
 
-// Change GPIO STATE (OUTPUT / INPUT)
-uint8_t change_gpio_level_number(uint8_t gpioNumber, uint8_t state) {
 
-	// Validate GPIO range
-	if (testGPIO(gpioNumber) == 0) {
-
-
-		//#include "gpio.h"
-		GPIO_InitTypeDef GPIO_InitStruct = {0};
-
-		switch (state) {
-		case 0:    										// Input
-			GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-			GPIO_InitStruct.Pull = GPIO_NOPULL;
-			//			GPIO_InitStruct.Pull = GPIO_PULLDOWN;
-			//			write("State INPUT\r\n");
-			updateGIPO_state(gpioNumber,0);				// Update global array for GPIO state
-
-			break;
-		case 1: 										// Output
-			GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-			GPIO_InitStruct.Pull = GPIO_PULLUP;
-			updateGIPO_state(gpioNumber,1);				// Update global array for GPIO state
-			break;
-		default:
-			write("State wrong\r\n");
-			return 0;
-		}
-
-
-		//	GPIO_InitStruct.Pull = GPIO_NOPULL;
-
-		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-
-
-
-		//		write("set GPIO input OK\r\n");
-		switch (gpioNumber)
-
-		{
-		case 1:
-			GPIO_InitStruct.Pin = GPIO_1_Pin;
-			HAL_GPIO_Init(GPIO_1_GPIO_Port, &GPIO_InitStruct);
-			break;
-		case 2:
-			GPIO_InitStruct.Pin = GPIO_2_Pin;
-			HAL_GPIO_Init(GPIO_2_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 3:
-			GPIO_InitStruct.Pin = GPIO_3_Pin;
-			HAL_GPIO_Init(GPIO_3_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 4:
-			GPIO_InitStruct.Pin = GPIO_4_Pin;
-			HAL_GPIO_Init(GPIO_4_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 5:
-			GPIO_InitStruct.Pin = GPIO_5_Pin;
-			HAL_GPIO_Init(GPIO_5_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 6:
-			GPIO_InitStruct.Pin = GPIO_6_Pin;
-			HAL_GPIO_Init(GPIO_6_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 7:
-			GPIO_InitStruct.Pin = GPIO_7_Pin;
-			HAL_GPIO_Init(GPIO_7_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 8:
-			GPIO_InitStruct.Pin = GPIO_8_Pin;
-			HAL_GPIO_Init(GPIO_8_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 9:
-			GPIO_InitStruct.Pin = GPIO_9_Pin;
-			HAL_GPIO_Init(GPIO_9_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 10:
-			GPIO_InitStruct.Pin = GPIO_10_Pin;
-			HAL_GPIO_Init(GPIO_10_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 11:
-			GPIO_InitStruct.Pin = GPIO_11_Pin;
-			HAL_GPIO_Init(GPIO_11_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 12:
-			GPIO_InitStruct.Pin = GPIO_12_Pin;
-			HAL_GPIO_Init(GPIO_12_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 13:
-			GPIO_InitStruct.Pin = GPIO_13_Pin;
-			HAL_GPIO_Init(GPIO_13_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 14:
-			GPIO_InitStruct.Pin = GPIO_14_Pin;
-			HAL_GPIO_Init(GPIO_14_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 15:
-			GPIO_InitStruct.Pin = GPIO_15_Pin;
-			HAL_GPIO_Init(GPIO_15_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 16:
-			GPIO_InitStruct.Pin = GPIO_16_Pin;
-			HAL_GPIO_Init(GPIO_16_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 17:
-			GPIO_InitStruct.Pin = GPIO_17_Pin;
-			HAL_GPIO_Init(GPIO_17_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 18:
-			GPIO_InitStruct.Pin = GPIO_18_Pin;
-			HAL_GPIO_Init(GPIO_18_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 19:
-			GPIO_InitStruct.Pin = GPIO_19_Pin;
-			HAL_GPIO_Init(GPIO_19_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		case 20:
-			GPIO_InitStruct.Pin = GPIO_20_Pin;
-			HAL_GPIO_Init(GPIO_20_GPIO_Port,  &GPIO_InitStruct);
-			break;
-		}
-	}
-	else {
-		write("Set GPIO Input Number wrong\r\n ");
-	}
-	return gpioNumber;
-}
 
 
 // Perform test on the received GPIO, for now only the max and min GPIO number

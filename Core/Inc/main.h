@@ -118,10 +118,9 @@ void Error_Handler(void);
 
 int parse_command(char*);				// Parse command and return command code
 int parse_gpio(char*);
-int set_gpio(char*, int);					// Global command for all Set command
-//int setGPIO_level(int,int);				// Set GPIO Level 0 - Low   1 - High
-int set_gpio_state(char*, int);			// Set GPIO state 0 - Input 1 - Output
-int set_gpio_level(char*, int);			// Set GPIO Level 0 - Low   1 - High
+int set_gpio(char*, int);				// Global command for all Set command
+int set_gpio_state(int, int);			// Set GPIO state 0 - Input 1 - Output
+int set_gpio_level(int, int);			// Set GPIO Level 0 - Low   1 - High
 
 
 
