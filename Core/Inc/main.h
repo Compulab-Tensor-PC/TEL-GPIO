@@ -44,19 +44,41 @@ extern "C" {
 // #define TESTBOARD   // Enable test board configuration
 
 
-#define MAX_GPIO 20
+#define MAX_GPIO 					20		// Max Connected GPIO pins to board
+#define INCOMING_BUFFER				128		// Incoming buffer size
 
-// Global defines for GPIO states, names...
+// ############ GPIO function Defines #####################################
 
-#define IN                    0
-#define OUT                   1
+#define IN                    		0
+#define OUT                   		1
 
-#define NOT_CONNECTED         3
+#define NOT_CONNECTED         		3
+
+
 
 // Error code return, each error should have his own code and definition
-#define ERROR_01              21    // Error from get GPIO state function        
+#define ERROR_01              21    // Error from get GPIO state function
 
-char incomig[128];
+
+// ############ Commands Define ###########################################
+
+#define COMMAND_SET_OUTPUT			1		// Set GPIO to Output
+#define COMMAND_SET_HIGH			2 		// Set GPIO Level High on Output
+#define COMMAND_SET_LOW				3 		// Set GPIO Level Low on Output
+#define COMMAND_SET_INPUT 			4 		// SET GPIO Input
+
+#define COMMAND_GET_INPUT			5 		// Get GPIO Input value
+#define COMMAND_GET_STATE			6 		// Get GPIO state
+
+
+#define COMMAND_PRINT_HELP			11		// Print Help Information
+#define COMMAND_DETECT_CONNECTED	12		// Detect Connected GPIO
+#define COMMAND_TOGGLE_ECHO			13		// Toggle Echo to user over USB Serial
+
+
+
+
+char incomig[INCOMING_BUFFER];
 
 
 uint8_t return_Command;
