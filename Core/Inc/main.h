@@ -59,7 +59,8 @@ extern "C" {
 // Error code return, each error should have his own code and definition
 #define ERROR_01              		21     	// Error from get GPIO state function
 #define ERROR_02					22		// Error code from ParseCommand function (Unknown command)
-
+#define ERROR_03					23		// Error code from SetGPIO_level on wrong GPIO number
+#define ERROR_04					24		// ERROR wrong State number, in setGPIO_level
 
 // ############ Commands Define ###########################################
 
@@ -115,7 +116,14 @@ int ECHO_ENABLE;
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
-int ParseCommand(char*);
+int parse_command(char*);				// Parse command and return command code
+int parse_gpio(char*);
+int set_gpio(char*, int);					// Global command for all Set command
+//int setGPIO_level(int,int);				// Set GPIO Level 0 - Low   1 - High
+int set_gpio_state(char*, int);			// Set GPIO state 0 - Input 1 - Output
+int set_gpio_level(char*, int);			// Set GPIO Level 0 - Low   1 - High
+
+
 
 
 /* USER CODE BEGIN EFP */

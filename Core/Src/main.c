@@ -55,7 +55,7 @@ int GPIO_STATE[MAX_GPIO];
 int GPIO_CONNECTED[MAX_GPIO];
 
 
-int set_gpio(uint8_t*,int);
+//int set_gpio(uint8_t*,int);
 int set_gpio_output(uint8_t*);
 int set_gpio_input(uint8_t*);
 int set_gpio_number(int,int);
@@ -211,7 +211,8 @@ int main(void)
 		if (strstr(incomig,"\r") != NULL ) {
 			write("\r\n");		// If pressed Enter Send new line to terminal
 
-			command_code = ParseCommand(incomig);
+			command_code = parse_command(incomig);
+			int gpio = 0;
 
 			switch (command_code)
 			{
@@ -219,18 +220,22 @@ int main(void)
 				printHelp();
 				break;
 			case COMMAND_SET_HIGH:						// Set High
+				funcReturn = set_gpio(strstr(incomig,SET_GPIO_HIGH),COMMAND_SET_HIGH);
 				write("Command set High\r\n");
 				break;
 			case COMMAND_SET_LOW:						// Set Low
+				funcReturn = set_gpio(strstr(incomig,SET_GPIO_LOW),COMMAND_SET_LOW);
 				write("Command set Low\r\n");
 				break;
 			case COMMAND_TOGGLE_ECHO:					// Toggle ECHO
 				toggleEcho();
 				break;
 			case COMMAND_SET_INPUT:						// Set INPUT
+				funcReturn = set_gpio(strstr(incomig,SET_GPIO_INPUT),COMMAND_SET_INPUT);
 				write("Set Input\r\n");
 				break;
 			case COMMAND_SET_OUTPUT:					// Set OUTPUT
+				funcReturn = set_gpio(strstr(incomig,SET_GPIO_OUTPUT),COMMAND_SET_OUTPUT);
 				write("Set Output\r\n");
 				break;
 			case COMMAND_GET_STATE:						// Get State
@@ -239,152 +244,152 @@ int main(void)
 			case COMMAND_GET_LEVEL:						// Get Level
 				write("Get GPIO Level\r\n");
 				break;
-			default:
+			default:									// no command / wrong command
 				write("Wrong command entered\r\n");
 				break;
 			}
 
 
-			// ### HELP SCREEN ###
-			if (strstr(incomig,help_command) != NULL) {
-				//				printHelp();
-			} // Close if for print help function
-
-			// ### SET GPIO LEVEL HIGH ###
-			else if (strstr(incomig,set_level_high) != NULL) {
-				//				write("SET GPIO LEVEL HIGH\r\n");
-				funcReturn = set_gpio(strstr(incomig,set_level_high),1);
-
-				if (funcReturn != 0) {
-
-					char setGPIO_string[2];
-					itoa (funcReturn,setGPIO_string,10); // Convert from int to char
-
-					char setGPIO[30] = "Set GPIO #:   to High\r\n";
-
-					setGPIO[11] =  setGPIO_string[0]; // Place in the correct array location
-					setGPIO[12] =  setGPIO_string[1];
-					//				strstr(setGPIO,funcReturn);
-
-					write(setGPIO);			// Print
-				}
-			}
-			//set_level_low
-			else if (strstr(incomig,set_level_low) != NULL) {
-				//				write("SET GPIO LEVEL HIGH\r\n");
-				funcReturn = set_gpio(strstr(incomig,set_level_low),0);
-
-				if (funcReturn != 0) {
-
-					char setGPIO_string[2];
-					itoa (funcReturn,setGPIO_string,10); // Convert from int to char
-
-					char setGPIO[30] = "Set GPIO #:   to Low\r\n";
-
-					setGPIO[11] =  setGPIO_string[0]; // Place in the correct array location
-					setGPIO[12] =  setGPIO_string[1];
-					//				strstr(setGPIO,funcReturn);
-
-					write(setGPIO);			// Print
-				}
-			}
-
-			// ### TOGGLE ECHO ###
-			else if (strstr(incomig,toggle_echo) != NULL) {
-
-				//				toggleEcho();
-			}
-
-			// Get GPIO 1,0 - Note that GPIO needed to be configured to input for correct result.
-			// Otherwise the result will be what programmed in setGPIO
-			// ### GET GPIO INPUT STATE ###
-			else if ((strstr(incomig,get_input_cmd) != NULL)) {
-				//				char *test;
-				char getGPIO_string[2];
-
-				funcReturn = get_gpio_level(strstr(incomig,get_input_cmd));
-
-				if ((funcReturn == 0) | (funcReturn == 1) ) {
-
-					itoa (funcReturn,getGPIO_string,10); // Convert from int to char
-					char getGPIO[30] = "GPIO Dir#:    \r\n";
-
-					getGPIO[11] =  getGPIO_string[0]; // Place in the correct array location
-					getGPIO[12] =  getGPIO_string[1];
-					//				strstr(setGPIO,funcReturn);
-
-					write(getGPIO);
-				}
-
-
-			} // Close if for getGPIO command
-			// set_output_cmd
-			// ### SET GPIO TO OUTPUT ###
-			else if ((strstr(incomig,set_output_cmd) != NULL)) {
-
-
-				funcReturn = set_gpio_output(strstr(incomig,set_output_cmd));
-
-
-				char getGPIO_string[2];
-
-				itoa (funcReturn,getGPIO_string,10); // Convert from int to char
-
-
-				char getGPIOIO[25] = "Set Output GPIO #:   \r\n";
-				getGPIOIO[19] =  getGPIO_string[0]; // Place in the correct array location
-				getGPIOIO[20] =  getGPIO_string[1];
-				write(getGPIOIO);
-			}	// Close set GPIO to OUTPUT
-
-			// Set GPIO to Input
-			// ### SET GPIO TO INPUT ###
-			else if ((strstr(incomig,set_input_cmd) != NULL)) {
-				//				write("Set GPIO to Input\r\n");
-
-				funcReturn = set_gpio_input(strstr(incomig,set_input_cmd));
-
-				char getGPIO_string[2];
-
-				itoa (funcReturn,getGPIO_string,10); // Convert from int to char
-				char getGPIOIO[25] = "Set Input GPIO #:   \r\n";
-				getGPIOIO[18] =  getGPIO_string[0]; // Place in the correct array location
-				getGPIOIO[19] =  getGPIO_string[1];
-				write(getGPIOIO);
-
-
-			} // Close set GPIO to Input
-
-			else if ((strstr(incomig,get_gpio_state) != NULL)) {
-				//				write("Set GPIO to Input\r\n");
-				int gpio_number;
-				char getstate_string[2];
-				char getGPIOIO[40] = "GPIO state (IN / OUT):   \r\n";
-
-
-				gpio_number = get_gpio(strstr(incomig,get_gpio_state)+1);
-
-				//				funcReturn = getGPIO_state(strstr(incomig,get_gpio_state));
-
-				funcReturn = getGPIO_state(gpio_number);
-
-				if ((funcReturn == 1) | (funcReturn == 0) ) {
-
-					itoa (funcReturn,getstate_string,10); // Convert from int to char
-
-					getGPIOIO[23] =  getstate_string[0]; 	// Place in the correct array location
-					getGPIOIO[24] =  getstate_string[1];	// int result
-				}
-				else if (funcReturn == 2) {
-					getGPIOIO[23] =  'X'; // Place in the correct array location
-				}
-				else if (funcReturn == 3) {
-					getGPIOIO[23] =  '*'; // Place in the correct array location
-				}
-
-				write(getGPIOIO);
-
-			} // Close set GPIO to Input
+//			// ### HELP SCREEN ###
+//			if (strstr(incomig,help_command) != NULL) {
+//				//				printHelp();
+//			} // Close if for print help function
+//
+//			// ### SET GPIO LEVEL HIGH ###
+//			else if (strstr(incomig,set_level_high) != NULL) {
+//				//				write("SET GPIO LEVEL HIGH\r\n");
+//				funcReturn = set_gpio(strstr(incomig,set_level_high),1);
+//
+//				if (funcReturn != 0) {
+//
+//					char setGPIO_string[2];
+//					itoa (funcReturn,setGPIO_string,10); // Convert from int to char
+//
+//					char setGPIO[30] = "Set GPIO #:   to High\r\n";
+//
+//					setGPIO[11] =  setGPIO_string[0]; // Place in the correct array location
+//					setGPIO[12] =  setGPIO_string[1];
+//					//				strstr(setGPIO,funcReturn);
+//
+//					write(setGPIO);			// Print
+//				}
+//			}
+//			//set_level_low
+//			else if (strstr(incomig,set_level_low) != NULL) {
+//				//				write("SET GPIO LEVEL HIGH\r\n");
+//				funcReturn = set_gpio(strstr(incomig,set_level_low),0);
+//
+//				if (funcReturn != 0) {
+//
+//					char setGPIO_string[2];
+//					itoa (funcReturn,setGPIO_string,10); // Convert from int to char
+//
+//					char setGPIO[30] = "Set GPIO #:   to Low\r\n";
+//
+//					setGPIO[11] =  setGPIO_string[0]; // Place in the correct array location
+//					setGPIO[12] =  setGPIO_string[1];
+//					//				strstr(setGPIO,funcReturn);
+//
+//					write(setGPIO);			// Print
+//				}
+//			}
+//
+//			// ### TOGGLE ECHO ###
+//			else if (strstr(incomig,toggle_echo) != NULL) {
+//
+//				//				toggleEcho();
+//			}
+//
+//			// Get GPIO 1,0 - Note that GPIO needed to be configured to input for correct result.
+//			// Otherwise the result will be what programmed in setGPIO
+//			// ### GET GPIO INPUT STATE ###
+//			else if ((strstr(incomig,get_input_cmd) != NULL)) {
+//				//				char *test;
+//				char getGPIO_string[2];
+//
+//				funcReturn = get_gpio_level(strstr(incomig,get_input_cmd));
+//
+//				if ((funcReturn == 0) | (funcReturn == 1) ) {
+//
+//					itoa (funcReturn,getGPIO_string,10); // Convert from int to char
+//					char getGPIO[30] = "GPIO Dir#:    \r\n";
+//
+//					getGPIO[11] =  getGPIO_string[0]; // Place in the correct array location
+//					getGPIO[12] =  getGPIO_string[1];
+//					//				strstr(setGPIO,funcReturn);
+//
+//					write(getGPIO);
+//				}
+//
+//
+//			} // Close if for getGPIO command
+//			// set_output_cmd
+//			// ### SET GPIO TO OUTPUT ###
+//			else if ((strstr(incomig,set_output_cmd) != NULL)) {
+//
+//
+//				funcReturn = set_gpio_output(strstr(incomig,set_output_cmd));
+//
+//
+//				char getGPIO_string[2];
+//
+//				itoa (funcReturn,getGPIO_string,10); // Convert from int to char
+//
+//
+//				char getGPIOIO[25] = "Set Output GPIO #:   \r\n";
+//				getGPIOIO[19] =  getGPIO_string[0]; // Place in the correct array location
+//				getGPIOIO[20] =  getGPIO_string[1];
+//				write(getGPIOIO);
+//			}	// Close set GPIO to OUTPUT
+//
+//			// Set GPIO to Input
+//			// ### SET GPIO TO INPUT ###
+//			else if ((strstr(incomig,set_input_cmd) != NULL)) {
+//				//				write("Set GPIO to Input\r\n");
+//
+//				funcReturn = set_gpio_input(strstr(incomig,set_input_cmd));
+//
+//				char getGPIO_string[2];
+//
+//				itoa (funcReturn,getGPIO_string,10); // Convert from int to char
+//				char getGPIOIO[25] = "Set Input GPIO #:   \r\n";
+//				getGPIOIO[18] =  getGPIO_string[0]; // Place in the correct array location
+//				getGPIOIO[19] =  getGPIO_string[1];
+//				write(getGPIOIO);
+//
+//
+//			} // Close set GPIO to Input
+//
+//			else if ((strstr(incomig,get_gpio_state) != NULL)) {
+//				//				write("Set GPIO to Input\r\n");
+//				int gpio_number;
+//				char getstate_string[2];
+//				char getGPIOIO[40] = "GPIO state (IN / OUT):   \r\n";
+//
+//
+//				gpio_number = get_gpio(strstr(incomig,get_gpio_state)+1);
+//
+//				//				funcReturn = getGPIO_state(strstr(incomig,get_gpio_state));
+//
+//				funcReturn = getGPIO_state(gpio_number);
+//
+//				if ((funcReturn == 1) | (funcReturn == 0) ) {
+//
+//					itoa (funcReturn,getstate_string,10); // Convert from int to char
+//
+//					getGPIOIO[23] =  getstate_string[0]; 	// Place in the correct array location
+//					getGPIOIO[24] =  getstate_string[1];	// int result
+//				}
+//				else if (funcReturn == 2) {
+//					getGPIOIO[23] =  'X'; // Place in the correct array location
+//				}
+//				else if (funcReturn == 3) {
+//					getGPIOIO[23] =  '*'; // Place in the correct array location
+//				}
+//
+//				write(getGPIOIO);
+//
+//			} // Close set GPIO to Input
 			memset(incomig,NULL,sizeof(incomig));	// set the incoming array to zero
 			funcReturn = 0;
 			command_code = 0;
@@ -518,70 +523,106 @@ void printHelp() {
  * @param  Pointer to Incoming buffer
  * @retval int command code
  */
-int ParseCommand(char* incomingBuffer) {
-	int returnCode = 0;
+int parse_command(char* incomingBuffer) {
 
+	int return_command;
 	if (strstr(incomingBuffer,HELP_COMMAND) != NULL) {
-		returnCode = COMMAND_PRINT_HELP;
+		return_command = COMMAND_PRINT_HELP;
 	}
 	else if (strstr(incomingBuffer,SET_GPIO_HIGH) != NULL) {
-		returnCode = COMMAND_SET_HIGH;
+		return_command = COMMAND_SET_HIGH;
 	}
 	else if (strstr(incomingBuffer,SET_GPIO_LOW) != NULL) {
-		returnCode = COMMAND_SET_LOW;
+		return_command = COMMAND_SET_LOW;
 	}
 	else if (strstr(incomingBuffer,TOGGLE_ECHO) != NULL) {
-		returnCode = COMMAND_TOGGLE_ECHO;
+		return_command = COMMAND_TOGGLE_ECHO;
 	}
 	else if ((strstr(incomingBuffer,SET_GPIO_INPUT) != NULL)) {
-		returnCode = COMMAND_SET_INPUT;
+		return_command = COMMAND_SET_INPUT;
 	}
 	else if ((strstr(incomingBuffer,SET_GPIO_OUTPUT) != NULL)) {
-		returnCode = COMMAND_SET_OUTPUT;
+		return_command = COMMAND_SET_OUTPUT;
 	}
 	else if ((strstr(incomingBuffer,GET_GPIO_STATE) != NULL)) {
-			returnCode = COMMAND_GET_STATE;
-		}
+		return_command = COMMAND_GET_STATE;
+	}
 	else if ((strstr(incomingBuffer,GET_GPIO_LEVEL) != NULL)) {
-			returnCode = COMMAND_GET_LEVEL;
-		}
+		return_command = COMMAND_GET_LEVEL;
+	}
 
-
-	return returnCode;
+	return return_command;
 }
 
 
-// If increase or decrease in GPIO numbers needed, Change the Error check for GPIO number max minimum
-// And switch case statement
-int set_gpio(uint8_t *set_gpioP,int level) {
+/**
+ * @brief  Return gpio number from the incoming buffer refernced by the pointer
+ * @param  Pointer to Incoming buffer
+ * @retval int gpio number
+ */
+int parse_gpio(char *gpioP) {
+	char *temp_i, *temp_n;
+	int  gpio_n;									// init values needed for the function
+
+	temp_i = gpioP;									// Get the first number
+	temp_n = gpioP + 1 ;							// Get the next number in memory
+
+	if ((*temp_n >= 48) & (*temp_n <= 57) ) {
+		gpio_n = ((*temp_n - 48) + ( (*temp_i - 48) * 10 ));
+
+		return gpio_n;
+	}
+	//	if (*temp_n == 44) { 							// Check for ',' in the second number
+	//		gpio_n = (int)*temp_i-48;
+	//		return gpio_n;								// Only one number, so return here
+	//	}
+
+	else {											// Calculate two dimension number
+		gpio_n = (int)*temp_i-48;
+		return gpio_n;
+	}
+
+	// Should reach this only in case of error (wrong text format entered)
+	return gpio_n;
+}
+
+/**
+ * @brief  	Set GPIO as per command received, handles all the set gpio commands
+ * 			Only GPIO range numbering is tested.
+ *
+ * @param  	Pointer to Incoming buffer
+ * @param   int Incoming command value
+ * @retval 	Return code of the operation
+ */
+int set_gpio(char *buffer,int command) {
 	//	uint8_t *state;
-	uint8_t *gpio_num;
+	int gpio_number = 0;
 
-	int gpio_number;
-	int state;
-
-	// - Get GPIO Number and validate
-	// - Get command state and validate
-	// - Set the correct GPIO according to command state
-
-
-	gpio_number = get_gpio(set_gpioP+1);
+	gpio_number = get_gpio(buffer+1);
 
 	// TEST GPIO LIMIT
 	if (testGPIO(gpio_number) == 0) {
-		//		state = get_state(strstr(set_gpioP,","));
 
-
-		if ((level < 0) | (level > 1)) {
-			write("Wrong state in set OUTPUT Direction/r/n");
-			return 0;
+		switch (command)
+		{
+		case (COMMAND_SET_HIGH):{
+			write("001 - set gPIO High\r\n");
+			break;
+			}
+		case (COMMAND_SET_LOW):{
+			write("002 - Set GPIO Low\r\n");
+			break;
+			}
+		case (COMMAND_SET_OUTPUT):{
+			write("003 - Set GPIO Output\r\n");
+			break;
+			}
+		case (COMMAND_SET_INPUT):{
+			write("004 - Set GPIO Input\r\n");
+			break;
+			}
 		}
-
-		set_gpio_number(gpio_number,level);
-
-
 		return gpio_number;
-
 	}	// Close If Check for GPIO limit
 
 	else {
@@ -589,6 +630,7 @@ int set_gpio(uint8_t *set_gpioP,int level) {
 		return 0;
 	} // Close else for GPIO limit
 } // Close function set GPIO
+
 
 /**
  * @brief Set GPIO to the received level state
@@ -718,6 +760,7 @@ int get_gpio(uint8_t *gpioP) {
 
 }
 
+
 // Return the state number as received, evaluation for correct number best be handled in the main function
 // As the state number range may change depending on the function calling
 int get_state(uint8_t *stateP) {
@@ -729,6 +772,7 @@ int get_state(uint8_t *stateP) {
 
 	return state;
 }
+
 
 /**
  * @brief Get the GPIO level state
@@ -840,6 +884,8 @@ uint8_t get_gpio_level_number(uint8_t gpioNumber) {
 		return 3; // Error state
 	} // end switch statement
 }
+
+
 /**
  * @brief  Invoked after parsing incoming data buffer for set GPIO to OUTPUT command
  *
@@ -1022,8 +1068,8 @@ uint8_t change_gpio_level_number(uint8_t gpioNumber, uint8_t state) {
 		write("Set GPIO Input Number wrong\r\n ");
 	}
 	return gpioNumber;
-
 }
+
 
 // Perform test on the received GPIO, for now only the max and min GPIO number
 /**
@@ -1047,6 +1093,7 @@ int testGPIO(int GPIO_NUM) {
 	else
 		return 1;
 }
+
 
 void updateGlobalDir() {
 
@@ -1090,8 +1137,8 @@ void updateGlobalDir() {
 
 	strcat(GPIO_INPUT_PRINT, "\r\n");
 	write(GPIO_INPUT_PRINT);
-
 }
+
 
 /**
  * @brief  Print the global State of Each GPIO pin
@@ -1161,6 +1208,7 @@ void setGPIO_state() {
 	}
 }
 
+
 /**
  * @brief	Update GPIO state array by the given number and state
  * 			No update will happen on icorrect GPIO number.
@@ -1211,17 +1259,144 @@ void detectConnected() {
 			GPIO_CONNECTED[i] = 1;
 		}
 	}
-
-
 }
 
 /**
- * @brief	Parse recive pointer to a GPIO command
- * @param	command -
- * @param	state - State to be updated to 0 - In, 1 - Out
- * @retval	None
+ * @brief	Set GPIO to the received level state
+ * @param	int GPIO to be changed
+ * @param	int State to be updated to 0 - In, 1 - Out
+ * @retval	int Function return code
  */
-int parseCommand(){
+int setGPIO_level(int gpio_number, int state) {
+	int returnCode = 0;
 
+	// Validate GPIO range
+	if (testGPIO(gpio_number) == 0) {
+
+		GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+		switch (state) {
+		case 0:    											// Input
+			GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+			GPIO_InitStruct.Pull = GPIO_NOPULL;
+			//			GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+			//			write("State INPUT\r\n");
+			updateGIPO_state(gpio_number,0);
+			break;
+		case 1: 											// Output
+			GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+			GPIO_InitStruct.Pull = GPIO_PULLUP;
+			updateGIPO_state(gpio_number,1);				// Update global array for GPIO state
+			break;
+		default:
+			write("State wrong ERROR_04\r\n");
+			returnCode = ERROR_04;
+			return returnCode;
+			break;
+		}
+
+		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+
+
+		//		write("set GPIO input OK\r\n");
+		switch (gpio_number)
+
+		{
+		case 1:
+			GPIO_InitStruct.Pin = GPIO_1_Pin;
+			HAL_GPIO_Init(GPIO_1_GPIO_Port, &GPIO_InitStruct);
+			break;
+		case 2:
+			GPIO_InitStruct.Pin = GPIO_2_Pin;
+			HAL_GPIO_Init(GPIO_2_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 3:
+			GPIO_InitStruct.Pin = GPIO_3_Pin;
+			HAL_GPIO_Init(GPIO_3_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 4:
+			GPIO_InitStruct.Pin = GPIO_4_Pin;
+			HAL_GPIO_Init(GPIO_4_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 5:
+			GPIO_InitStruct.Pin = GPIO_5_Pin;
+			HAL_GPIO_Init(GPIO_5_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 6:
+			GPIO_InitStruct.Pin = GPIO_6_Pin;
+			HAL_GPIO_Init(GPIO_6_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 7:
+			GPIO_InitStruct.Pin = GPIO_7_Pin;
+			HAL_GPIO_Init(GPIO_7_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 8:
+			GPIO_InitStruct.Pin = GPIO_8_Pin;
+			HAL_GPIO_Init(GPIO_8_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 9:
+			GPIO_InitStruct.Pin = GPIO_9_Pin;
+			HAL_GPIO_Init(GPIO_9_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 10:
+			GPIO_InitStruct.Pin = GPIO_10_Pin;
+			HAL_GPIO_Init(GPIO_10_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 11:
+			GPIO_InitStruct.Pin = GPIO_11_Pin;
+			HAL_GPIO_Init(GPIO_11_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 12:
+			GPIO_InitStruct.Pin = GPIO_12_Pin;
+			HAL_GPIO_Init(GPIO_12_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 13:
+			GPIO_InitStruct.Pin = GPIO_13_Pin;
+			HAL_GPIO_Init(GPIO_13_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 14:
+			GPIO_InitStruct.Pin = GPIO_14_Pin;
+			HAL_GPIO_Init(GPIO_14_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 15:
+			GPIO_InitStruct.Pin = GPIO_15_Pin;
+			HAL_GPIO_Init(GPIO_15_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 16:
+			GPIO_InitStruct.Pin = GPIO_16_Pin;
+			HAL_GPIO_Init(GPIO_16_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 17:
+			GPIO_InitStruct.Pin = GPIO_17_Pin;
+			HAL_GPIO_Init(GPIO_17_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 18:
+			GPIO_InitStruct.Pin = GPIO_18_Pin;
+			HAL_GPIO_Init(GPIO_18_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 19:
+			GPIO_InitStruct.Pin = GPIO_19_Pin;
+			HAL_GPIO_Init(GPIO_19_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		case 20:
+			GPIO_InitStruct.Pin = GPIO_20_Pin;
+			HAL_GPIO_Init(GPIO_20_GPIO_Port,  &GPIO_InitStruct);
+			break;
+		}
+	}
+	else {
+		returnCode = ERROR_03;
+		write("Set GPIO Input Number wrong\r\n ");
+	}
+	return returnCode;
 }
+///**
+// * @brief	Parse recive pointer to a GPIO command
+// * @param	command -
+// * @param	state - State to be updated to 0 - In, 1 - Out
+// * @retval	None
+// */
+//int parseCommand(){
+//
+//}
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
