@@ -138,6 +138,7 @@ int main(void)
 	// Enable echo to USB serial console
 	ECHO_ENABLE = 1;
 
+	int command_code = 0;
 	// initialize the global GPIO state
 	setGPIO_state();
 	/* USER CODE END 1 */
@@ -175,7 +176,7 @@ int main(void)
 	char set_level_low[]			= "_";					// Set Output GPIO to level Low
 
 	char toggle_echo[]				= "!";					// Toggle echo to USB serial printout
-	
+
 
 	char resetScreen[] = "\ec";  							// Return screen to initial state
 	int funcReturn = 0;
@@ -200,14 +201,53 @@ int main(void)
 	/* USER CODE BEGIN WHILE */
 	while (1)
 	{
-		//		// Check each time the array for return string
-		//		// When found start checking the array for meaningful commands
+
+		/*
+		 * After each return value recived the incoming buffer is evaluated,
+		 * and searched for command value on first matched command the appropriate
+		 * function is executed.
+		 */
+		// After Each Enter press the incoming buffer is evaluated,
 		if (strstr(incomig,"\r") != NULL ) {
 			write("\r\n");		// If pressed Enter Send new line to terminal
 
+			command_code = ParseCommand(incomig);
+
+			switch (command_code)
+			{
+			case COMMAND_PRINT_HELP:					// Help Screen
+				printHelp();
+				break;
+			case COMMAND_SET_HIGH:						// Set High
+				write("Command set High\r\n");
+				break;
+			case COMMAND_SET_LOW:						// Set Low
+				write("Command set Low\r\n");
+				break;
+			case COMMAND_TOGGLE_ECHO:					// Toggle ECHO
+				toggleEcho();
+				break;
+			case COMMAND_SET_INPUT:						// Set INPUT
+				write("Set Input\r\n");
+				break;
+			case COMMAND_SET_OUTPUT:					// Set OUTPUT
+				write("Set Output\r\n");
+				break;
+			case COMMAND_GET_STATE:						// Get State
+				write("Get GPIO STATE\r\n");
+				break;
+			case COMMAND_GET_LEVEL:						// Get Level
+				write("Get GPIO Level\r\n");
+				break;
+			default:
+				write("Wrong command entered\r\n");
+				break;
+			}
+
+
 			// ### HELP SCREEN ###
 			if (strstr(incomig,help_command) != NULL) {
-				printHelp();
+				//				printHelp();
 			} // Close if for print help function
 
 			// ### SET GPIO LEVEL HIGH ###
@@ -251,7 +291,8 @@ int main(void)
 
 			// ### TOGGLE ECHO ###
 			else if (strstr(incomig,toggle_echo) != NULL) {
-				toggleEcho();
+
+				//				toggleEcho();
 			}
 
 			// Get GPIO 1,0 - Note that GPIO needed to be configured to input for correct result.
@@ -346,6 +387,7 @@ int main(void)
 			} // Close set GPIO to Input
 			memset(incomig,NULL,sizeof(incomig));	// set the incoming array to zero
 			funcReturn = 0;
+			command_code = 0;
 		} // Close if (if pressed Enter)
 	}	// Close main while loop
 }	// Close main()
@@ -470,6 +512,44 @@ void printHelp() {
 	printGlobalState();
 	write("-----------------------------------------------------------------------\r\n");
 }
+
+/**
+ * @brief  Return Command code of the passed incomming buffer pointer
+ * @param  Pointer to Incoming buffer
+ * @retval int command code
+ */
+int ParseCommand(char* incomingBuffer) {
+	int returnCode = 0;
+
+	if (strstr(incomingBuffer,HELP_COMMAND) != NULL) {
+		returnCode = COMMAND_PRINT_HELP;
+	}
+	else if (strstr(incomingBuffer,SET_GPIO_HIGH) != NULL) {
+		returnCode = COMMAND_SET_HIGH;
+	}
+	else if (strstr(incomingBuffer,SET_GPIO_LOW) != NULL) {
+		returnCode = COMMAND_SET_LOW;
+	}
+	else if (strstr(incomingBuffer,TOGGLE_ECHO) != NULL) {
+		returnCode = COMMAND_TOGGLE_ECHO;
+	}
+	else if ((strstr(incomingBuffer,SET_GPIO_INPUT) != NULL)) {
+		returnCode = COMMAND_SET_INPUT;
+	}
+	else if ((strstr(incomingBuffer,SET_GPIO_OUTPUT) != NULL)) {
+		returnCode = COMMAND_SET_OUTPUT;
+	}
+	else if ((strstr(incomingBuffer,GET_GPIO_STATE) != NULL)) {
+			returnCode = COMMAND_GET_STATE;
+		}
+	else if ((strstr(incomingBuffer,GET_GPIO_LEVEL) != NULL)) {
+			returnCode = COMMAND_GET_LEVEL;
+		}
+
+
+	return returnCode;
+}
+
 
 // If increase or decrease in GPIO numbers needed, Change the Error check for GPIO number max minimum
 // And switch case statement
@@ -830,7 +910,7 @@ uint8_t change_gpio_level_number(uint8_t gpioNumber, uint8_t state) {
 		case 0:    										// Input
 			GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
 			GPIO_InitStruct.Pull = GPIO_NOPULL;
-//			GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+			//			GPIO_InitStruct.Pull = GPIO_PULLDOWN;
 			//			write("State INPUT\r\n");
 			updateGIPO_state(gpioNumber,0);				// Update global array for GPIO state
 
@@ -1083,10 +1163,10 @@ void setGPIO_state() {
 
 /**
  * @brief	Update GPIO state array by the given number and state
- * 			No update will happen on icorrect GPIO number. 
+ * 			No update will happen on icorrect GPIO number.
  * 			State number is not tested
  * @param	gpio - gpio number to be updated
- * @param	state - State to be updated to 0 - In, 1 - Out	
+ * @param	state - State to be updated to 0 - In, 1 - Out
  * @retval	None
  */
 void updateGIPO_state(int gpio, int state){
@@ -1136,9 +1216,9 @@ void detectConnected() {
 }
 
 /**
- * @brief	Parse recive pointer to a GPIO command 
- * @param	command - 
- * @param	state - State to be updated to 0 - In, 1 - Out	
+ * @brief	Parse recive pointer to a GPIO command
+ * @param	command -
+ * @param	state - State to be updated to 0 - In, 1 - Out
  * @retval	None
  */
 int parseCommand(){

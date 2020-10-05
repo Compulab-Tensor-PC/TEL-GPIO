@@ -57,7 +57,8 @@ extern "C" {
 
 
 // Error code return, each error should have his own code and definition
-#define ERROR_01              21    // Error from get GPIO state function
+#define ERROR_01              		21     	// Error from get GPIO state function
+#define ERROR_02					22		// Error code from ParseCommand function (Unknown command)
 
 
 // ############ Commands Define ###########################################
@@ -67,7 +68,7 @@ extern "C" {
 #define COMMAND_SET_LOW				3 		// Set GPIO Level Low on Output
 #define COMMAND_SET_INPUT 			4 		// SET GPIO Input
 
-#define COMMAND_GET_INPUT			5 		// Get GPIO Input value
+#define COMMAND_GET_LEVEL			5 		// Get GPIO Input value
 #define COMMAND_GET_STATE			6 		// Get GPIO state
 
 
@@ -79,6 +80,17 @@ extern "C" {
 
 
 char incomig[INCOMING_BUFFER];
+
+// ############ Commands Serial Strings ###########################################
+
+#define HELP_COMMAND				"-H"
+#define TOGGLE_ECHO					"!"
+#define SET_GPIO_HIGH				"^"
+#define SET_GPIO_LOW				"_"
+#define SET_GPIO_INPUT				"%"
+#define SET_GPIO_OUTPUT				"&"
+#define GET_GPIO_STATE				"?"
+#define GET_GPIO_LEVEL				"@"
 
 
 uint8_t return_Command;
@@ -102,6 +114,9 @@ int ECHO_ENABLE;
 
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
+
+int ParseCommand(char*);
+
 
 /* USER CODE BEGIN EFP */
 void Error_Handler(void);
