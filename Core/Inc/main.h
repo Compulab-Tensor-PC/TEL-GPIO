@@ -54,14 +54,22 @@ extern "C" {
 
 #define NOT_CONNECTED         		3
 
+// GPIO Input Parameters
+#define IN_PU						1		// Input with Pullup
+#define IN_PD						2		// Input with PullDown
+#define IN_Z						3		// Input Without PU / PD
 
+// GPIO State Parameters
+#define CONNECTED_ISOLATOR			51
+#define CONNECTED_MOSFET			52
+#define NOT_CONNECTED_STATE			53
 
 // Error code return, each error should have his own code and definition
-#define ERROR_01              		21     	// Error from get GPIO state function
+#define ERROR_01              		21     	// Error
 #define ERROR_02					22		// Error code from ParseCommand function (Unknown command)
-#define ERROR_03					23		// Error code from SetGPIO_level on wrong GPIO number
+#define ERROR_03					23		// Out of bonds GPIO number
 #define ERROR_04					24		// ERROR wrong State number, in setGPIO_level
-
+#define ERROR_05					25		// Error code from set_gpio_input, wrong error parameter
 // ############ Commands Define ###########################################
 
 #define COMMAND_SET_OUTPUT			1		// Set GPIO to Output
@@ -127,9 +135,14 @@ int parse_gpio(char*);
 int set_gpio(char*, int);				// Global command for all Set command
 int set_gpio_state(int, int);			// Set GPIO state 0 - Input 1 - Output
 int set_gpio_level(int, int);			// Set GPIO Level 0 - Low   1 - High
+int set_gpio_input(int,int);			// Set GPIO Input by GPIO number and additional parameters
+int set_gpio_output(int,int);			// Set GPIO Output by GPIO number and additional parameters
 int testGPIO(int);						// Perform test on the GPIO number
 
+int get_gpio_state(int);					// Return the GPIO state parameter
 
+void printConnected();					// Parse Array and print formated string
+void detectConnected();					// Detect connected device and update array
 
 /* USER CODE BEGIN EFP */
 void Error_Handler(void);
