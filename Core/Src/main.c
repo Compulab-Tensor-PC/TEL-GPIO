@@ -40,7 +40,7 @@
 
 // HW & SW Revisions
 char HW_REV[] = "HW: V1.0.0\t";
-char SW_REV[] = "SW: V0.2.5\t";
+char SW_REV[] = "SW: V0.2.6\t";
 
 char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
 
@@ -58,7 +58,7 @@ int GPIO_CONNECTED[MAX_GPIO];
 //int set_gpio(uint8_t*,int);
 int set_gpio_output(uint8_t*);
 int set_gpio_input(uint8_t*);
-int set_gpio_number(int,int);
+
 
 void updateGlobalDir();
 void setGPIO_state();
@@ -525,7 +525,7 @@ void printHelp() {
  */
 int parse_command(char* incomingBuffer) {
 
-	int return_command;
+	int return_command = 0;
 	if (strstr(incomingBuffer,HELP_COMMAND) != NULL) {
 		return_command = COMMAND_PRINT_HELP;
 	}
@@ -556,7 +556,7 @@ int parse_command(char* incomingBuffer) {
 
 
 /**
- * @brief  Return gpio number from the incoming buffer refernced by the pointer
+ * @brief  Return gpio number from the incoming buffer reference
  * @param  Pointer to Incoming buffer
  * @retval int gpio number
  */
@@ -602,21 +602,19 @@ int set_gpio(char *buffer,int command) {
 		switch (command)
 		{
 		case (COMMAND_SET_HIGH):{
-			write("001 - set GPIO High\r\n");
+			set_gpio_level(gpio_number,GPIO_HIGH);
 			break;
 			}
 		case (COMMAND_SET_LOW):{
-			write("002 - Set GPIO Low\r\n");
+			set_gpio_level(gpio_number,GPIO_LOW);
 			break;
 			}
 		case (COMMAND_SET_OUTPUT):{
-			write("003 - Set GPIO Output\r\n");
-			set_gpio_state(gpio_number,1);
+			set_gpio_state(gpio_number,GPIO_OUTPUT);
 			break;
 			}
 		case (COMMAND_SET_INPUT):{
-			write("004 - Set GPIO Input\r\n");
-			set_gpio_state(gpio_number,0);
+			set_gpio_state(gpio_number,GPIO_INPUT);
 			break;
 			}
 		}
@@ -779,7 +777,7 @@ int set_gpio_state(int gpioNumber, int state) {
  * @param	GPIO level in integer 1 for High 0 for Low
  * @retval Return the changed to OUTPUT GPIO, will return 0 on ERROR.
  */
-int set_gpio_number(int gpioNum, int level) {
+int set_gpio_level(int gpioNum, int level) {
 
 	if ((level == 0) | (level==1) ) {
 
@@ -893,6 +891,31 @@ int get_gpio(uint8_t *gpioP) {
 	return gpio_n;
 
 }
+
+
+// Perform test on the received GPIO, for now only the max and min GPIO number
+/**
+ * @brief  Receive and test GPIO number
+ *
+ *
+ *        @note
+ *        This function test's GPIO number, for now (09/20) only maximum
+ *        and minimum number range, later maybe some conditional test will be needed.
+ *        return 0 on OK and 1 on error
+ *
+ * @param  GPIO number to be tested
+ * @retval Test result 0 on OK evrething else error.
+ */
+int testGPIO(int GPIO_NUM) {
+
+	// Check if GPIO is in correct range
+	if ((GPIO_NUM > 0) & (GPIO_NUM <= MAX_GPIO)) {
+		return 0;
+	}
+	else
+		return 1;
+}
+
 
 
 // Return the state number as received, evaluation for correct number best be handled in the main function
@@ -1079,28 +1102,7 @@ int set_gpio_input(uint8_t *set_gpio_in) {
 
 
 
-// Perform test on the received GPIO, for now only the max and min GPIO number
-/**
- * @brief  Receive and test GPIO number
- *
- *
- *        @note
- *        This function test's GPIO number, for now (09/20) only maximum
- *        and minimum number range, later maybe some conditional test will be needed.
- *        return 0 on OK and 1 on error
- *
- * @param  GPIO number to be tested
- * @retval Test result 0 on OK evrething else error.
- */
-int testGPIO(int GPIO_NUM) {
 
-	// Check if GPIO is in correct range
-	if ((GPIO_NUM > 0) & (GPIO_NUM <= MAX_GPIO)) {
-		return 0;
-	}
-	else
-		return 1;
-}
 
 
 void updateGlobalDir() {

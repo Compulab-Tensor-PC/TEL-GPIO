@@ -94,10 +94,16 @@ char incomig[INCOMING_BUFFER];
 #define GET_GPIO_LEVEL				"@"
 
 
+
+#define GPIO_HIGH					1
+#define GPIO_LOW					0
+#define GPIO_INPUT					0
+#define GPIO_OUTPUT					1
 uint8_t return_Command;
 
 // Enable Echo to serial global setting
 int ECHO_ENABLE;
+
 
 //uint8_t MAIN_COMMAND = 0;
 
@@ -121,7 +127,7 @@ int parse_gpio(char*);
 int set_gpio(char*, int);				// Global command for all Set command
 int set_gpio_state(int, int);			// Set GPIO state 0 - Input 1 - Output
 int set_gpio_level(int, int);			// Set GPIO Level 0 - Low   1 - High
-
+int testGPIO(int);						// Perform test on the GPIO number
 
 
 
