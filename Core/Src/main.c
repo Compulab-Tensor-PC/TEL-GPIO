@@ -64,7 +64,7 @@ void updateGlobalDir();
 void setGPIO_state();
 void printGlobalState();
 void updateGIPO_state(int,int);
-uint8_t get_gpio_level(uint8_t*);
+//uint8_t get_gpio_level(uint8_t*);
 //int getGPIO_state(uint8_t);
 
 int testGPIO(int);
@@ -230,10 +230,12 @@ int main(void)
 				write("Set Output\r\n");
 				break;
 			case COMMAND_GET_STATE:						// Get State
-				write("Get GPIO STATE\r\n");
+				funcReturn = get_gpio(strstr(incomig,GET_GPIO_STATE),COMMAND_GET_STATE);
+//				write("Get GPIO State\r\n");
 				break;
 			case COMMAND_GET_LEVEL:						// Get Level
-				write("Get GPIO Level\r\n");
+				funcReturn = get_gpio(strstr(incomig,GET_GPIO_LEVEL),COMMAND_GET_LEVEL);
+//				write("Get GPIO Level\r\n");
 				break;
 			default:									// no command / wrong command
 				write("Wrong command entered\r\n");
@@ -586,7 +588,7 @@ int set_gpio(char *buffer,int command) {
 	//	uint8_t *state;
 	int gpio_number = 0;
 
-	gpio_number = get_gpio(buffer+1);
+	gpio_number = parse_gpio(buffer+1);
 
 	// TEST GPIO LIMIT
 	if (testGPIO(gpio_number) == 0) {
@@ -615,10 +617,78 @@ int set_gpio(char *buffer,int command) {
 
 	else {
 		write("GPIO Number out of limits\r\n");
-		return 0;
+		return ERROR_03;
 	} // Close else for GPIO limit
 } // Close function set GPIO
 
+
+/**
+ * @brief  	Get GPIO state or level as per command received handles all the get GPIO commands
+ * 			from main switch case
+ *
+ * @param  	Pointer to Incoming buffer
+ * @param   int Incoming command value
+ * @retval 	Return code of the operation- GPIO desired information.
+ */
+int get_gpio(char *buffer, int command) {
+	//	uint8_t *state;
+		int gpio_number = 0;
+		int gpio_state = 0;
+		char write_output[40] = "-";
+		char getstate_string[2];
+
+
+		gpio_number = parse_gpio(buffer+1);
+
+//		itoa (gpio_number,getstate_string,10); // Convert from int to char
+
+		strcat(write_output, getstate_string);	//
+
+
+		// TEST GPIO LIMIT
+		if (testGPIO(gpio_number) == 0) {
+
+			switch (command)
+			{
+			case (COMMAND_GET_LEVEL):{
+				gpio_state  = get_gpio_level(gpio_number);
+				strcat(write_output, "GPIO# ");
+				itoa (gpio_number,getstate_string,10); // Convert from int to char
+				strcat(write_output,getstate_string);
+				strcat(write_output, " level:  ");
+				itoa (gpio_state,getstate_string,10); // Convert from int to char
+				strcat(write_output,getstate_string);
+				break;
+			}
+			case (COMMAND_GET_STATE):{
+				gpio_state =  get_gpio_state(gpio_number);
+				break;
+			}
+			default:
+				return ERROR_06;
+				break;
+
+			}
+			strcat(write_output,"\r\n");
+					write(write_output);
+
+//			itoa (gpio_state,getstate_string,10); // Convert from int to char
+
+//											getGPIOIO[12] =  getstate_string[0]; 	// Place in the correct array location
+//											getGPIOIO[13] =  getstate_string[1];	// int result
+
+
+//										write(getGPIOIO);
+			return gpio_state;
+		}	// Close If Check for GPIO limit
+
+		else {
+			write("GPIO Number out of limits\r\n");
+			return ERROR_03;
+		} // Close else for GPIO limit
+
+//	return gpio_number;
+}
 
 
 /**
@@ -845,33 +915,33 @@ int set_gpio_level(int gpioNum, int level) {
 }
 
 
-// parse incoming buffer and  return the GPIO integer value
-int get_gpio(uint8_t *gpioP) {
-	uint8_t *temp_i, *temp_n;
-	int  gpio_n;									// init values needed for the function
-
-	temp_i = gpioP;									// Get the first number
-	temp_n = gpioP + 1 ;							// Get the next number in memory
-
-	if ((*temp_n >= 48) & (*temp_n <= 57) ) {
-		gpio_n = ((*temp_n - 48) + ( (*temp_i - 48) * 10 ));
-
-		return gpio_n;
-	}
-	//	if (*temp_n == 44) { 							// Check for ',' in the second number
-	//		gpio_n = (int)*temp_i-48;
-	//		return gpio_n;								// Only one number, so return here
-	//	}
-
-	else {											// Calculate two dimension number
-		gpio_n = (int)*temp_i-48;
-		return gpio_n;
-	}
-
-	// Should reach this only in case of error (wrong text format entered)
-	return gpio_n;
-
-}
+//// parse incoming buffer and  return the GPIO integer value
+//int return_gpio(uint8_t *gpioP) {
+//	uint8_t *temp_i, *temp_n;
+//	int  gpio_n;									// init values needed for the function
+//
+//	temp_i = gpioP;									// Get the first number
+//	temp_n = gpioP + 1 ;							// Get the next number in memory
+//
+//	if ((*temp_n >= 48) & (*temp_n <= 57) ) {
+//		gpio_n = ((*temp_n - 48) + ( (*temp_i - 48) * 10 ));
+//
+//		return gpio_n;
+//	}
+//	//	if (*temp_n == 44) { 							// Check for ',' in the second number
+//	//		gpio_n = (int)*temp_i-48;
+//	//		return gpio_n;								// Only one number, so return here
+//	//	}
+//
+//	else {											// Calculate two dimension number
+//		gpio_n = (int)*temp_i-48;
+//		return gpio_n;
+//	}
+//
+//	// Should reach this only in case of error (wrong text format entered)
+//	return gpio_n;
+//
+//}
 
 
 // Perform test on the received GPIO, for now only the max and min GPIO number
@@ -918,30 +988,30 @@ int testGPIO(int GPIO_NUM) {
  *
  * @param  	Pointer to GPIO number
  * @retval 	Return GPIO level state 0 - for low 1 - for High 2 - for ERROR
- */
-uint8_t get_gpio_level(uint8_t *get_gpioP) {
-	//	uint8_t *gpio_num;
-	uint8_t state = 0;
-
-	int gpio_number;
-	//	int state;
-
-	gpio_number = get_gpio(get_gpioP+1);
-
-	// Test GPIO limits
-	if (testGPIO(gpio_number) == 0) {
-
-		state = get_gpio_level_number(gpio_number);
-
-		return state;
-
-	}
-
-	else {
-		write("Get GPIO stat GPIO # out of limits\r\n");
-		return 2;
-	}
-}
+// */
+//uint8_t get_gpio_level(uint8_t *get_gpioP) {
+//	//	uint8_t *gpio_num;
+//	uint8_t state = 0;
+//
+//	int gpio_number;
+//	//	int state;
+//
+//	gpio_number = return_gpio(get_gpioP+1);
+//
+//	// Test GPIO limits
+//	if (testGPIO(gpio_number) == 0) {
+//
+//		state = get_gpio_level_number(gpio_number);
+//
+//		return state;
+//
+//	}
+//
+//	else {
+//		write("Get GPIO stat GPIO # out of limits\r\n");
+//		return 2;
+//	}
+//}
 
 
 /**
@@ -951,10 +1021,10 @@ uint8_t get_gpio_level(uint8_t *get_gpioP) {
  * @param  	Integer GPIO number
  * @retval 	Return GPIO level state 0 - for low 1 - for High 3 - for ERROR
  */
-uint8_t get_gpio_level_number(uint8_t gpioNumber) {
+int get_gpio_level(int gpioNumber) {
 
 
-	uint8_t state;
+	int state;
 
 	switch (gpioNumber)
 	{
@@ -1019,10 +1089,28 @@ uint8_t get_gpio_level_number(uint8_t gpioNumber) {
 		state = HAL_GPIO_ReadPin(GPIO_20_GPIO_Port, GPIO_20_Pin);
 		break;
 	default:
-		return 3; // Error state
+		return ERROR_03; // Error state
 	} // end switch statement
+	return state;
 }
 
+// Return the passed GPIO number state (INPUT / OUTPUT)
+// 0 - Input
+// 1 - Output
+// 2 - Not connected
+// 3 - ERROR
+int get_gpio_state(int gpio) {
+	int GPIO_state = 0;
+
+	if (testGPIO(gpio) == 0) {
+		GPIO_state = GPIO_STATE[gpio-1];
+	}
+
+	else
+		GPIO_state = ERROR_03;		// Error return code
+
+	return GPIO_state;
+}
 
 /**
  * @brief  Invoked after parsing incoming data buffer for set GPIO to OUTPUT command
@@ -1042,7 +1130,7 @@ int set_gpio_output(int set_gpio_out, int parameter) {
 
 	int gpio_number;
 
-	gpio_number = get_gpio(set_gpio_out+1);		// Get GPIO number
+	gpio_number = return_gpio(set_gpio_out+1);		// Get GPIO number
 
 	if (testGPIO(gpio_number) == 0) {			// Test if GPIO is in range
 		return change_gpio_level_number(gpio_number,1);
@@ -1335,23 +1423,7 @@ void updateGIPO_state(int gpio, int state){
 	}
 }
 
-// Return the passed GPIO number state (INPUT / OUTPUT)
-// 0 - Input
-// 1 - Output
-// 2 - Not connected
-// 3 - ERROR
-int get_gpio_state(int gpio) {
-	int GPIO_state = 0;
 
-	if (testGPIO(gpio) == 0) {
-		GPIO_state = GPIO_STATE[gpio-1];
-	}
-
-	else
-		GPIO_state = ERROR_03;		// Error return code
-
-	return GPIO_state;
-}
 
 /* Check and Update the global array for connected GPIOs
  * The test should be as follows:
@@ -1571,6 +1643,8 @@ void printConnected() {
 	write(GPIO_CONNECTED_PRINT);
 
 }
+
+
 ///**
 // * @brief	Parse recive pointer to a GPIO command
 // * @param	command -

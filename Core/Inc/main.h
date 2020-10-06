@@ -70,6 +70,7 @@ extern "C" {
 #define ERROR_03					23		// Out of bonds GPIO number
 #define ERROR_04					24		// ERROR wrong State number, in setGPIO_level
 #define ERROR_05					25		// Error code from set_gpio_input, wrong error parameter
+#define ERROR_06					26		// Error from get_gpio, wrong command entered
 // ############ Commands Define ###########################################
 
 #define COMMAND_SET_OUTPUT			1		// Set GPIO to Output
@@ -139,7 +140,10 @@ int set_gpio_input(int,int);			// Set GPIO Input by GPIO number and additional p
 int set_gpio_output(int,int);			// Set GPIO Output by GPIO number and additional parameters
 int testGPIO(int);						// Perform test on the GPIO number
 
-int get_gpio_state(int);					// Return the GPIO state parameter
+
+int get_gpio(char*, int);				// Global Command for get_gpio commands
+int get_gpio_state(int);				// Return the GPIO state parameter
+int get_gpio_level(int);
 
 void printConnected();					// Parse Array and print formated string
 void detectConnected();					// Detect connected device and update array
