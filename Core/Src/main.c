@@ -634,8 +634,8 @@ int get_gpio(char *buffer, int command) {
 	//	uint8_t *state;
 		int gpio_number = 0;
 		int gpio_state = 0;
-		char write_output[40] = "-";
-		char getstate_string[2];
+		char write_output[40] = "GPIO# ";
+		char getstate_string[2] = "";
 
 
 		gpio_number = parse_gpio(buffer+1);
@@ -652,16 +652,21 @@ int get_gpio(char *buffer, int command) {
 			{
 			case (COMMAND_GET_LEVEL):{
 				gpio_state  = get_gpio_level(gpio_number);
-				strcat(write_output, "GPIO# ");
+//				strcat(write_output, "GPIO# ");
 				itoa (gpio_number,getstate_string,10); // Convert from int to char
 				strcat(write_output,getstate_string);
-				strcat(write_output, " level:  ");
+				strcat(write_output, " level: ");
 				itoa (gpio_state,getstate_string,10); // Convert from int to char
 				strcat(write_output,getstate_string);
 				break;
 			}
 			case (COMMAND_GET_STATE):{
 				gpio_state =  get_gpio_state(gpio_number);
+				itoa (gpio_number,getstate_string,10); // Convert from int to char
+				strcat(write_output,getstate_string);
+				strcat(write_output, " state: ");
+				itoa (gpio_state,getstate_string,10); // Convert from int to char
+				strcat(write_output,getstate_string);
 				break;
 			}
 			default:
