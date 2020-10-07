@@ -40,7 +40,7 @@ extern "C" {
 
 // General configurations 
 #define DEBUGLED   // Enables various LEDS debug points
-#define DEBUG     // Enable debug messages output 
+//#define DEBUG     // Enable debug messages output
 // #define TESTBOARD   // Enable test board configuration
 
 
@@ -85,7 +85,7 @@ extern "C" {
 #define COMMAND_PRINT_HELP			11		// Print Help Information
 #define COMMAND_DETECT_CONNECTED	12		// Detect Connected GPIO
 #define COMMAND_TOGGLE_ECHO			13		// Toggle Echo to user over USB Serial
-
+#define COMMAND_TOGGLE_ISR			14		// Toggle ISR to print GPIO Level change to Serial
 
 
 
@@ -101,7 +101,7 @@ char incomig[INCOMING_BUFFER];
 #define SET_GPIO_OUTPUT				"&"
 #define GET_GPIO_STATE				"?"
 #define GET_GPIO_LEVEL				"@"
-
+#define TOGGLE_ISR_GPIO				"-I"
 
 
 #define GPIO_HIGH					1

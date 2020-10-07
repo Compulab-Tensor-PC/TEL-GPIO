@@ -40,7 +40,7 @@
 
 // HW & SW Revisions
 char HW_REV[] = "HW: V1.0.0\t";
-char SW_REV[] = "SW: V0.2.7\t";
+char SW_REV[] = "SW: V0.2.9\t";
 
 char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\r\n";
 
@@ -56,9 +56,9 @@ int GPIO_STATE[MAX_GPIO];
 
 int GPIO_CONNECTED[MAX_GPIO];
 
+// ISR
 
-
-
+static void EXTI0_1_IRQHandler_Config(void);
 
 void updateGlobalDir();
 void setGPIO_state();
@@ -168,6 +168,8 @@ int main(void)
 	char resetScreen[] = "\ec";  							// Return screen to initial state
 	int funcReturn = 0;
 
+
+//	EXTI0_1_IRQHandler_Config();   // TODO fix ISR for GPIO
 
 	detectConnected();
 
@@ -494,9 +496,9 @@ void printHelp() {
 	CDC_Transmit_FS(printout,sizeof(printout));
 	write("& - Set GPIO As Output Pin: \t\tEXAMPLE: &12 - Set GPIO # 12 To Output \r\n");
 	write("% - Set GPIO As Input Pin:  \t\tEXANPLE: %10 - Will Set GPIO # 10 to Input\r\n ");
-	write("@ - Get GPIO level Value \t\tEXANPLE: @10 - Will return GPIO #10 High or Low\r\n ");
 	write("^ - Set GPIO LEVEL HIGH '^##'\t\tEXAMPLE: '^3' - Will Set GPIO # 3 To High Level\r\n");
 	write("_ - Set GPIO LEVEL LOW  '_##'\t\tEXAMPLE: '_06' - Will set GPIO # 6 To Low Level\r\n");
+	write("@ - Get GPIO level Value \t\tEXANPLE: @10 - Will return GPIO #10 High or Low\r\n ");
 	write("? - get GPIO state '?4\t\t\tEXAMPLE: '?3' - Will return 1- initially.\r\n");
 	write("\t\t\t\t\tNot connected return X and out of bonds return *\r\n");
 	write("NOTE: GPIO can be entered as 03 or 3 for the same GPIO number\r\n");
@@ -544,6 +546,9 @@ int parse_command(char* incomingBuffer) {
 	else if ((strstr(incomingBuffer,GET_GPIO_LEVEL) != NULL)) {
 		return_command = COMMAND_GET_LEVEL;
 	}
+	else if ((strstr(incomingBuffer,TOGGLE_ISR_GPIO) != NULL)) {
+			return_command = COMMAND_TOGGLE_ISR;
+		}
 
 	return return_command;
 }
@@ -1649,6 +1654,47 @@ void printConnected() {
 
 }
 
+/**
+  * @brief  Configures EXTI line 0 (connected to PA.00 pin) in interrupt mode
+  * @param  None
+  * @retval None
+  */
+static void EXTI0_1_IRQHandler_Config(void)
+{
+  GPIO_InitTypeDef   GPIO_InitStructure;
+
+  /* Enable GPIOA clock */
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+
+  /* Configure PA.00 pin as input floating */
+  GPIO_InitStructure.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStructure.Pull = GPIO_NOPULL;
+  GPIO_InitStructure.Pin = GPIO_PIN_0;
+//  GPIO_InitStructure GPIO_MODE_IT_RISING
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+  /* Enable and set EXTI line 0 Interrupt to the lowest priority */
+  HAL_NVIC_SetPriority(EXTI0_1_IRQn, 3, 0);
+  HAL_NVIC_EnableIRQ(EXTI0_1_IRQn);
+}
+
+/**
+  * @brief EXTI line detection callbacks
+  * @param GPIO_Pin: Specifies the pins connected EXTI line
+  * @retval None
+  */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  if (GPIO_Pin == GPIO_PIN_0)
+  {
+    /* Toggle LED3 */
+	  HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+
+//	  write("+1\r\n");
+
+  }
+  HAL_NVIC_DisableIRQ(EXTI0_1_IRQn);
+}
 
 ///**
 // * @brief	Parse recive pointer to a GPIO command
