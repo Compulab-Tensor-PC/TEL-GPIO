@@ -71,6 +71,7 @@ extern "C" {
 #define ERROR_04					24		// ERROR wrong State number, in setGPIO_level
 #define ERROR_05					25		// Error code from set_gpio_input, wrong error parameter
 #define ERROR_06					26		// Error from get_gpio, wrong command entered
+#define ERROR_07					27		// Error in set GPIO not in Output state
 // ############ Commands Define ###########################################
 
 #define COMMAND_SET_OUTPUT			1		// Set GPIO to Output
@@ -94,6 +95,9 @@ char incomig[INCOMING_BUFFER];
 // ############ Commands Serial Strings ###########################################
 
 #define HELP_COMMAND				"-H"
+#define DISABLE_ECHO				"-D"
+#define ENABLE_ECHO					"-E"
+
 #define TOGGLE_ECHO					"!"
 #define SET_GPIO_HIGH				"^"
 #define SET_GPIO_LOW				"_"

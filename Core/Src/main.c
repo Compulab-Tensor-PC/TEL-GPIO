@@ -24,6 +24,7 @@
 #include "gpio.h"
 #include "String.h"
 #include "stdio.h"
+#include <ctype.h>							// For toupper function
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -169,7 +170,7 @@ int main(void)
 	int funcReturn = 0;
 
 
-//	EXTI0_1_IRQHandler_Config();   // TODO fix ISR for GPIO
+	//	EXTI0_1_IRQHandler_Config();   // TODO fix ISR for GPIO
 
 	detectConnected();
 
@@ -202,7 +203,13 @@ int main(void)
 		 */
 		// After Each Enter press the incoming buffer is evaluated,
 		if (strstr(incomig,"\r") != NULL ) {
+			int i = 0;
+			char c;
 			write("\r\n");		// If pressed Enter Send new line to terminal
+			while(incomig[i]) {	// Convert strings to upper case for lower and upper commands parsing
+				incomig[i] = toupper(incomig[i]);
+				i++;
+			}
 
 			command_code = parse_command(incomig);
 			int gpio = 0;
@@ -214,11 +221,21 @@ int main(void)
 				break;
 			case COMMAND_SET_HIGH:						// Set High
 				funcReturn = set_gpio(strstr(incomig,SET_GPIO_HIGH),COMMAND_SET_HIGH);
-				write("Command set High\r\n");
+				if (funcReturn == 0) {
+					write("Command set High\r\n");
+				}
+				else {
+					write("ERRO07\r\n");
+				}
 				break;
 			case COMMAND_SET_LOW:						// Set Low
 				funcReturn = set_gpio(strstr(incomig,SET_GPIO_LOW),COMMAND_SET_LOW);
-				write("Command set Low\r\n");
+				if (funcReturn == 0) {
+					write("Command set High\r\n");
+				}
+				else {
+					write("ERRO07\r\n");
+				}
 				break;
 			case COMMAND_TOGGLE_ECHO:					// Toggle ECHO
 				toggleEcho();
@@ -233,11 +250,11 @@ int main(void)
 				break;
 			case COMMAND_GET_STATE:						// Get State
 				funcReturn = get_gpio(strstr(incomig,GET_GPIO_STATE),COMMAND_GET_STATE);
-//				write("Get GPIO State\r\n");
+				//				write("Get GPIO State\r\n");
 				break;
 			case COMMAND_GET_LEVEL:						// Get Level
 				funcReturn = get_gpio(strstr(incomig,GET_GPIO_LEVEL),COMMAND_GET_LEVEL);
-//				write("Get GPIO Level\r\n");
+				//				write("Get GPIO Level\r\n");
 				break;
 			default:									// no command / wrong command
 				write("Wrong command entered\r\n");
@@ -508,6 +525,7 @@ void printHelp() {
 	write("\r\n");
 	write("################ GLOBAL INFO ########################\r\n");
 	write("\r\n");
+	//	write("");
 	updateGlobalDir();
 	printGlobalState();
 	printConnected();
@@ -547,8 +565,8 @@ int parse_command(char* incomingBuffer) {
 		return_command = COMMAND_GET_LEVEL;
 	}
 	else if ((strstr(incomingBuffer,TOGGLE_ISR_GPIO) != NULL)) {
-			return_command = COMMAND_TOGGLE_ISR;
-		}
+		return_command = COMMAND_TOGGLE_ISR;
+	}
 
 	return return_command;
 }
@@ -600,11 +618,19 @@ int set_gpio(char *buffer,int command) {
 
 		switch (command)
 		{
-		case (COMMAND_SET_HIGH):{
+		case (COMMAND_SET_HIGH):{		// Check if GPIO in Output state if not return ERROR_07
+			if (get_gpio_state(gpio_number) != OUT ) {
+				return ERROR_07;
+				break;
+			}
 			set_gpio_level(gpio_number,GPIO_HIGH);
 			break;
 		}
-		case (COMMAND_SET_LOW):{
+		case (COMMAND_SET_LOW):{		// Check if GPIO in Output state if not return ERROR_07
+			if (get_gpio_state(gpio_number) != OUT ) {
+				return ERROR_07;
+				break;
+			}
 			set_gpio_level(gpio_number,GPIO_LOW);
 			break;
 		}
@@ -617,7 +643,7 @@ int set_gpio(char *buffer,int command) {
 			break;
 		}
 		}
-		return gpio_number;
+		return 0;
 	}	// Close If Check for GPIO limit
 
 	else {
@@ -637,67 +663,67 @@ int set_gpio(char *buffer,int command) {
  */
 int get_gpio(char *buffer, int command) {
 	//	uint8_t *state;
-		int gpio_number = 0;
-		int gpio_state = 0;
-		char write_output[40] = "GPIO# ";
-		char getstate_string[2] = "";
+	int gpio_number = 0;
+	int gpio_state = 0;
+	char write_output[40] = "GPIO# ";
+	char getstate_string[2] = "";
 
 
-		gpio_number = parse_gpio(buffer+1);
+	gpio_number = parse_gpio(buffer+1);
 
-//		itoa (gpio_number,getstate_string,10); // Convert from int to char
+	//		itoa (gpio_number,getstate_string,10); // Convert from int to char
 
-		strcat(write_output, getstate_string);	//
-
-
-		// TEST GPIO LIMIT
-		if (testGPIO(gpio_number) == 0) {
-
-			switch (command)
-			{
-			case (COMMAND_GET_LEVEL):{
-				gpio_state  = get_gpio_level(gpio_number);
-//				strcat(write_output, "GPIO# ");
-				itoa (gpio_number,getstate_string,10); // Convert from int to char
-				strcat(write_output,getstate_string);
-				strcat(write_output, " level: ");
-				itoa (gpio_state,getstate_string,10); // Convert from int to char
-				strcat(write_output,getstate_string);
-				break;
-			}
-			case (COMMAND_GET_STATE):{
-				gpio_state =  get_gpio_state(gpio_number);
-				itoa (gpio_number,getstate_string,10); // Convert from int to char
-				strcat(write_output,getstate_string);
-				strcat(write_output, " state: ");
-				itoa (gpio_state,getstate_string,10); // Convert from int to char
-				strcat(write_output,getstate_string);
-				break;
-			}
-			default:
-				return ERROR_06;
-				break;
-
-			}
-			strcat(write_output,"\r\n");
-					write(write_output);
-
-//			itoa (gpio_state,getstate_string,10); // Convert from int to char
-
-//											getGPIOIO[12] =  getstate_string[0]; 	// Place in the correct array location
-//											getGPIOIO[13] =  getstate_string[1];	// int result
+	strcat(write_output, getstate_string);	//
 
 
-//										write(getGPIOIO);
-			return gpio_state;
-		}	// Close If Check for GPIO limit
+	// TEST GPIO LIMIT
+	if (testGPIO(gpio_number) == 0) {
 
-		else {
-			write("GPIO Number out of limits\r\n");
-			return ERROR_03;
-		} // Close else for GPIO limit
+		switch (command)
+		{
+		case (COMMAND_GET_LEVEL):{
+			gpio_state  = get_gpio_level(gpio_number);
+			//				strcat(write_output, "GPIO# ");
+			itoa (gpio_number,getstate_string,10); // Convert from int to char
+			strcat(write_output,getstate_string);
+			strcat(write_output, " level: ");
+			itoa (gpio_state,getstate_string,10); // Convert from int to char
+			strcat(write_output,getstate_string);
+			break;
+		}
+		case (COMMAND_GET_STATE):{
+			gpio_state =  get_gpio_state(gpio_number);
+			itoa (gpio_number,getstate_string,10); // Convert from int to char
+			strcat(write_output,getstate_string);
+			strcat(write_output, " state: ");
+			itoa (gpio_state,getstate_string,10); // Convert from int to char
+			strcat(write_output,getstate_string);
+			break;
+		}
+		default:
+			return ERROR_06;
+			break;
 
-//	return gpio_number;
+		}
+		strcat(write_output,"\r\n");
+		write(write_output);
+
+		//			itoa (gpio_state,getstate_string,10); // Convert from int to char
+
+		//											getGPIOIO[12] =  getstate_string[0]; 	// Place in the correct array location
+		//											getGPIOIO[13] =  getstate_string[1];	// int result
+
+
+		//										write(getGPIOIO);
+		return gpio_state;
+	}	// Close If Check for GPIO limit
+
+	else {
+		write("GPIO Number out of limits\r\n");
+		return ERROR_03;
+	} // Close else for GPIO limit
+
+	//	return gpio_number;
 }
 
 
@@ -1474,10 +1500,10 @@ void detectConnected() {
 	}
 
 	// Leave connected to Input PD, just in case
-		for (int n = 1 ; n <= MAX_GPIO; n++) {
-			set_gpio_input(n, IN_PD);
-			updateGIPO_state(n,IN);
-		}
+	for (int n = 1 ; n <= MAX_GPIO; n++) {
+		set_gpio_input(n, IN_PD);
+		updateGIPO_state(n,IN);
+	}
 }
 
 /**
@@ -1623,7 +1649,12 @@ int setGPIO_level(int gpio_number, int state) {
  */
 void printConnected() {
 
+	write(" ======= Isolation connected to TEL-GPIO ======= \r\n");
+	write("I - Connected Isolation Chip ADM3260ARSZ \r\n");
+	write("M - Connected Isolation that can drive current without Input capability\r\n");
+	write("X - Not connected Isolation\r\n");
 	char GPIO_CONNECTED_PRINT[70] = "GPIO Connected (I,M):\t";
+
 
 
 	for (int n = 0 ; n < MAX_GPIO ; n++) {
@@ -1655,45 +1686,45 @@ void printConnected() {
 }
 
 /**
-  * @brief  Configures EXTI line 0 (connected to PA.00 pin) in interrupt mode
-  * @param  None
-  * @retval None
-  */
+ * @brief  Configures EXTI line 0 (connected to PA.00 pin) in interrupt mode
+ * @param  None
+ * @retval None
+ */
 static void EXTI0_1_IRQHandler_Config(void)
 {
-  GPIO_InitTypeDef   GPIO_InitStructure;
+	GPIO_InitTypeDef   GPIO_InitStructure;
 
-  /* Enable GPIOA clock */
-  __HAL_RCC_GPIOA_CLK_ENABLE();
+	/* Enable GPIOA clock */
+	__HAL_RCC_GPIOA_CLK_ENABLE();
 
-  /* Configure PA.00 pin as input floating */
-  GPIO_InitStructure.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStructure.Pull = GPIO_NOPULL;
-  GPIO_InitStructure.Pin = GPIO_PIN_0;
-//  GPIO_InitStructure GPIO_MODE_IT_RISING
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
+	/* Configure PA.00 pin as input floating */
+	GPIO_InitStructure.Mode = GPIO_MODE_IT_RISING;
+	GPIO_InitStructure.Pull = GPIO_NOPULL;
+	GPIO_InitStructure.Pin = GPIO_PIN_0;
+	//  GPIO_InitStructure GPIO_MODE_IT_RISING
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-  /* Enable and set EXTI line 0 Interrupt to the lowest priority */
-  HAL_NVIC_SetPriority(EXTI0_1_IRQn, 3, 0);
-  HAL_NVIC_EnableIRQ(EXTI0_1_IRQn);
+	/* Enable and set EXTI line 0 Interrupt to the lowest priority */
+	HAL_NVIC_SetPriority(EXTI0_1_IRQn, 3, 0);
+	HAL_NVIC_EnableIRQ(EXTI0_1_IRQn);
 }
 
 /**
-  * @brief EXTI line detection callbacks
-  * @param GPIO_Pin: Specifies the pins connected EXTI line
-  * @retval None
-  */
+ * @brief EXTI line detection callbacks
+ * @param GPIO_Pin: Specifies the pins connected EXTI line
+ * @retval None
+ */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-  if (GPIO_Pin == GPIO_PIN_0)
-  {
-    /* Toggle LED3 */
-	  HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+	if (GPIO_Pin == GPIO_PIN_0)
+	{
+		/* Toggle LED3 */
+		HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
 
-//	  write("+1\r\n");
+		//	  write("+1\r\n");
 
-  }
-  HAL_NVIC_DisableIRQ(EXTI0_1_IRQn);
+	}
+	HAL_NVIC_DisableIRQ(EXTI0_1_IRQn);
 }
 
 ///**
