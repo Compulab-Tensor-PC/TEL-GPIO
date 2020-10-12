@@ -263,7 +263,7 @@ int main(void)
 				break;
 			case COMMAND_GET_STATE:						// Get State
 				funcReturn = get_gpio(strstr(incomig,GET_GPIO_STATE),COMMAND_GET_STATE);
-				if (funcReturn == NOT_CONNECTED) {
+				if ((funcReturn == NOT_CONNECTED) | (funcReturn == ERROR_03) ) {
 					print_error(funcReturn);
 				}
 
@@ -271,7 +271,7 @@ int main(void)
 				break;
 			case COMMAND_GET_LEVEL:						// Get Level
 				funcReturn = get_gpio(strstr(incomig,GET_GPIO_LEVEL),COMMAND_GET_LEVEL);
-				if (funcReturn == NOT_CONNECTED) {
+				if ((funcReturn == NOT_CONNECTED) | (funcReturn == ERROR_03) ) {
 					print_error(funcReturn);
 				}
 
@@ -643,49 +643,45 @@ int set_gpio(char *buffer,int command) {
 	testGPIO_return = testGPIO(gpio_number);
 	test_conn_ret   = get_connected(gpio_number);
 
+	// Pass GPIO range check and GPIO connected check
+	if (testGPIO_return != 0 ) {
+		return testGPIO_return;
+	}
 
-	if (test_conn_ret != CONNECTED ) {
+	else if (test_conn_ret != CONNECTED ) {
 		return test_conn_ret;
 	}
 
 
-	// TEST GPIO LIMIT
-	if (testGPIO_return == 0) {
+	switch (command)
+	{
+	case (COMMAND_SET_HIGH):{		// Check if GPIO in Output state if not return ERROR_07
+		if (get_gpio_state(gpio_number) != OUT ) {
+			return ERROR_07;
+			break;
+		}
+		set_gpio_level(gpio_number,GPIO_HIGH);
+		break;
+	}
+	case (COMMAND_SET_LOW):{		// Check if GPIO in Output state if not return ERROR_07
+		if (get_gpio_state(gpio_number) != OUT ) {
+			return ERROR_07;
+			break;
+		}
+		set_gpio_level(gpio_number,GPIO_LOW);
+		break;
+	}
+	case (COMMAND_SET_OUTPUT):{
+		set_gpio_state(gpio_number,GPIO_OUTPUT);
+		break;
+	}
+	case (COMMAND_SET_INPUT):{
+		set_gpio_state(gpio_number,GPIO_INPUT);
+		break;
+	}
+	}
+	return 0;
 
-		switch (command)
-		{
-		case (COMMAND_SET_HIGH):{		// Check if GPIO in Output state if not return ERROR_07
-			if (get_gpio_state(gpio_number) != OUT ) {
-				return ERROR_07;
-				break;
-			}
-			set_gpio_level(gpio_number,GPIO_HIGH);
-			break;
-		}
-		case (COMMAND_SET_LOW):{		// Check if GPIO in Output state if not return ERROR_07
-			if (get_gpio_state(gpio_number) != OUT ) {
-				return ERROR_07;
-				break;
-			}
-			set_gpio_level(gpio_number,GPIO_LOW);
-			break;
-		}
-		case (COMMAND_SET_OUTPUT):{
-			set_gpio_state(gpio_number,GPIO_OUTPUT);
-			break;
-		}
-		case (COMMAND_SET_INPUT):{
-			set_gpio_state(gpio_number,GPIO_INPUT);
-			break;
-		}
-		}
-		return 0;
-	}	// Close If Check for GPIO limit
-
-	else {
-		//		write("GPIO Number out of limits\n");
-		return testGPIO_return;
-	} // Close else for GPIO limit
 } // Close function set GPIO
 
 
@@ -703,7 +699,7 @@ int get_gpio(char *buffer, int command) {
 	int gpio_state = 0;
 	int test_gpio_ret = 0;				// Test GPIO return code
 	int test_conn_ret = 0;
-	char write_output[4] = "";
+	//	char write_output[4] = "";
 	char getstate_string[10] = "";
 
 
@@ -714,57 +710,55 @@ int get_gpio(char *buffer, int command) {
 	test_gpio_ret = testGPIO(gpio_number);
 	test_conn_ret = get_connected(gpio_number);
 
+	if (test_gpio_ret != 0 ) {
+		return test_gpio_ret;
+	}
 
-	if (test_conn_ret == NOT_CONNECTED) {
+	else if (test_conn_ret == NOT_CONNECTED) {
 		return NOT_CONNECTED;
 	}
+
 
 	//		itoa (gpio_number,getstate_string,10); // Convert from int to char
 
 	//	strcat(write_output, getstate_string);	//
 
-	// TEST GPIO LIMIT
-	if (test_gpio_ret == 0) {
 
-		switch (command)
-		{
-		case (COMMAND_GET_LEVEL):{
-			gpio_state  = get_gpio_level(gpio_number);
-			//				strcat(write_output, "GPIO# ");
-			//			itoa (gpio_number,getstate_string,10); // Convert from int to char
-			//			strcat(write_output,getstate_string);
-			//			strcat(write_output, " level: ");
-			itoa (gpio_state,getstate_string,10); // Convert from int to char
-			//			strcat(write_output,getstate_string);
-			break;
-		}
-		case (COMMAND_GET_STATE):{
-			gpio_state =  get_gpio_state(gpio_number);
-			//			itoa (gpio_number,getstate_string,10); // Convert from int to char
-			//			strcat(write_output,getstate_string);
-			//			strcat(write_output, " state: ");
-			itoa (gpio_state,getstate_string,10); // Convert from int to char
-			//			strcat(write_output,getstate_string);
-			break;
-		}
-		default:
-			return ERROR_06;
-			break;
 
-		}
-		strcat(getstate_string,"\n");
-		write(getstate_string);
 
-		return gpio_state;
-	}	// Close If Check for GPIO limit
+	switch (command)
+	{
+	case (COMMAND_GET_LEVEL):{
+		gpio_state  = get_gpio_level(gpio_number);
+		//				strcat(write_output, "GPIO# ");
+		//			itoa (gpio_number,getstate_string,10); // Convert from int to char
+		//			strcat(write_output,getstate_string);
+		//			strcat(write_output, " level: ");
+		itoa (gpio_state,getstate_string,10); // Convert from int to char
+		//			strcat(write_output,getstate_string);
+		break;
+	}
+	case (COMMAND_GET_STATE):{
+		gpio_state =  get_gpio_state(gpio_number);
+		//			itoa (gpio_number,getstate_string,10); // Convert from int to char
+		//			strcat(write_output,getstate_string);
+		//			strcat(write_output, " state: ");
+		itoa (gpio_state,getstate_string,10); // Convert from int to char
+		//			strcat(write_output,getstate_string);
+		break;
+	}
+	default:
+		return ERROR_06;
+		break;
 
-	else {
+	}
+	strcat(getstate_string,"\n");
+	write(getstate_string);
 
-		return test_gpio_ret;
-	} // Close else for GPIO limit
+	return gpio_state;
+}	// Close If Check for GPIO limit
 
-	//	return gpio_number;
-}
+
 
 
 /**
@@ -1059,11 +1053,12 @@ int testGPIO(int GPIO_NUM) {
  */
 int get_connected(int gpio_num) {
 
-	if (GPIO_CONNECTED[gpio_num-1] == 51) {
-		return CONNECTED;
+	if (GPIO_CONNECTED[gpio_num-1] == NOT_CONNECTED_STATE) {
+		return NOT_CONNECTED;
 	}
 	else {
-		return NOT_CONNECTED;
+		return CONNECTED;
+
 	}
 
 	//	return CONNECTED;

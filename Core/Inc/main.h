@@ -66,14 +66,14 @@ extern "C" {
 #define NOT_CONNECTED_STATE			53
 
 // Error code return, each error should have his own code and definition
-#define ERROR_01              		21     	// Error
-#define ERROR_02					22		// Error code from ParseCommand function (Unknown command)
-#define ERROR_03					23		// Out of bonds GPIO number
-#define ERROR_04					24		// ERROR wrong State number, in setGPIO_level
-#define ERROR_05					25		// Error code from set_gpio_input, wrong error parameter
-#define ERROR_06					26		// Error from get_gpio, wrong command entered
-#define ERROR_07					27		// Error in set GPIO not in Output state
-#define ERROR_08					28 		// Error GPIO Not Connected
+#define ERROR_01              		1021     	// Error
+#define ERROR_02					1022		// Error code from ParseCommand function (Unknown command)
+#define ERROR_03					1023		// Out of bonds GPIO number
+#define ERROR_04					1024		// ERROR wrong State number, in setGPIO_level
+#define ERROR_05					1025		// Error code from set_gpio_input, wrong error parameter
+#define ERROR_06					1026		// Error from get_gpio, wrong command entered
+#define ERROR_07					1027		// Error in set GPIO not in Output state
+#define ERROR_08					1028 		// Error GPIO Not Connected
 
 
 
