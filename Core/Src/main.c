@@ -74,7 +74,7 @@ int getGPIO(uint8_t*);
 uint8_t get_gpio_level_number(uint8_t);
 
 uint8_t change_gpio_level_number(uint8_t, uint8_t);
-void toggleEcho();
+
 #define DEBUGLED
 
 
@@ -237,8 +237,11 @@ int main(void)
 					write("ERRO07\r\n");
 				}
 				break;
-			case COMMAND_TOGGLE_ECHO:					// Toggle ECHO
-				toggleEcho();
+			case COMMAND_ENABLE_ECHO:					// Enable Echo
+				toggleEcho(1);
+				break;
+			case COMMAND_DISABLE_ECHO:					// Disable echo
+				toggleEcho(0);
 				break;
 			case COMMAND_SET_INPUT:						// Set INPUT
 				funcReturn = set_gpio(strstr(incomig,SET_GPIO_INPUT),COMMAND_SET_INPUT);
@@ -521,7 +524,8 @@ void printHelp() {
 	write("NOTE: GPIO can be entered as 03 or 3 for the same GPIO number\r\n");
 	write("################ SETTINGS ##########################\r\n");
 	write("\r\n");
-	write("! - Toggle Echo printout on the USB serial console\r\n");
+	write("-D - Disable USB serial Echo Output\r\n");
+	write("-E - Enables USB serial Echo Output\r\n");
 	write("\r\n");
 	write("################ GLOBAL INFO ########################\r\n");
 	write("\r\n");
@@ -549,9 +553,6 @@ int parse_command(char* incomingBuffer) {
 	else if (strstr(incomingBuffer,SET_GPIO_LOW) != NULL) {
 		return_command = COMMAND_SET_LOW;
 	}
-	else if (strstr(incomingBuffer,TOGGLE_ECHO) != NULL) {
-		return_command = COMMAND_TOGGLE_ECHO;
-	}
 	else if ((strstr(incomingBuffer,SET_GPIO_INPUT) != NULL)) {
 		return_command = COMMAND_SET_INPUT;
 	}
@@ -566,6 +567,12 @@ int parse_command(char* incomingBuffer) {
 	}
 	else if ((strstr(incomingBuffer,TOGGLE_ISR_GPIO) != NULL)) {
 		return_command = COMMAND_TOGGLE_ISR;
+	}
+	else if ((strstr(incomingBuffer,DISABLE_ECHO) != NULL)) {
+		return_command = COMMAND_DISABLE_ECHO;
+	}
+	else if ((strstr(incomingBuffer,ENABLE_ECHO) != NULL)) {
+		return_command = COMMAND_ENABLE_ECHO;
 	}
 
 	return return_command;
@@ -665,15 +672,15 @@ int get_gpio(char *buffer, int command) {
 	//	uint8_t *state;
 	int gpio_number = 0;
 	int gpio_state = 0;
-	char write_output[40] = "GPIO# ";
-	char getstate_string[2] = "";
+	char write_output[4] = "";
+	char getstate_string[10] = "";
 
 
 	gpio_number = parse_gpio(buffer+1);
 
 	//		itoa (gpio_number,getstate_string,10); // Convert from int to char
 
-	strcat(write_output, getstate_string);	//
+//	strcat(write_output, getstate_string);	//
 
 
 	// TEST GPIO LIMIT
@@ -684,20 +691,20 @@ int get_gpio(char *buffer, int command) {
 		case (COMMAND_GET_LEVEL):{
 			gpio_state  = get_gpio_level(gpio_number);
 			//				strcat(write_output, "GPIO# ");
-			itoa (gpio_number,getstate_string,10); // Convert from int to char
-			strcat(write_output,getstate_string);
-			strcat(write_output, " level: ");
+//			itoa (gpio_number,getstate_string,10); // Convert from int to char
+//			strcat(write_output,getstate_string);
+//			strcat(write_output, " level: ");
 			itoa (gpio_state,getstate_string,10); // Convert from int to char
-			strcat(write_output,getstate_string);
+//			strcat(write_output,getstate_string);
 			break;
 		}
 		case (COMMAND_GET_STATE):{
 			gpio_state =  get_gpio_state(gpio_number);
-			itoa (gpio_number,getstate_string,10); // Convert from int to char
-			strcat(write_output,getstate_string);
-			strcat(write_output, " state: ");
+//			itoa (gpio_number,getstate_string,10); // Convert from int to char
+//			strcat(write_output,getstate_string);
+//			strcat(write_output, " state: ");
 			itoa (gpio_state,getstate_string,10); // Convert from int to char
-			strcat(write_output,getstate_string);
+//			strcat(write_output,getstate_string);
 			break;
 		}
 		default:
@@ -705,8 +712,8 @@ int get_gpio(char *buffer, int command) {
 			break;
 
 		}
-		strcat(write_output,"\r\n");
-		write(write_output);
+		strcat(getstate_string,"\r\n");
+		write(getstate_string);
 
 		//			itoa (gpio_state,getstate_string,10); // Convert from int to char
 
@@ -1425,9 +1432,16 @@ void printGlobalState() {
  * @param  None
  * @retval None
  */
-void toggleEcho() {
+void toggleEcho(int stat) {
 
-	ECHO_ENABLE = !ECHO_ENABLE;
+	if (stat == 1) {
+		ECHO_ENABLE = 1;
+	}
+	else if (stat == 0 ) {
+		ECHO_ENABLE = 0;
+	}
+
+
 
 }
 

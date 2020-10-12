@@ -88,6 +88,9 @@ extern "C" {
 #define COMMAND_TOGGLE_ECHO			13		// Toggle Echo to user over USB Serial
 #define COMMAND_TOGGLE_ISR			14		// Toggle ISR to print GPIO Level change to Serial
 
+#define COMMAND_DISABLE_ECHO		15		// Disable echo output to console
+#define COMMAND_ENABLE_ECHO			16		// Enable echo output to console
+
 
 
 char incomig[INCOMING_BUFFER];
@@ -152,6 +155,8 @@ int get_gpio_level(int);
 void printConnected();					// Parse Array and print formated string
 void detectConnected();					// Detect connected device and update array
 
+void toggleEcho(int);				// Enable or disable echo output to USB serial
+										// 1 - Enables echo 0 - Disables echo.
 /* USER CODE BEGIN EFP */
 void Error_Handler(void);
 
