@@ -544,8 +544,15 @@ void printHelp() {
 	write("-D - Disable USB serial Echo Output\n");
 	write("-E - Enables USB serial Echo Output\n");
 	write("\n");
+
+
+	write("################ ERROR CODES ########################\n");
+	write("ERROR_03 - Out of Bounds GPIO Number\n");
+	write("ERROR_07 - Error when changing GPIO LEVEL when the GPIO in INPUT\n");
+	write("ERROR_08 - GPIO not connected\n");
+
+	write("\n");
 	write("################ GLOBAL INFO ########################\n");
-	write("Each applicable command (Set commands) will return 1 for success and ERROR code for failure\n");
 
 	write("\n");
 	//	write("");
