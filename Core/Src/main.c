@@ -205,7 +205,7 @@ int main(void)
 		if (strstr(incomig,"\r") != NULL ) {
 			int i = 0;
 			char c;
-			write("\n");		// If pressed Enter Send new line to terminal
+			//			write("\n");		// If pressed Enter Send new line to terminal
 			while(incomig[i]) {	// Convert strings to upper case for lower and upper commands parsing
 				incomig[i] = toupper(incomig[i]);
 				i++;
@@ -223,20 +223,18 @@ int main(void)
 				funcReturn = set_gpio(strstr(incomig,SET_GPIO_HIGH),COMMAND_SET_HIGH);
 				if (funcReturn == 0) {
 					write("1\n");
-//					write("Command set High\n");
 				}
 				else {
-					write("ERRO07\n");
+					print_error(funcReturn);
 				}
 				break;
 			case COMMAND_SET_LOW:						// Set Low
 				funcReturn = set_gpio(strstr(incomig,SET_GPIO_LOW),COMMAND_SET_LOW);
 				if (funcReturn == 0) {
 					write("1\n");
-//					write("Command set Low\n");
 				}
 				else {
-					write("ERRO07\n");
+					print_error(funcReturn);
 				}
 				break;
 			case COMMAND_ENABLE_ECHO:					// Enable Echo
@@ -247,19 +245,36 @@ int main(void)
 				break;
 			case COMMAND_SET_INPUT:						// Set INPUT
 				funcReturn = set_gpio(strstr(incomig,SET_GPIO_INPUT),COMMAND_SET_INPUT);
-				write("Set Input\n");
+				if (funcReturn == 0) {
+					write("1\n");
+				}
+				else {
+					print_error(funcReturn);
+				}
 				break;
 			case COMMAND_SET_OUTPUT:					// Set OUTPUT
 				funcReturn = set_gpio(strstr(incomig,SET_GPIO_OUTPUT),COMMAND_SET_OUTPUT);
-				write("Set Output\n");
+				if (funcReturn == 0) {
+					write("1\n");
+				}
+				else {
+					print_error(funcReturn);
+				}
 				break;
 			case COMMAND_GET_STATE:						// Get State
 				funcReturn = get_gpio(strstr(incomig,GET_GPIO_STATE),COMMAND_GET_STATE);
-				//				write("Get GPIO State\n");
+				if (funcReturn == NOT_CONNECTED) {
+					print_error(funcReturn);
+				}
+
+
 				break;
 			case COMMAND_GET_LEVEL:						// Get Level
 				funcReturn = get_gpio(strstr(incomig,GET_GPIO_LEVEL),COMMAND_GET_LEVEL);
-				//				write("Get GPIO Level\n");
+				if (funcReturn == NOT_CONNECTED) {
+					print_error(funcReturn);
+				}
+
 				break;
 			default:									// no command / wrong command
 				write("Wrong command entered\n");
@@ -530,6 +545,8 @@ void printHelp() {
 	write("-E - Enables USB serial Echo Output\n");
 	write("\n");
 	write("################ GLOBAL INFO ########################\n");
+	write("Each applicable command (Set commands) will return 1 for success and ERROR code for failure\n");
+
 	write("\n");
 	//	write("");
 	updateGlobalDir();
@@ -619,11 +636,21 @@ int parse_gpio(char *gpioP) {
 int set_gpio(char *buffer,int command) {
 	//	uint8_t *state;
 	int gpio_number = 0;
-
+	int testGPIO_return = 0;
+	int test_conn_ret = 0;						// Test connected return value
 	gpio_number = parse_gpio(buffer+1);
 
+	testGPIO_return = testGPIO(gpio_number);
+	test_conn_ret   = get_connected(gpio_number);
+
+
+	if (test_conn_ret != CONNECTED ) {
+		return test_conn_ret;
+	}
+
+
 	// TEST GPIO LIMIT
-	if (testGPIO(gpio_number) == 0) {
+	if (testGPIO_return == 0) {
 
 		switch (command)
 		{
@@ -656,8 +683,8 @@ int set_gpio(char *buffer,int command) {
 	}	// Close If Check for GPIO limit
 
 	else {
-		write("GPIO Number out of limits\n");
-		return ERROR_03;
+		//		write("GPIO Number out of limits\n");
+		return testGPIO_return;
 	} // Close else for GPIO limit
 } // Close function set GPIO
 
@@ -674,39 +701,50 @@ int get_gpio(char *buffer, int command) {
 	//	uint8_t *state;
 	int gpio_number = 0;
 	int gpio_state = 0;
+	int test_gpio_ret = 0;				// Test GPIO return code
+	int test_conn_ret = 0;
 	char write_output[4] = "";
 	char getstate_string[10] = "";
 
 
 	gpio_number = parse_gpio(buffer+1);
 
+
+
+	test_gpio_ret = testGPIO(gpio_number);
+	test_conn_ret = get_connected(gpio_number);
+
+
+	if (test_conn_ret == NOT_CONNECTED) {
+		return NOT_CONNECTED;
+	}
+
 	//		itoa (gpio_number,getstate_string,10); // Convert from int to char
 
-//	strcat(write_output, getstate_string);	//
-
+	//	strcat(write_output, getstate_string);	//
 
 	// TEST GPIO LIMIT
-	if (testGPIO(gpio_number) == 0) {
+	if (test_gpio_ret == 0) {
 
 		switch (command)
 		{
 		case (COMMAND_GET_LEVEL):{
 			gpio_state  = get_gpio_level(gpio_number);
 			//				strcat(write_output, "GPIO# ");
-//			itoa (gpio_number,getstate_string,10); // Convert from int to char
-//			strcat(write_output,getstate_string);
-//			strcat(write_output, " level: ");
+			//			itoa (gpio_number,getstate_string,10); // Convert from int to char
+			//			strcat(write_output,getstate_string);
+			//			strcat(write_output, " level: ");
 			itoa (gpio_state,getstate_string,10); // Convert from int to char
-//			strcat(write_output,getstate_string);
+			//			strcat(write_output,getstate_string);
 			break;
 		}
 		case (COMMAND_GET_STATE):{
 			gpio_state =  get_gpio_state(gpio_number);
-//			itoa (gpio_number,getstate_string,10); // Convert from int to char
-//			strcat(write_output,getstate_string);
-//			strcat(write_output, " state: ");
+			//			itoa (gpio_number,getstate_string,10); // Convert from int to char
+			//			strcat(write_output,getstate_string);
+			//			strcat(write_output, " state: ");
 			itoa (gpio_state,getstate_string,10); // Convert from int to char
-//			strcat(write_output,getstate_string);
+			//			strcat(write_output,getstate_string);
 			break;
 		}
 		default:
@@ -717,19 +755,12 @@ int get_gpio(char *buffer, int command) {
 		strcat(getstate_string,"\n");
 		write(getstate_string);
 
-		//			itoa (gpio_state,getstate_string,10); // Convert from int to char
-
-		//											getGPIOIO[12] =  getstate_string[0]; 	// Place in the correct array location
-		//											getGPIOIO[13] =  getstate_string[1];	// int result
-
-
-		//										write(getGPIOIO);
 		return gpio_state;
 	}	// Close If Check for GPIO limit
 
 	else {
-		write("GPIO Number out of limits\n");
-		return ERROR_03;
+
+		return test_gpio_ret;
 	} // Close else for GPIO limit
 
 	//	return gpio_number;
@@ -1006,13 +1037,37 @@ int testGPIO(int GPIO_NUM) {
 
 	// Check if GPIO is in correct range
 	if ((GPIO_NUM > 0) & (GPIO_NUM <= MAX_GPIO)) {
+		//		if (GPIO_CONNECTED[GPIO_NUM-1] == 1) {
+		//			return 0;
+		//		}
+		//		else {
+		//			return ERROR_08; // Not connected
+		//		}
 		return 0;
+
 	}
 	else
-		return 1;
+		return ERROR_03;	// Out of bounds
 }
 
 
+/**
+ * @brief Retunrn connected to conected state of the passsed GPIO number
+ *
+ * @param  GPIO number to be tested
+ * @retval Return 1 for Conneced and 0 not connected.
+ */
+int get_connected(int gpio_num) {
+
+	if (GPIO_CONNECTED[gpio_num-1] == 51) {
+		return CONNECTED;
+	}
+	else {
+		return NOT_CONNECTED;
+	}
+
+	//	return CONNECTED;
+}
 
 //// Return the state number as received, evaluation for correct number best be handled in the main function
 //// As the state number range may change depending on the function calling
@@ -1743,6 +1798,51 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	HAL_NVIC_DisableIRQ(EXTI0_1_IRQn);
 }
 
+
+/**
+ * @briefGet error Code and print it value to USB serial Output
+ * @param int error_code Error code to print
+ * @retval None
+ */
+void print_error(int error_code) {
+
+	switch (error_code)
+	{
+
+	case ERROR_01:
+		write("ERROR_01\n");
+		break;
+	case ERROR_02:
+		write("ERROR_02\n");
+		break;
+	case ERROR_03:
+		write("ERROR_03\n");
+		break;
+	case ERROR_04:
+		write("ERROR_04\n");
+		break;
+	case ERROR_05:
+		write("ERROR_05\n");
+		break;
+	case ERROR_06:
+		write("ERROR_06\n");
+		break;
+	case ERROR_07:
+		write("ERROR_07\n");
+		break;
+	case ERROR_08:
+		write("ERROR_08\n");
+		break;
+	default:
+		write("ERROR_25\n");	// Error code for unknown error code
+		break;
+		//	case ERROR_09:
+		//		write("ERROR_09\n");
+		//		break;
+
+
+	}
+}
 ///**
 // * @brief	Parse recive pointer to a GPIO command
 // * @param	command -

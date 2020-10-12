@@ -52,7 +52,8 @@ extern "C" {
 #define IN                    		0
 #define OUT                   		1
 
-#define NOT_CONNECTED         		3
+#define NOT_CONNECTED         		ERROR_08
+#define CONNECTED					4
 
 // GPIO Input Parameters
 #define IN_PU						1		// Input with Pullup
@@ -72,6 +73,11 @@ extern "C" {
 #define ERROR_05					25		// Error code from set_gpio_input, wrong error parameter
 #define ERROR_06					26		// Error from get_gpio, wrong command entered
 #define ERROR_07					27		// Error in set GPIO not in Output state
+#define ERROR_08					28 		// Error GPIO Not Connected
+
+
+
+#define ERROR_25					46		// Error code in print error codes, Unknown Error code
 // ############ Commands Define ###########################################
 
 #define COMMAND_SET_OUTPUT			1		// Set GPIO to Output
@@ -151,12 +157,15 @@ int testGPIO(int);						// Perform test on the GPIO number
 int get_gpio(char*, int);				// Global Command for get_gpio commands
 int get_gpio_state(int);				// Return the GPIO state parameter
 int get_gpio_level(int);
+int get_connected(int);					// Return connected / not connected state of the passed GPIO
+										// 1 - Connected 0 - Not connected.
 
 void printConnected();					// Parse Array and print formated string
 void detectConnected();					// Detect connected device and update array
 
-void toggleEcho(int);				// Enable or disable echo output to USB serial
+void toggleEcho(int);					// Enable or disable echo output to USB serial
 										// 1 - Enables echo 0 - Disables echo.
+void print_error(int);					// Get error code and print its value to USB serial terminalprint_error
 /* USER CODE BEGIN EFP */
 void Error_Handler(void);
 
