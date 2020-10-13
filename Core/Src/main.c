@@ -1689,10 +1689,4 @@ void dfu_run_bootloader()
 	NVIC_SystemReset();
 }
 
-
-
-
-
-
-
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
