@@ -41,7 +41,7 @@
 
 // HW & SW Revisions
 char HW_REV[] = "HW: V1.0.0\t";
-char SW_REV[] = "SW: V0.2.11\t";
+char SW_REV[] = "SW: V0.2.12\t";
 
 char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\n";
 
