@@ -41,7 +41,7 @@
 
 // HW & SW Revisions
 char HW_REV[] = "HW: V1.0.0\t";
-char SW_REV[] = "SW: V0.2.12\t";
+char SW_REV[] = "SW: V0.3.0\t";
 
 char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\n";
 
@@ -58,7 +58,7 @@ int GPIO_STATE[MAX_GPIO];
 int GPIO_CONNECTED[MAX_GPIO];
 
 
-void updateGlobalDir();
+void updateGlobalDir(int);
 void setGPIO_state();
 void printGlobalState();
 void updateGIPO_state(int,int);
@@ -135,7 +135,8 @@ int main(void)
 	/* USER CODE BEGIN 1 */
 	// Enable echo to USB serial console
 	ECHO_ENABLE = 1;
-
+	// Disable print on GPIO change value state
+	gpio_change = 0;
 	int command_code = 0;
 	// initialize the global GPIO state
 	setGPIO_state();
@@ -149,8 +150,10 @@ int main(void)
 	HAL_Init();
 
 	/* USER CODE BEGIN Init */
-	return_Command = 0;							// Set return command to 0
-	memset(incomig,0,sizeof(incomig));			// Init Incoming memory array.
+	return_Command = 0;										// Set return command to 0
+	memset(incomig,0,sizeof(incomig));						// Init Incoming memory array.
+	memset(gpio_previus_level,0,sizeof(gpio_previus_level));// Initialize gpio previous state array
+
 	/* USER CODE END Init */
 	/* Configure the system clock */
 	SystemClock_Config();
@@ -192,6 +195,11 @@ int main(void)
 	/* USER CODE BEGIN WHILE */
 	while (1)
 	{
+
+		// if enable GPIO change option
+		if (gpio_change) {
+			detect_gpio_change();
+		}
 
 		/*
 		 * After each return value received the incoming buffer is evaluated,
@@ -280,7 +288,7 @@ int main(void)
 				//				write("Disable Print Change\n");
 				set_gpio_change(COMMAND_DISABLE_CHANGE);
 				break;
-			case COMMAND_ENTER_BOOTLOADER:					// Disable print on GPIO level change
+			case COMMAND_ENTER_BOOTLOADER:					// Enter bootoalder command
 				write("Enter boot loader, welcome to the dark side\n");
 				break;
 
@@ -426,7 +434,7 @@ void printHelp() {
 
 	write("\n");
 	//	write("");
-	updateGlobalDir();
+	updateGlobalDir(1);
 	printGlobalState();
 	printConnected();
 	write("-----------------------------------------------------------------------\n");
@@ -1164,7 +1172,7 @@ int set_gpio_input(int set_gpio_in, int parameter) {
 }
 
 
-void updateGlobalDir() {
+void updateGlobalDir(int printValue) {
 
 	char GPIO_INPUT_PRINT[60] = "GPIO Input Read:\t";
 	char getGPIO_string[2];
@@ -1203,8 +1211,13 @@ void updateGlobalDir() {
 	//	strcat(GPIO_INPUT_PRINT, ((char)GPIO_DIR[0])-48);
 
 
+
+
 	strcat(GPIO_INPUT_PRINT, "\n");
+
+	if (printValue) {
 	write(GPIO_INPUT_PRINT);
+	}
 }
 
 
@@ -1313,7 +1326,7 @@ void detectConnected() {
 		updateGIPO_state(n,IN);
 	}
 	// Update the input state and check what is Hight
-	updateGlobalDir();
+	updateGlobalDir(1);
 	for (int i = 0 ; i < MAX_GPIO; i++) {
 		if ( GPIO_DIR[i] == 1) {
 			GPIO_CONNECTED[i] = CONNECTED_ISOLATOR;
@@ -1328,7 +1341,7 @@ void detectConnected() {
 		set_gpio_input(n, IN_PU);
 		updateGIPO_state(n,IN);
 	}
-	updateGlobalDir();
+	updateGlobalDir(1);
 	for (int i = 0 ; i < MAX_GPIO; i++) {
 		if (( GPIO_DIR[i] == 0) & (GPIO_CONNECTED[i] == NOT_CONNECTED_STATE)) {
 			GPIO_CONNECTED[i] = CONNECTED_MOSFET;
@@ -1522,48 +1535,6 @@ void printConnected() {
 	write(GPIO_CONNECTED_PRINT);
 
 }
-//
-///**
-// * @brief  Configures EXTI line 0 (connected to PA.00 pin) in interrupt mode
-// * @param  None
-// * @retval None
-// */
-//static void EXTI0_1_IRQHandler_Config(void)
-//{
-//	GPIO_InitTypeDef   GPIO_InitStructure;
-//
-//	/* Enable GPIOA clock */
-//	__HAL_RCC_GPIOA_CLK_ENABLE();
-//
-//	/* Configure PA.00 pin as input floating */
-//	GPIO_InitStructure.Mode = GPIO_MODE_IT_RISING;
-//	GPIO_InitStructure.Pull = GPIO_NOPULL;
-//	GPIO_InitStructure.Pin = GPIO_PIN_0;
-//	//  GPIO_InitStructure GPIO_MODE_IT_RISING
-//	HAL_GPIO_Init(GPIOA, &GPIO_InitStructure);
-//
-//	/* Enable and set EXTI line 0 Interrupt to the lowest priority */
-//	HAL_NVIC_SetPriority(EXTI0_1_IRQn, 3, 0);
-//	HAL_NVIC_EnableIRQ(EXTI0_1_IRQn);
-//}
-
-/**
-// * @brief EXTI line detection callbacks
-// * @param GPIO_Pin: Specifies the pins connected EXTI line
-// * @retval None
-// */
-//void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-//{
-//	if (GPIO_Pin == GPIO_PIN_0)
-//	{
-//		/* Toggle LED3 */
-//		HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
-//
-//		//	  write("+1\n");
-//
-//	}
-//	HAL_NVIC_DisableIRQ(EXTI0_1_IRQn);
-//}
 
 
 /**
@@ -1618,7 +1589,7 @@ void print_error(int error_code) {
  */
 void set_gpio_change(int change_command) {
 
-
+//	gpio_previus_level
 	/**
 	 * switch case for enable or disable the print change function
 	 * used switch case in case different command will be needed.
@@ -1626,15 +1597,62 @@ void set_gpio_change(int change_command) {
 	switch (change_command)
 	{
 	case COMMAND_ENABLE_CHANGE:
-		write("COMMAND_69\n");
+		// Make the changes only if in disable mode
+		// To prevent changes to vorking state setup
+		if (gpio_change == 0) {
+			gpio_change = 1;
+			// Set initial Values to the input values
+			for (int n = 0 ; n < MAX_GPIO ; n++) {
+				gpio_previus_level[n] = get_gpio_level(n+1);
+			}
+		}
 		break;
 
 	case COMMAND_DISABLE_CHANGE:
-		write("COMMAND 68\n");
+		// Make the changes only if in enable mode
+		// To prevent changes to working state setup.
+		if (gpio_change == 1) {
+			gpio_change = 0;
+		}
 		break;
 	}
 
 }
 
+
+/**
+ * Detect change in input value of GPIO and print the change on Serial
+ * +# is change from 0 -> 1 and -# is change from 1 -> 0
+ */
+void detect_gpio_change() {
+	// Update global level of GPIO
+	updateGlobalDir(0);
+	char printString[10] = "";
+	char tempvaluechar[5];
+
+	for (int n = 0 ; n < MAX_GPIO ; n++) {
+		if (GPIO_DIR[n] != gpio_previus_level[n]) {
+			// Convert GPIO to char
+			itoa ((n+1),tempvaluechar,10); // Convert from int to char
+			// Change 0 -> 1
+			if (gpio_previus_level[n] == 0) {
+				strcat(printString, "+");
+			}
+			// change 1 -> 0
+			else {
+				strcat(printString, "-");
+
+			}
+			strcat(printString, tempvaluechar);
+			strcat(printString, "\n");
+			write(printString);
+
+			gpio_previus_level[n] = GPIO_DIR[n];
+		}
+	}
+
+
+
+}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -38,6 +38,8 @@ extern "C" {
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
 
+
+
 // General configurations 
 #define DEBUGLED   // Enables various LEDS debug points
 //#define DEBUG     // Enable debug messages output
@@ -46,6 +48,12 @@ extern "C" {
 
 #define MAX_GPIO 					20		// Max Connected GPIO pins to board
 #define INCOMING_BUFFER				128		// Incoming buffer size
+
+
+int gpio_previus_level[MAX_GPIO];
+int gpio_change;							// Global value for GPIO print level change
+
+char incomig[INCOMING_BUFFER];
 
 // ############ GPIO function Defines #####################################
 
@@ -102,7 +110,7 @@ extern "C" {
 
 #define	COMMAND_ENTER_BOOTLOADER	19		// Enter to boot-loader for firmware update
 
-char incomig[INCOMING_BUFFER];
+
 
 // ############ Commands Serial Strings ###########################################
 
@@ -170,9 +178,12 @@ void printConnected();					// Parse Array and print formated string
 void detectConnected();					// Detect connected device and update array
 
 void set_gpio_change(int);				// Set the GPIO output print USB
+void detect_gpio_change();				// Detect and print GPIO change and number on change;
+
 void toggleEcho(int);					// Enable or disable echo output to USB serial
 										// 1 - Enables echo 0 - Disables echo.
 void print_error(int);					// Get error code and print its value to USB serial terminalprint_error
+
 /* USER CODE BEGIN EFP */
 void Error_Handler(void);
 
