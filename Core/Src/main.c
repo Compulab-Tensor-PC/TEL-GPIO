@@ -57,9 +57,6 @@ int GPIO_STATE[MAX_GPIO];
 
 int GPIO_CONNECTED[MAX_GPIO];
 
-// ISR
-
-static void EXTI0_1_IRQHandler_Config(void);
 
 void updateGlobalDir();
 void setGPIO_state();
