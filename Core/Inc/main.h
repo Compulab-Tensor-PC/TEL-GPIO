@@ -37,7 +37,7 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-
+void dfu_run_bootloader();
 
 
 // General configurations 
@@ -179,7 +179,7 @@ void detectConnected();					// Detect connected device and update array
 
 void set_gpio_change(int);				// Set the GPIO output print USB
 void detect_gpio_change();				// Detect and print GPIO change and number on change;
-
+void enter_boot();						// Enter boot loader command
 void toggleEcho(int);					// Enable or disable echo output to USB serial
 										// 1 - Enables echo 0 - Disables echo.
 void print_error(int);					// Get error code and print its value to USB serial terminalprint_error

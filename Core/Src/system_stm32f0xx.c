@@ -137,7 +137,7 @@ const uint8_t APBPrescTable[8]  = {0, 0, 0, 0, 1, 2, 3, 4};
 /** @addtogroup STM32F0xx_System_Private_Functions
   * @{
   */
-
+void (*SysMemBootJump)(void);
 /**
   * @brief  Setup the microcontroller system.
   * @param  None
@@ -151,6 +151,30 @@ void SystemInit(void)
                          User can setups the default system clock (System clock source, PLL Multiplier
                          and Divider factors, AHB/APBx prescalers and Flash settings).
    */
+	  // Check if we should go into bootloader mode.
+	  //
+	  // Set the main stack pointer __set_MSP() to its default value.  The default
+	  // value of the main stack pointer is found by looking at the default value
+	  // in the System Memory start address. Do this in IAR View -> Memory.  I
+	  // tried this and it showed address: 0x200014A8 which I then tried here.
+	  // The IAR compiler complained that it was out of range.  After some
+	  // research, I found the following from "The STM32 Cortex-M0 Programming
+	  // Manual":
+	  //         Main Stack Pointer (MSP)(reset value). On reset, the processor
+	  //         loads the MSP with the value from address 0x00000000.
+	  //
+	  // So I then looked at the default value at address 0x0 and it was 0x20002250
+	  //
+	  // Note that 0x1fffC800 is "System Memory" start address for STM32 F0xx
+	  //
+	  if ( *((unsigned long *)0x20003FF0) == 0xDEADBEEF ) {
+	       *((unsigned long *)0x20003FF0) =  0xCAFEFEED; // Reset our trigger
+	      __set_MSP(0x20002250);
+	                                                     // 0x1fffC800 is "System Memory" start address for STM32 F0xx
+	      SysMemBootJump = (void (*)(void)) (*((uint32_t *) 0x1fffC804)); // Point the PC to the System Memory reset vector (+4)
+	      SysMemBootJump();
+	      while (1);
+	  }
 }
 
 /**

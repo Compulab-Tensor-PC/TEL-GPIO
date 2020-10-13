@@ -26,6 +26,7 @@
 #include "stdio.h"
 #include <ctype.h>							// For toupper function
 
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -132,6 +133,7 @@ void SystemClock_Config(void);
  */
 int main(void)
 {
+
 	/* USER CODE BEGIN 1 */
 	// Enable echo to USB serial console
 	ECHO_ENABLE = 1;
@@ -141,8 +143,11 @@ int main(void)
 	// initialize the global GPIO state
 	setGPIO_state();
 	/* USER CODE END 1 */
+//
 	//
 
+
+	SystemInit();
 
 	/* MCU Configuration--------------------------------------------------------*/
 
@@ -289,6 +294,9 @@ int main(void)
 				set_gpio_change(COMMAND_DISABLE_CHANGE);
 				break;
 			case COMMAND_ENTER_BOOTLOADER:					// Enter bootoalder command
+
+				dfu_run_bootloader();
+//				enter_boot();
 				write("Enter boot loader, welcome to the dark side\n");
 				break;
 
@@ -1650,9 +1658,41 @@ void detect_gpio_change() {
 			gpio_previus_level[n] = GPIO_DIR[n];
 		}
 	}
-
-
-
 }
+
+// enter  boot loader command
+void enter_boot(){
+	uint32_t sysmem_base  = 0x1FFFC800;
+
+	void (*bootloader)(void) = (void (*)(void)) (*((uint32_t *) (sysmem_base + 4)));
+
+		__set_MSP(*(__IO uint32_t*) sysmem_base);
+		bootloader();
+
+	 /* Jump to user application */
+//	    *(__IO uint32_t*) (0x1FFFF6A6 + 4);
+//	    Jump = (pFunction) JumpAddress;
+}
+
+
+/**
+ * The following function store specifica value to location in memory.
+ * And resets the board, on next boot the SystemInit(void) function will check the memory location
+ * And jump to DFU memory location if the correct value present
+ * startup_stm32f072cbtx.s
+ */
+void dfu_run_bootloader()
+{
+//	dfu_jump_to_bootloader(SYSMEM_STM32F072);
+	*((unsigned long *)0x20003FF0) = 0xDEADBEEF;
+//	dfu_reset_to_bootloader_magic = RESET_TO_BOOTLOADER_MAGIC_CODE;
+	NVIC_SystemReset();
+}
+
+
+
+
+
+
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
