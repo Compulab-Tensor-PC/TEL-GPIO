@@ -38,6 +38,8 @@ extern "C" {
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
 
+
+
 // General configurations 
 #define DEBUGLED   // Enables various LEDS debug points
 //#define DEBUG     // Enable debug messages output
@@ -47,12 +49,19 @@ extern "C" {
 #define MAX_GPIO 					20		// Max Connected GPIO pins to board
 #define INCOMING_BUFFER				128		// Incoming buffer size
 
+
+int gpio_previus_level[MAX_GPIO];
+int gpio_change;							// Global value for GPIO print level change
+
+char incomig[INCOMING_BUFFER];
+
 // ############ GPIO function Defines #####################################
 
 #define IN                    		0
 #define OUT                   		1
 
-#define NOT_CONNECTED         		3
+#define NOT_CONNECTED         		ERROR_08
+#define CONNECTED					4
 
 // GPIO Input Parameters
 #define IN_PU						1		// Input with Pullup
@@ -65,13 +74,18 @@ extern "C" {
 #define NOT_CONNECTED_STATE			53
 
 // Error code return, each error should have his own code and definition
-#define ERROR_01              		21     	// Error
-#define ERROR_02					22		// Error code from ParseCommand function (Unknown command)
-#define ERROR_03					23		// Out of bonds GPIO number
-#define ERROR_04					24		// ERROR wrong State number, in setGPIO_level
-#define ERROR_05					25		// Error code from set_gpio_input, wrong error parameter
-#define ERROR_06					26		// Error from get_gpio, wrong command entered
-#define ERROR_07					27		// Error in set GPIO not in Output state
+#define ERROR_01              		1021     	// Error
+#define ERROR_02					1022		// Error code from ParseCommand function (Unknown command)
+#define ERROR_03					1023		// Out of bonds GPIO number
+#define ERROR_04					1024		// ERROR wrong State number, in setGPIO_level
+#define ERROR_05					1025		// Error code from set_gpio_input, wrong error parameter
+#define ERROR_06					1026		// Error from get_gpio, wrong command entered
+#define ERROR_07					1027		// Error in set GPIO not in Output state
+#define ERROR_08					1028 		// Error GPIO Not Connected
+
+
+
+#define ERROR_25					46		// Error code in print error codes, Unknown Error code
 // ############ Commands Define ###########################################
 
 #define COMMAND_SET_OUTPUT			1		// Set GPIO to Output
@@ -86,17 +100,26 @@ extern "C" {
 #define COMMAND_PRINT_HELP			11		// Print Help Information
 #define COMMAND_DETECT_CONNECTED	12		// Detect Connected GPIO
 #define COMMAND_TOGGLE_ECHO			13		// Toggle Echo to user over USB Serial
-#define COMMAND_TOGGLE_ISR			14		// Toggle ISR to print GPIO Level change to Serial
+//#define COMMAND_TOGGLE_ISR			14		// Toggle ISR to print GPIO Level change to Serial
+
+#define COMMAND_DISABLE_ECHO		15		// Disable echo output to console
+#define COMMAND_ENABLE_ECHO			16		// Enable echo output to console
+
+#define COMMAND_ENABLE_CHANGE		17		// Enable Print out on GPIO change in Input State
+#define COMMAND_DISABLE_CHANGE		18		// Disable print out on GPIO change
+
+#define	COMMAND_ENTER_BOOTLOADER	19		// Enter to boot-loader for firmware update
 
 
-
-char incomig[INCOMING_BUFFER];
 
 // ############ Commands Serial Strings ###########################################
 
 #define HELP_COMMAND				"-H"
 #define DISABLE_ECHO				"-D"
 #define ENABLE_ECHO					"-E"
+#define ENABLE_PRINT_CHANGE			"-G"
+#define DISABLE_PRINT_CHANGE		"-R"
+#define ENTER_BOOTLOADER			"-B"
 
 #define TOGGLE_ECHO					"!"
 #define SET_GPIO_HIGH				"^"
@@ -148,9 +171,18 @@ int testGPIO(int);						// Perform test on the GPIO number
 int get_gpio(char*, int);				// Global Command for get_gpio commands
 int get_gpio_state(int);				// Return the GPIO state parameter
 int get_gpio_level(int);
+int get_connected(int);					// Return connected / not connected state of the passed GPIO
+										// 1 - Connected 0 - Not connected.
 
 void printConnected();					// Parse Array and print formated string
 void detectConnected();					// Detect connected device and update array
+
+void set_gpio_change(int);				// Set the GPIO output print USB
+void detect_gpio_change();				// Detect and print GPIO change and number on change;
+
+void toggleEcho(int);					// Enable or disable echo output to USB serial
+										// 1 - Enables echo 0 - Disables echo.
+void print_error(int);					// Get error code and print its value to USB serial terminalprint_error
 
 /* USER CODE BEGIN EFP */
 void Error_Handler(void);
