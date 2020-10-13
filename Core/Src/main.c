@@ -272,8 +272,21 @@ int main(void)
 				if ((funcReturn == NOT_CONNECTED) | (funcReturn == ERROR_03) ) {
 					print_error(funcReturn);
 				}
-
 				break;
+
+			case COMMAND_ENABLE_CHANGE:						// Enable print on GPIO level change
+				//				write("Enable Print Change\n");
+				set_gpio_change(COMMAND_ENABLE_CHANGE);
+				//
+				break;
+			case COMMAND_DISABLE_CHANGE:					// Disable print on GPIO level change
+				//				write("Disable Print Change\n");
+				set_gpio_change(COMMAND_DISABLE_CHANGE);
+				break;
+			case COMMAND_ENTER_BOOTLOADER:					// Disable print on GPIO level change
+				write("Enter boot loader, welcome to the dark side\n");
+				break;
+
 			default:									// no command / wrong command
 				write("Wrong command entered\n");
 				break;
@@ -400,13 +413,16 @@ void printHelp() {
 	write("\n");
 	write("-D - Disable USB serial Echo Output\n");
 	write("-E - Enables USB serial Echo Output\n");
+	write("-G - Enable output to console on GPIO level change\n");
+	write("-R - Disable output to console on GPIO level change\n");
+	write("-B - Enter to boot-loader for firmware update\n");
 	write("\n");
 
 
 	write("################ ERROR CODES ########################\n");
-	write("ERROR_03 - Out of Bounds GPIO Number\n");
-	write("ERROR_07 - Changing GPIO LEVEL when the GPIO in INPUT\n");
-	write("ERROR_08 - GPIO not connected\n");
+	write("E03 - Out of Bounds GPIO Number\n");
+	write("E07 - Changing GPIO LEVEL when the GPIO in INPUT\n");
+	write("E08 - GPIO not connected\n");
 
 	write("\n");
 	write("################ GLOBAL INFO ########################\n");
@@ -448,14 +464,20 @@ int parse_command(char* incomingBuffer) {
 	else if ((strstr(incomingBuffer,GET_GPIO_LEVEL) != NULL)) {
 		return_command = COMMAND_GET_LEVEL;
 	}
-	else if ((strstr(incomingBuffer,TOGGLE_ISR_GPIO) != NULL)) {
-		return_command = COMMAND_TOGGLE_ISR;
-	}
 	else if ((strstr(incomingBuffer,DISABLE_ECHO) != NULL)) {
 		return_command = COMMAND_DISABLE_ECHO;
 	}
 	else if ((strstr(incomingBuffer,ENABLE_ECHO) != NULL)) {
 		return_command = COMMAND_ENABLE_ECHO;
+	}
+	else if ((strstr(incomingBuffer,ENABLE_PRINT_CHANGE) != NULL)) {
+		return_command = COMMAND_ENABLE_CHANGE;
+	}
+	else if ((strstr(incomingBuffer,DISABLE_PRINT_CHANGE) != NULL)) {
+		return_command = COMMAND_DISABLE_CHANGE;
+	}
+	else if ((strstr(incomingBuffer,ENTER_BOOTLOADER) != NULL)) {
+		return_command = COMMAND_ENTER_BOOTLOADER;
 	}
 
 	return return_command;
@@ -515,8 +537,6 @@ int set_gpio(char *buffer,int command) {
 	else if (test_conn_ret != CONNECTED ) {
 		return test_conn_ret;
 	}
-
-
 	switch (command)
 	{
 	case (COMMAND_SET_HIGH):{		// Check if GPIO in Output state if not return ERROR_07
@@ -563,7 +583,7 @@ int get_gpio(char *buffer, int command) {
 	int gpio_state = 0;
 	int test_gpio_ret = 0;				// Test GPIO return code
 	int test_conn_ret = 0;
-		char write_output[4] = "";
+	char write_output[4] = "";
 	char getstate_string[10] = "";
 
 
@@ -1550,7 +1570,7 @@ void printConnected() {
 
 
 /**
- * @briefGet error Code and print it value to USB serial Output
+ * @brief Get error Code and print it value to USB serial Output
  * @param int error_code Error code to print
  * @retval None
  */
@@ -1560,28 +1580,28 @@ void print_error(int error_code) {
 	{
 
 	case ERROR_01:
-		write("ERROR_01\n");
+		write("E01\n");
 		break;
 	case ERROR_02:
-		write("ERROR_02\n");
+		write("E02\n");
 		break;
 	case ERROR_03:
-		write("ERROR_03\n");
+		write("E03\n");
 		break;
 	case ERROR_04:
-		write("ERROR_04\n");
+		write("E04\n");
 		break;
 	case ERROR_05:
-		write("ERROR_05\n");
+		write("E05\n");
 		break;
 	case ERROR_06:
-		write("ERROR_06\n");
+		write("E06\n");
 		break;
 	case ERROR_07:
-		write("ERROR_07\n");
+		write("E07\n");
 		break;
 	case ERROR_08:
-		write("ERROR_08\n");
+		write("E08\n");
 		break;
 	default:
 		write("ERROR_25\n");	// Error code for unknown error code
@@ -1593,4 +1613,31 @@ void print_error(int error_code) {
 
 	}
 }
+
+/**
+ * @brief Enables or disable the print on GPIO level change command
+ * @param int Enable or disable value for the command
+ * @retval None
+ */
+void set_gpio_change(int change_command) {
+
+
+	/**
+	 * switch case for enable or disable the print change function
+	 * used switch case in case different command will be needed.
+	 */
+	switch (change_command)
+	{
+	case COMMAND_ENABLE_CHANGE:
+		write("COMMAND_69\n");
+		break;
+
+	case COMMAND_DISABLE_CHANGE:
+		write("COMMAND 68\n");
+		break;
+	}
+
+}
+
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

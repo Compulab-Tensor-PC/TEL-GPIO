@@ -92,12 +92,15 @@ extern "C" {
 #define COMMAND_PRINT_HELP			11		// Print Help Information
 #define COMMAND_DETECT_CONNECTED	12		// Detect Connected GPIO
 #define COMMAND_TOGGLE_ECHO			13		// Toggle Echo to user over USB Serial
-#define COMMAND_TOGGLE_ISR			14		// Toggle ISR to print GPIO Level change to Serial
+//#define COMMAND_TOGGLE_ISR			14		// Toggle ISR to print GPIO Level change to Serial
 
 #define COMMAND_DISABLE_ECHO		15		// Disable echo output to console
 #define COMMAND_ENABLE_ECHO			16		// Enable echo output to console
 
+#define COMMAND_ENABLE_CHANGE		17		// Enable Print out on GPIO change in Input State
+#define COMMAND_DISABLE_CHANGE		18		// Disable print out on GPIO change
 
+#define	COMMAND_ENTER_BOOTLOADER	19		// Enter to boot-loader for firmware update
 
 char incomig[INCOMING_BUFFER];
 
@@ -106,6 +109,9 @@ char incomig[INCOMING_BUFFER];
 #define HELP_COMMAND				"-H"
 #define DISABLE_ECHO				"-D"
 #define ENABLE_ECHO					"-E"
+#define ENABLE_PRINT_CHANGE			"-G"
+#define DISABLE_PRINT_CHANGE		"-R"
+#define ENTER_BOOTLOADER			"-B"
 
 #define TOGGLE_ECHO					"!"
 #define SET_GPIO_HIGH				"^"
@@ -163,6 +169,7 @@ int get_connected(int);					// Return connected / not connected state of the pas
 void printConnected();					// Parse Array and print formated string
 void detectConnected();					// Detect connected device and update array
 
+void set_gpio_change(int);				// Set the GPIO output print USB
 void toggleEcho(int);					// Enable or disable echo output to USB serial
 										// 1 - Enables echo 0 - Disables echo.
 void print_error(int);					// Get error code and print its value to USB serial terminalprint_error
