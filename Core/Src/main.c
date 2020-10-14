@@ -1660,20 +1660,6 @@ void detect_gpio_change() {
 	}
 }
 
-// enter  boot loader command
-void enter_boot(){
-	uint32_t sysmem_base  = 0x1FFFC800;
-
-	void (*bootloader)(void) = (void (*)(void)) (*((uint32_t *) (sysmem_base + 4)));
-
-		__set_MSP(*(__IO uint32_t*) sysmem_base);
-		bootloader();
-
-	 /* Jump to user application */
-//	    *(__IO uint32_t*) (0x1FFFF6A6 + 4);
-//	    Jump = (pFunction) JumpAddress;
-}
-
 
 /**
  * The following function store specifica value to location in memory.
