@@ -42,7 +42,7 @@
 
 // HW & SW Revisions
 char HW_REV[] = "HW: V1.0.0\t";
-char SW_REV[] = "SW: V0.3.2\t";
+char SW_REV[] = "SW: V0.3.3\t";
 
 char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\n";
 
@@ -503,27 +503,27 @@ int parse_command(char* incomingBuffer) {
 /**
  * @brief  Return gpio number from the incoming buffer reference
  * @param  Pointer to Incoming buffer
- * @retval int gpio number
+ * @retval int gpio number, or -1 if the gpio number is out of range
  */
 int parse_gpio(char *gpioP) {
-	char *temp_i, *temp_n;
-	int  gpio_n;
+    char *temp_i, *temp_n;
+    int  gpio_n;
 
-	temp_i = gpioP;									// Get the first number
-	temp_n = gpioP + 1 ;							// Get the next number in memory
+    temp_i = gpioP;									// Get the first number
+    temp_n = gpioP + 1 ;							// Get the next number in memory
 
-	if ((*temp_n >= 48) & (*temp_n <= 57) ) {
-		gpio_n = ((*temp_n - 48) + ( (*temp_i - 48) * 10 ));
+    if ((*temp_n >= 48) & (*temp_n <= 57) ) {
+        gpio_n = ((*temp_n - 48) + ( (*temp_i - 48) * 10 ));
+    } 	// Close if test for integer number test
+    else {											// Calculate two dimension number
+        gpio_n = (int)*temp_i-48;
+    }
 
-		return gpio_n;
-	} 	// Close if test for integer number test
-	else {											// Calculate two dimension number
-		gpio_n = (int)*temp_i-48;
-		return gpio_n;
-	}	// Close else
+    if (gpio_n < 0 || gpio_n > MAX_GPIO) {
+        return -1; // Return error code if GPIO number is out of range
+    }
 
-	// Should reach this only in case of error (wrong text format entered)
-	return gpio_n;
+    return gpio_n;
 }
 
 
