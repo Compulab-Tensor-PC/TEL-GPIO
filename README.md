@@ -24,7 +24,7 @@ Compulab PN FT.S_GPIO - TELL-GPIO
 
 # Software
 
-The source code and Binary are available [here](https://github.com/Compulab-Tensor-PC/FT_S.GPIO)
+The source code and Binary are available [github Repo](https://github.com/Compulab-Tensor-PC/TEL-GPIO)
 
 Bugs and futures can be opened in the Github repository.
 
