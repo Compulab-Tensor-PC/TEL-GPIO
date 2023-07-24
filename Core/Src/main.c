@@ -42,7 +42,7 @@
 
 // HW & SW Revisions
 char HW_REV[] = "HW: V1.0.0\t";
-char SW_REV[] = "SW: V0.3.1\t";
+char SW_REV[] = "SW: V0.3.2\t";
 
 char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\n";
 
@@ -188,6 +188,8 @@ int main(void)
 	HAL_Delay(10);
 	char newLine[] = "\n";
 	CDC_Transmit_FS(newLine, sizeof(newLine));				// Transmit new line
+	const char enter[10] = "\r";
+
 	//
 	// TODO Add EEPROM read function to read GPIO old GPIO values
 	// TODO Set Initial GPIO Value (From EEPROM or default?)
@@ -212,7 +214,7 @@ int main(void)
 		 * function is executed.
 		 */
 		// After Each Enter press the incoming buffer is evaluated,
-		if (strstr(incomig,"\r") != NULL ) {
+		if (strstr(incomig,enter) != NULL ) {
 			int i = 0;
 			//			write("\n");		// If pressed Enter Send new line to terminal
 			while(incomig[i]) {	// Convert strings to upper case for lower and upper commands parsing
@@ -305,10 +307,11 @@ int main(void)
 				break;
 			}
 
-			memset(incomig,(char)0,sizeof(incomig));	// set the incoming array to zero
-			funcReturn = 0;
-			command_code = 0;
+					memset(incomig,(char)0,sizeof(incomig));	// set the incoming array to zero
+					funcReturn = 0;
+					command_code = 0;
 		} // Close if (if pressed Enter)
+
 	}	// Close main while loop
 }	// Close main()
 

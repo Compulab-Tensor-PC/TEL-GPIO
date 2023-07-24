@@ -9,7 +9,7 @@ REVISION = '0.1'
 
 # ports = ['COM%s' % (i + 1) for i in range(10000)]
 
-ports = ['COM8']
+ports = ['COM11']
 # ports.remove("COM3")
 # ports.remove("COM1")
 # ports.remove("COM4")
@@ -19,7 +19,7 @@ ports = ['COM8']
 
 
 def send_to_serial(serialport, string_command):
-    string_command = string_command + '\n'                                # Add New Line at end of String
+    string_command = string_command + '\r'                                # Add New Line at end of String
     string_command = string_command.encode()                          # Encode to bites
     ser = serial.Serial(serialport ,115200, bytesize=8,     parity=serial.PARITY_EVEN, stopbits=1, timeout=0, rtscts=1)  # open serial port
     print(ser.name)  # Print which port actually used
