@@ -83,3 +83,4 @@ Debug/TEL-GPIO.list
 Debug/TEL-GPIO.bin
 Debug/TEL-GPIO.list
 Debug/*
+build/*.lst
