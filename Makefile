@@ -154,7 +154,7 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-LDSCRIPT = STM32F072CBTx_FLASH.ld
+LDSCRIPT = STM32F072CBTX_FLASH.ld
 
 # libraries
 LIBS = -lc -lm -lnosys 
