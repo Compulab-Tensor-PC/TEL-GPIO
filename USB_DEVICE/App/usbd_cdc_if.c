@@ -21,6 +21,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_cdc_if.h"
+#include "ringbuffer.h"
+#include "main.h"
 
 /* USER CODE BEGIN INCLUDE */
 int length = 0;
@@ -266,26 +268,15 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
 
-	if (ECHO_ENABLE == 1) {
-	CDC_Transmit_FS(Buf,sizeof(Buf));		// Echo back to user
+	if (ECHO_ENABLE == 1)
+  	  CDC_Transmit_FS(Buf, *Len);		// Echo back to user
 
-	}
 #ifdef DEBUGLED
 	HAL_GPIO_TogglePin(GPIOB, LED1_Pin);
 
 #endif //end if debug led
 
-//	measurement = sizeof(incomig);
-
-	if((sizeof(incomig) - 2) < INCOMING_BUFFER){
-		strcat(incomig,Buf);
-
-	}
-//	strcat(incomig,Buf);					// Store the date to the array for pacing
-
-
-
-	USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
+  RingBuffer_Write(&InputBuf, Buf, *Len);
 	USBD_CDC_ReceivePacket(&hUsbDeviceFS);
 
 

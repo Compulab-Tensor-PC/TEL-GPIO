@@ -20,7 +20,7 @@ TARGET = TEL-GPIO
 # building variables
 ######################################
 # debug build?
-DEBUG = 1
+DEBUG = 0
 # optimization
 OPT = -Og
 
@@ -37,6 +37,8 @@ BUILD_DIR = build
 # C sources
 C_SOURCES =  \
 Core/Src/main.c \
+Core/Src/parser.c \
+Core/Src/ringbuffer.c \
 Core/Src/gpio.c \
 Core/Src/i2c.c \
 Core/Src/stm32f0xx_it.c \
@@ -142,7 +144,9 @@ ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffuncti
 CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
 ifeq ($(DEBUG), 1)
-CFLAGS += -g -gdwarf-2
+CFLAGS += -g -gdwarf-2 -O0
+else
+CFLAGS += $(OPT)
 endif
 
 
@@ -154,7 +158,7 @@ CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-LDSCRIPT = STM32F072CBTx_FLASH.ld
+LDSCRIPT = STM32F072CBTX_FLASH.ld
 
 # libraries
 LIBS = -lc -lm -lnosys 
@@ -204,5 +208,3 @@ clean:
 # dependencies
 #######################################
 -include $(wildcard $(BUILD_DIR)/*.d)
-
-# *** EOF ***

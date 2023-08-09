@@ -22,9 +22,11 @@
 #include "i2c.h"
 #include "usb_device.h"
 #include "gpio.h"
-#include "String.h"
+#include "string.h"
 #include "stdio.h"
 #include <ctype.h>							// For toupper function
+#include "ringbuffer.h"
+#include "parser.h"
 
 
 /* Private includes ----------------------------------------------------------*/
@@ -42,9 +44,9 @@
 
 // HW & SW Revisions
 char HW_REV[] = "HW: V1.0.0\t";
-char SW_REV[] = "SW: V0.3.3\t";
+char SW_REV[] = "SW: V1.0.0\t";
 
-char InitialHeader[] = "\e[2J\e[44m###### TEL-GPIO #######\e[40m\n";
+char InitialHeader[] = "\t###### TEL-GPIO #######\n";
 
 int GPIO_DIR[MAX_GPIO];
 
@@ -85,7 +87,7 @@ void write( char *ptr)
 
 	// Count the array until reached new line (RETURN)
 	for (len = 1 ; *pterc != '\n' ; len++ ) {
-		*pterc++;
+		pterc++;
 	}
 
 
@@ -139,15 +141,13 @@ int main(void)
 	ECHO_ENABLE = 1;
 	// Disable print on GPIO change value state
 	gpio_change = 0;
-	int command_code = 0;
 	// initialize the global GPIO state
+
 	setGPIO_state();
 	/* USER CODE END 1 */
-//
-	//
-
 
 	SystemInit();
+	RingBuffer_Init(&InputBuf);
 
 	/* MCU Configuration--------------------------------------------------------*/
 
@@ -156,7 +156,6 @@ int main(void)
 
 	/* USER CODE BEGIN Init */
 	return_Command = 0;										// Set return command to 0
-	memset(incomig,0,sizeof(incomig));						// Init Incoming memory array.
 	memset(gpio_previus_level,0,sizeof(gpio_previus_level));// Initialize gpio previous state array
 
 	/* USER CODE END Init */
@@ -170,8 +169,6 @@ int main(void)
 	MX_USB_DEVICE_Init();
 	/* USER CODE BEGIN 2 */
 	HAL_Delay(500);								// General delay for pin init
-
-	char resetScreen[] = "\ec";  							// Return screen to initial state
 	int funcReturn = 0;
 
 
@@ -188,9 +185,7 @@ int main(void)
 	HAL_Delay(10);
 	char newLine[] = "\n";
 	CDC_Transmit_FS(newLine, sizeof(newLine));				// Transmit new line
-	const char enter[10] = "\r";
 
-	//
 	// TODO Add EEPROM read function to read GPIO old GPIO values
 	// TODO Set Initial GPIO Value (From EEPROM or default?)
 	// TODO add array with error codes that will check user input and issue correct error,
@@ -202,116 +197,73 @@ int main(void)
 	/* USER CODE BEGIN WHILE */
 	while (1)
 	{
-
 		// if enable GPIO change option
 		if (gpio_change) {
 			detect_gpio_change();
 		}
 
-		/*
-		 * After each return value received the incoming buffer is evaluated,
-		 * and searched for command value on first matched command the appropriate
-		 * function is executed.
-		 */
-		// After Each Enter press the incoming buffer is evaluated,
-		if (strstr(incomig,enter) != NULL ) {
-			int i = 0;
-			//			write("\n");		// If pressed Enter Send new line to terminal
-			while(incomig[i]) {	// Convert strings to upper case for lower and upper commands parsing
-				incomig[i] = toupper(incomig[i]);
-				i++;
+		unsigned char c;
+		int cmd;
+		for(int i=0; 10 > i; ++i) { // for instead while to prevent deadloop (just in case)
+			if (RingBuffer_Read(&InputBuf, &c, 1)){
+				cmd = parser_get(c);
+				if (cmd)
+					break;
 			}
+			else
+				break;
+		}
 
-			command_code = parse_command(incomig);
+		if(0 >= cmd)
+			continue;
 
-			switch (command_code)
-			{
-			case COMMAND_PRINT_HELP:					// Help Screen
-				printHelp();
-				break;
-			case COMMAND_SET_HIGH:						// Set High
-				funcReturn = set_gpio(strstr(incomig,SET_GPIO_HIGH),COMMAND_SET_HIGH);
-				if (funcReturn == 0) {
-					write("1\n");
-				}
-				else {
-					print_error(funcReturn);
-				}
-				break;
-			case COMMAND_SET_LOW:						// Set Low
-				funcReturn = set_gpio(strstr(incomig,SET_GPIO_LOW),COMMAND_SET_LOW);
-				if (funcReturn == 0) {
-					write("1\n");
-				}
-				else {
-					print_error(funcReturn);
-				}
-				break;
-			case COMMAND_ENABLE_ECHO:					// Enable Echo
-				toggleEcho(1);
-				break;
-			case COMMAND_DISABLE_ECHO:					// Disable echo
-				toggleEcho(0);
-				break;
-			case COMMAND_SET_INPUT:						// Set INPUT
-				funcReturn = set_gpio(strstr(incomig,SET_GPIO_INPUT),COMMAND_SET_INPUT);
-				if (funcReturn == 0) {
-					write("1\n");
-				}
-				else {
-					print_error(funcReturn);
-				}
-				break;
-			case COMMAND_SET_OUTPUT:					// Set OUTPUT
-				funcReturn = set_gpio(strstr(incomig,SET_GPIO_OUTPUT),COMMAND_SET_OUTPUT);
-				if (funcReturn == 0) {
-					write("1\n");
-				}
-				else {
-					print_error(funcReturn);
-				}
-				break;
-			case COMMAND_GET_STATE:						// Get State
-				funcReturn = get_gpio(strstr(incomig,GET_GPIO_STATE),COMMAND_GET_STATE);
-				if ((funcReturn == NOT_CONNECTED) | (funcReturn == ERROR_03) ) {
-					print_error(funcReturn);
-				}
-
-
-				break;
-			case COMMAND_GET_LEVEL:						// Get Level
-				funcReturn = get_gpio(strstr(incomig,GET_GPIO_LEVEL),COMMAND_GET_LEVEL);
-				if ((funcReturn == NOT_CONNECTED) | (funcReturn == ERROR_03) ) {
-					print_error(funcReturn);
-				}
-				break;
-
-			case COMMAND_ENABLE_CHANGE:						// Enable print on GPIO level change
-				//				write("Enable Print Change\n");
-				set_gpio_change(COMMAND_ENABLE_CHANGE);
-				//
-				break;
-			case COMMAND_DISABLE_CHANGE:					// Disable print on GPIO level change
-				//				write("Disable Print Change\n");
-				set_gpio_change(COMMAND_DISABLE_CHANGE);
-				break;
-			case COMMAND_ENTER_BOOTLOADER:					// Enter bootoalder command
-
-				dfu_run_bootloader();
+		switch (cmd >> 8) // Extract command value
+		{
+		case COMMAND_PRINT_HELP:					// Help Screen
+			printHelp();
+			break;
+		case COMMAND_SET_HIGH:						// Set High
+		case COMMAND_SET_LOW:						// Set Low
+		case COMMAND_SET_OUTPUT:					// Set OUTPUT
+		case COMMAND_SET_INPUT:						// Set INPUT
+			funcReturn = set_gpio(cmd & 0xff, cmd >>8);
+			if (funcReturn) 
+				print_error(funcReturn);
+			break;
+		case COMMAND_ENABLE_ECHO:					// Enable Echo
+			toggleEcho(1);
+			break;
+		case COMMAND_DISABLE_ECHO:					// Disable echo
+			toggleEcho(0);
+			break;
+		case COMMAND_GET_LEVEL:						// Get Level
+		case COMMAND_GET_STATE:						// Get State
+			funcReturn = get_gpio(cmd & 0xff, cmd >>8);
+			if ((funcReturn == NOT_CONNECTED) | (funcReturn == ERROR_03) ) {
+				print_error(funcReturn);
+			}
+			break;
+		case COMMAND_ENABLE_CHANGE:						// Enable print on GPIO level change
+			//				write("Enable Print Change\n");
+			set_gpio_change(COMMAND_ENABLE_CHANGE);
+			//
+			break;
+		case COMMAND_DISABLE_CHANGE:					// Disable print on GPIO level change
+			//				write("Disable Print Change\n");
+			set_gpio_change(COMMAND_DISABLE_CHANGE);
+			break;
+		case COMMAND_ENTER_BOOTLOADER:					// Enter bootoalder command
+			dfu_run_bootloader();
 //				enter_boot();
-				write("Enter boot loader, welcome to the dark side\n");
-				break;
+			write("Enter boot loader, welcome to the dark side\n");
+			break;
+		default:									// no command / wrong command
+			write("Wrong command entered\n");
+			break;
+		}
+		cmd = 0;
 
-			default:									// no command / wrong command
-				write("Wrong command entered\n");
-				break;
-			}
-
-					memset(incomig,(char)0,sizeof(incomig));	// set the incoming array to zero
-					funcReturn = 0;
-					command_code = 0;
-		} // Close if (if pressed Enter)
-
+		funcReturn = 0;
 	}	// Close main while loop
 }	// Close main()
 
@@ -369,8 +321,8 @@ void Error_Handler(void)
 	/* USER CODE BEGIN Error_Handler_Debug */
 	/* User can add his own implementation to report the HAL error return state */
 #ifdef DEBUGLED
-	HAL_GPIO_WritePin(LED1_Pin, LED1_GPIO_Port, 1); // RED LED in case of error, only in debug mode
-	HAL_GPIO_WritePin(LED2_Pin, LED2_GPIO_Port, 1);
+	HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, 1); // RED LED in case of error, only in debug mode
+	HAL_GPIO_WritePin(LED2_GPIO_Port, LED2_Pin, 1);
 	char fail[] = "\a\n\r##### FAILURE ######\n\r";
 	CDC_Transmit_FS(fail,sizeof(fail));
 #endif
@@ -401,15 +353,7 @@ void assert_failed(uint8_t *file, uint32_t line)
  * @retval None
  */
 void printHelp() {
-	char resetScreen[] = "\ec";  // Return screen to initial state
-	//char escape[] = "\e]0;<TEL-GPIO>\x07";
-	char escape[] = "\e]0;<TEL-GPIO>\x07";
-	char printout[] = "\n\n################ HELP ############################# \n";
-
-	CDC_Transmit_FS(resetScreen, sizeof(resetScreen));
-	HAL_Delay(100);
-	CDC_Transmit_FS(escape, sizeof(escape));
-	HAL_Delay(10);
+	char printout[] = "\n\n################ HELP #############################\n";
 	CDC_Transmit_FS(InitialHeader, sizeof(InitialHeader));
 	HAL_Delay(10);
 	CDC_Transmit_FS(HW_REV, sizeof(HW_REV));
@@ -433,99 +377,20 @@ void printHelp() {
 	write("-R - Disable output to console on GPIO level change\n");
 	write("-B - Enter to boot-loader for firmware update\n");
 	write("\n");
-
-
 	write("################ ERROR CODES ########################\n");
+	write("E02 - Invalid input\n");
 	write("E03 - Out of Bounds GPIO Number\n");
 	write("E07 - Changing GPIO LEVEL when the GPIO in INPUT\n");
 	write("E08 - GPIO not connected\n");
-
 	write("\n");
 	write("################ GLOBAL INFO ########################\n");
 
 	write("\n");
-	//	write("");
 	updateGlobalDir(1);
 	printGlobalState();
 	printConnected();
 	write("-----------------------------------------------------------------------\n");
 }
-
-/**
- * @brief  Return Command code of the passed incomming buffer pointer
- * @param  Pointer to Incoming buffer
- * @retval int command code
- */
-int parse_command(char* incomingBuffer) {
-
-	int return_command = 0;
-	if (strstr(incomingBuffer,HELP_COMMAND) != NULL) {
-		return_command = COMMAND_PRINT_HELP;
-	}
-	else if (strstr(incomingBuffer,SET_GPIO_HIGH) != NULL) {
-		return_command = COMMAND_SET_HIGH;
-	}
-	else if (strstr(incomingBuffer,SET_GPIO_LOW) != NULL) {
-		return_command = COMMAND_SET_LOW;
-	}
-	else if ((strstr(incomingBuffer,SET_GPIO_INPUT) != NULL)) {
-		return_command = COMMAND_SET_INPUT;
-	}
-	else if ((strstr(incomingBuffer,SET_GPIO_OUTPUT) != NULL)) {
-		return_command = COMMAND_SET_OUTPUT;
-	}
-	else if ((strstr(incomingBuffer,GET_GPIO_STATE) != NULL)) {
-		return_command = COMMAND_GET_STATE;
-	}
-	else if ((strstr(incomingBuffer,GET_GPIO_LEVEL) != NULL)) {
-		return_command = COMMAND_GET_LEVEL;
-	}
-	else if ((strstr(incomingBuffer,DISABLE_ECHO) != NULL)) {
-		return_command = COMMAND_DISABLE_ECHO;
-	}
-	else if ((strstr(incomingBuffer,ENABLE_ECHO) != NULL)) {
-		return_command = COMMAND_ENABLE_ECHO;
-	}
-	else if ((strstr(incomingBuffer,ENABLE_PRINT_CHANGE) != NULL)) {
-		return_command = COMMAND_ENABLE_CHANGE;
-	}
-	else if ((strstr(incomingBuffer,DISABLE_PRINT_CHANGE) != NULL)) {
-		return_command = COMMAND_DISABLE_CHANGE;
-	}
-	else if ((strstr(incomingBuffer,ENTER_BOOTLOADER) != NULL)) {
-		return_command = COMMAND_ENTER_BOOTLOADER;
-	}
-
-	return return_command;
-}
-
-
-/**
- * @brief  Return gpio number from the incoming buffer reference
- * @param  Pointer to Incoming buffer
- * @retval int gpio number, or -1 if the gpio number is out of range
- */
-int parse_gpio(char *gpioP) {
-    char *temp_i, *temp_n;
-    int  gpio_n;
-
-    temp_i = gpioP;									// Get the first number
-    temp_n = gpioP + 1 ;							// Get the next number in memory
-
-    if ((*temp_n >= 48) & (*temp_n <= 57) ) {
-        gpio_n = ((*temp_n - 48) + ( (*temp_i - 48) * 10 ));
-    } 	// Close if test for integer number test
-    else {											// Calculate two dimension number
-        gpio_n = (int)*temp_i-48;
-    }
-
-    if (gpio_n < 0 || gpio_n > MAX_GPIO) {
-        return -1; // Return error code if GPIO number is out of range
-    }
-
-    return gpio_n;
-}
-
 
 /**
  * @brief  	Set GPIO as per command received, handles all the set gpio commands
@@ -535,12 +400,9 @@ int parse_gpio(char *gpioP) {
  * @param   int Incoming command value
  * @retval 	Return code of the operation
  */
-int set_gpio(char *buffer,int command) {
-	//	uint8_t *state;
-	int gpio_number = 0;
+int set_gpio(int gpio_number,int command) {
 	int testGPIO_return = 0;
 	int test_conn_ret = 0;						// Test connected return value
-	gpio_number = parse_gpio(buffer+1);
 
 	testGPIO_return = testGPIO(gpio_number);
 	test_conn_ret   = get_connected(gpio_number);
@@ -589,23 +451,15 @@ int set_gpio(char *buffer,int command) {
  * @brief  	Get GPIO state or level as per command received handles all the get GPIO commands
  * 			from main switch case
  *
- * @param  	Pointer to Incoming buffer
  * @param   int Incoming command value
  * @retval 	Return code of the operation- GPIO desired information.
  */
-int get_gpio(char *buffer, int command) {
-	//	uint8_t *state;
-	int gpio_number = 0;
+int get_gpio(int gpio_number , int command) {
 	int gpio_state = 0;
 	int test_gpio_ret = 0;				// Test GPIO return code
 	int test_conn_ret = 0;
 	char write_output[4] = "";
 	char getstate_string[10] = "";
-
-
-	gpio_number = parse_gpio(buffer+1);
-
-
 
 	test_gpio_ret = testGPIO(gpio_number);
 	test_conn_ret = get_connected(gpio_number);
@@ -641,8 +495,6 @@ int get_gpio(char *buffer, int command) {
 
 	return gpio_state;
 }	// Close If Check for GPIO limit
-
-
 
 /**
  * @brief Set GPIO state( output / input)
