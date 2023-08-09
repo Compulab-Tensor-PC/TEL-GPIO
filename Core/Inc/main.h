@@ -29,6 +29,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f0xx_hal.h"
+#include "ringbuffer.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -47,13 +48,9 @@ void dfu_run_bootloader();
 
 
 #define MAX_GPIO 					20		// Max Connected GPIO pins to board
-#define INCOMING_BUFFER				128		// Incoming buffer size
-
 
 int gpio_previus_level[MAX_GPIO];
 int gpio_change;							// Global value for GPIO print level change
-
-char incomig[INCOMING_BUFFER];
 
 // ############ GPIO function Defines #####################################
 
@@ -74,14 +71,16 @@ char incomig[INCOMING_BUFFER];
 #define NOT_CONNECTED_STATE			53
 
 // Error code return, each error should have his own code and definition
-#define ERROR_01              		1021     	// Error
-#define ERROR_02					1022		// Error code from ParseCommand function (Unknown command)
-#define ERROR_03					1023		// Out of bonds GPIO number
-#define ERROR_04					1024		// ERROR wrong State number, in setGPIO_level
-#define ERROR_05					1025		// Error code from set_gpio_input, wrong error parameter
-#define ERROR_06					1026		// Error from get_gpio, wrong command entered
-#define ERROR_07					1027		// Error in set GPIO not in Output state
-#define ERROR_08					1028 		// Error GPIO Not Connected
+#define ERROR_01  1021    // Error
+#define ERROR_02  1022		// Error code from ParseCommand function (Unknown command)
+#define ERROR_03  1023		// Out of bonds GPIO number
+#define ERROR_04  1024		// ERROR wrong State number, in setGPIO_level
+#define ERROR_05  1025		// Error code from set_gpio_input, wrong error parameter
+#define ERROR_06  1026		// Error from get_gpio, wrong command entered
+#define ERROR_07  1027		// Error in set GPIO not in Output state
+#define ERROR_08  1028 		// Error GPIO Not Connected
+#define EINVAL    ERROR_02	// Error code from ParseCommand function (Unknown command)
+#define E2BIG     ERROR_03	// Out of bonds GPIO number
 
 
 
@@ -136,7 +135,8 @@ char incomig[INCOMING_BUFFER];
 #define GPIO_INPUT					0
 #define GPIO_OUTPUT					1
 uint8_t return_Command;
-
+// TTY input ring buffer
+RingBuffer InputBuf;
 // Enable Echo to serial global setting
 int ECHO_ENABLE;
 
@@ -158,9 +158,7 @@ int ECHO_ENABLE;
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
-int parse_command(char*);				// Parse command and return command code
-int parse_gpio(char*);
-int set_gpio(char*, int);				// Global command for all Set command
+int set_gpio(int, int);				// Global command for all Set command
 int set_gpio_state(int, int);			// Set GPIO state 0 - Input 1 - Output
 int set_gpio_level(int, int);			// Set GPIO Level 0 - Low   1 - High
 int set_gpio_input(int,int);			// Set GPIO Input by GPIO number and additional parameters
@@ -168,7 +166,7 @@ int set_gpio_output(int,int);			// Set GPIO Output by GPIO number and additional
 int testGPIO(int);						// Perform test on the GPIO number
 
 
-int get_gpio(char*, int);				// Global Command for get_gpio commands
+int get_gpio(int, int);				// Global Command for get_gpio commands
 int get_gpio_state(int);				// Return the GPIO state parameter
 int get_gpio_level(int);
 int get_connected(int);					// Return connected / not connected state of the passed GPIO
