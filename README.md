@@ -1,4 +1,19 @@
 # Introduction
+## Table of Contents
+
+1. [Introduction](#introduction)
+    - [About This Document](#about-this-document)
+    - [Product Description](#product-description)
+    - [Overview](#overview)
+    - [Highlights](#highlights)
+2. [Prerequisites](#prerequisites)
+3. [Installation and Setup](#installation-and-setup)
+4. [Usage Examples](#usage-examples)
+5. [Troubleshooting](#troubleshooting)
+6. [FAQs](#faqs)
+7. [Contributions](#contributions)
+8. [License](#license)
+9. [Contact](#contact)
 
 ## About This Document
 
@@ -9,6 +24,11 @@ This document is a reference document and usage instructions for FT.S-GPIO tell 
 Based on the ARM Cortex M0 CPU, Emulates COM port on USB and enables the user to control connected GPIO’s.
 
 ## Overview
+## Prerequisites
+
+Before you begin, ensure you have met the following requirements:
+- Operating system: Windows 10, Linux, macOS
+- Hardware: Compulab Tensor line of add-on boards
 
 Compulab PN FT.S_GPIO - TELL-GPIO
 
@@ -92,3 +112,30 @@ To use FT.S-GPIO from a terminal, follow these steps:
     - Stop bits: 1
     - Flow control: None
 4. Send commands to the FT.S-GPIO board using the command format described in the Commands table above.
+5. Initially send the command that will set the GPIO as Output.
+6. Send the command that will set GPIO to high state
+## Usage Examples
+
+To set GPIO pin 5 to high, use the following command:
+
+```bash
+@5,1
+#5,1
+```
+## Troubleshooting
+
+Issue: The GPIO pins are not responsive
+Solution: Ensure the drivers are up-to-date and the board is properly connected.
+## FAQs
+
+Q: [Your Question Here]
+A: [Your Answer Here]
+## Contributions
+
+If you want to contribute to this project, please ...
+## License
+
+This project is licensed under [Your License Here].
+## Contact
+
+For more information, please contact [Your Contact Information Here].
