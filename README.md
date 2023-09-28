@@ -112,20 +112,54 @@ To use FT.S-GPIO from a terminal, follow these steps:
     - Stop bits: 1
     - Flow control: None
 4. Send commands to the FT.S-GPIO board using the command format described in the Commands table above.
-5. Initially send the command that will set the GPIO as Output.
-6. Send the command that will set GPIO to high state
+## Installation and Setup
+
+1. Download the installer from [link]
+2. Open the installer and follow the on-screen prompts
+3. Verify the installation by ...
 ## Usage Examples
 
-To set GPIO pin 5 to high, use the following command:
-
+#### 1. Setting GPIO pin 10 to Output and then to High state
 ```bash
-@5,1
-#5,1
+@10,1  # Set GPIO pin 10 to Output
+#10,1  # Set GPIO pin 10 to High state
+```
+
+#### 2. Reading the state of GPIO pin 3
+```bash
+@3,0  # Set GPIO pin 3 to Input
+$3    # Read the state of GPIO pin 3
+```
+
+#### 3. Toggling GPIO pin 7 from High to Low
+```bash
+@7,1  # Set GPIO pin 7 to Output
+#7,1  # Set GPIO pin 7 to High state
+#7,0  # Set GPIO pin 7 to Low state
+```
+
+#### 4. Setting Multiple GPIOs (pin 1 and pin 2) to High
+```bash
+@1,1  # Set GPIO pin 1 to Output
+@2,1  # Set GPIO pin 2 to Output
+#1,1  # Set GPIO pin 1 to High state
+#2,1  # Set GPIO pin 2 to High state
+```
+
+#### 5. Resetting all GPIOs to Low
+```bash
+#1,0
+#2,0
+#3,0
+#4,0
+#5,0
+...
+#20,0
 ```
 ## Troubleshooting
 
 Issue: The GPIO pins are not responsive
-Solution: Ensure the drivers are up-to-date and the board is properly connected.
+Solution: Make sure the drivers are up-to-date and that the board is properly connected.
 ## FAQs
 
 Q: [Your Question Here]
