@@ -86,7 +86,7 @@ Each GPIO can be programmed for Output or input direction.
 |--                |I/O GPIO|Extension I/O GPIO, On board LED|GPIO_14 |GPIOB   |
 |--                |I/O GPIO|Extension I/O GPIO, On board LED|GPIO_15 |GPIOB   |
 
-
+![GPIO pictures notation](https://github.com/Compulab-Tensor-PC/TEL-GPIO/blob/master/IMG-6381.jpg "TEL_GPIO")
 
 # Commands
 
