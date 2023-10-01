@@ -50,53 +50,50 @@ Bugs and futures can be opened in the Github repository.
 
 # Hardware
 
-Schematics and Gerber files are available here:
 
-_TODO add the location._
 
 Each GPIO can be programmed for Output or input direction.
 
-- Output - The GPIO Can be controlled for High or LOW output state.
+- Output - The GPIO Can be controlled for a High or LOW output state.
 - Input - The user can read if the GPIO is now in a HIGH state or LOW, state.
 
-> Note: GPIO's initial state is Output low.
+> Note: GPIO's initial state is Output low. (0.7v - considered low ) 
 
 # Pinout
 
-|Pin Name|Pin Number|Pin Type|Description|
-|---|---|---|---|
-|VDD|1|Power|Power supply voltage|
-|GND|2|Power|Ground|
-|GPIO_0|3|I/O GPIO|Extension I/O GPIO|
-|GPIO_1|4|I/O GPIO|Extension I/O GPIO|
-|GPIO_2|5|I/O GPIO|Extension I/O GPIO|
-|GPIO_3|6|I/O GPIO|Extension I/O GPIO|
-|GPIO_4|7|I/O GPIO|Extension I/O GPIO|
-|GPIO_5|8|I/O GPIO|Extension I/O GPIO|
-|GPIO_6|9|I/O GPIO|Extension I/O GPIO|
-|GPIO_7|10|I/O GPIO|Extension I/O GPIO|
-|GPIO_8|11|I/O GPIO|Extension I/O GPIO|
-|GPIO_9|12|I/O GPIO|Extension I/O GPIO|
-|GPIO_10|13|I/O GPIO|Extension I/O GPIO|
-|GPIO_11|14|I/O GPIO|Extension I/O GPIO|
-|GPIO_12|15|I/O GPIO|Extension I/O GPIO|
-|GPIO_13|16|I/O GPIO|Extension I/O GPIO|
-|GPIO_14|17|I/O GPIO|Extension I/O GPIO|
-|GPIO_15|18|I/O GPIO|Extension I/O GPIO|
-|GPIO_16|19|I/O GPIO|Extension I/O GPIO|
-|GPIO_17|20|I/O GPIO|Extension I/O GPIO|
-|GPIO_18|21|I/O GPIO|Extension I/O GPIO|
-|GPIO_19|22|I/O GPIO|Extension I/O GPIO|
-|GPIO_20|23|I/O GPIO|Extension I/O GPIO|
-|LED1|24|LED (Green)|On-board LED|
-|LED2|25|LED (Green)|On-board LED|
+|Pin Number Console|Location|Description|MCU_GPIO|MCU_PORT|
+|------------------|--------|-----------|--------|--------|
+|1                 |I/O GPIO|On board GPIO|GPIO_0  |GPIOA   |
+|2                 |I/O GPIO|On board GPIO|GPIO_1  |GPIOA   |
+|3                 |I/O GPIO|On board GPIO|GPIO_2  |GPIOA   |
+|4                 |I/O GPIO|On board GPIO|GPIO_3  |GPIOA   |
+|5                 |I/O GPIO|Extension I/O - 1|GPIO_4  |GPIOA   |
+|6                 |I/O GPIO|Extension I/O - 1|GPIO_5  |GPIOA   |
+|7                 |I/O GPIO|Extension I/O - 1|GPIO_6  |GPIOA   |
+|8                 |I/O GPIO|Extension I/O - 1|GPIO_7  |GPIOA   |
+|9                 |I/O GPIO|Extension I/O - 2|GPIO_8  |GPIOA   |
+|10                |I/O GPIO|Extension I/O - 2|GPIO_9  |GPIOA   |
+|11                |I/O GPIO|Extension I/O - 2|GPIO_10 |GPIOA   |
+|12                |I/O GPIO|Extension I/O - 2|GPIO_15 |GPIOA   |
+|13                |I/O GPIO|Extension I/O - 3|GPIO_0  |GPIOB   |
+|14                |I/O GPIO|Extension I/O - 3|GPIO_1  |GPIOB   |
+|15                |I/O GPIO|Extension I/O - 3|GPIO_2  |GPIOB   |
+|16                |I/O GPIO|Extension I/O - 3|GPIO_3  |GPIOB   |
+|17                |I/O GPIO|Extension I/O - 4|GPIO_4  |GPIOB   |
+|18                |I/O GPIO|Extension I/O - 4|GPIO_5  |GPIOB   |
+|19                |I/O GPIO|Extension I/O - 4|GPIO_6  |GPIOB   |
+|20                |I/O GPIO|Extension I/O - 4|GPIO_7  |GPIOB   |
+|--                |I/O GPIO|Extension I/O GPIO, On board LED|GPIO_14 |GPIOB   |
+|--                |I/O GPIO|Extension I/O GPIO, On board LED|GPIO_15 |GPIOB   |
+
+
 
 # Commands
 
 |Command|Description|
 |---|---|
-|#n,x|Set GPIO "n" to "x" (1 - High, 0 - Low)|
-|@n,x|Set GPIO "n" direction to "x" (1 - Output, 0 - Input)|
+|#n|Set GPIO "n" to high or low (1 - High, 0 - Low)|
+|@n|Set GPIO "n" direction (1 - Output, 0 - Input)|
 |$n|Read GPIO "n" state (High or Low, for Input direction)|
 
 # Using FT.S-GPIO from Terminal
@@ -112,64 +109,52 @@ To use FT.S-GPIO from a terminal, follow these steps:
     - Stop bits: 1
     - Flow control: None
 4. Send commands to the FT.S-GPIO board using the command format described in the Commands table above.
-## Installation and Setup
 
-1. Download the installer from [link]
-2. Open the installer and follow the on-screen prompts
-3. Verify the installation by ...
 ## Usage Examples
 
 #### 1. Setting GPIO pin 10 to Output and then to High state
 ```bash
-@10,1  # Set GPIO pin 10 to Output
-#10,1  # Set GPIO pin 10 to High state
+&10  # Set GPIO pin 10 to Output
+^10  # Set GPIO pin 10 to High state
 ```
 
 #### 2. Reading the state of GPIO pin 3
 ```bash
-@3,0  # Set GPIO pin 3 to Input
-$3    # Read the state of GPIO pin 3
+%  # Set GPIO pin 3 to Input
+@  # Read the state of GPIO pin 3
 ```
 
 #### 3. Toggling GPIO pin 7 from High to Low
 ```bash
-@7,1  # Set GPIO pin 7 to Output
-#7,1  # Set GPIO pin 7 to High state
-#7,0  # Set GPIO pin 7 to Low state
+&7  # Set GPIO pin 7 to Output
+^7  # Set GPIO pin 7 to High state
+_7  # Set GPIO pin 7 to Low state
 ```
 
 #### 4. Setting Multiple GPIOs (pin 1 and pin 2) to High
 ```bash
-@1,1  # Set GPIO pin 1 to Output
-@2,1  # Set GPIO pin 2 to Output
-#1,1  # Set GPIO pin 1 to High state
-#2,1  # Set GPIO pin 2 to High state
+&1  # Set GPIO pin 1 to Output
+&2  # Set GPIO pin 2 to Output
+^1  # Set GPIO pin 1 to High state
+^2  # Set GPIO pin 2 to High state
 ```
+#### 5. Disable Serial Echo
+-D
 
-#### 5. Resetting all GPIOs to Low
-```bash
-#1,0
-#2,0
-#3,0
-#4,0
-#5,0
-...
-#20,0
-```
+#### 6. Enable Serial Echo
+-E
+
+#### 7. Enter boot loader for Firmware update
+-B
+
+#### 8. Enable output to console on GPIO level change
+-G
+
+#### 9. Disable output to console on GPIO level change
+-R
+
 ## Troubleshooting
 
 Issue: The GPIO pins are not responsive
 Solution: Make sure the drivers are up-to-date and that the board is properly connected.
-## FAQs
 
-Q: [Your Question Here]
-A: [Your Answer Here]
-## Contributions
-
-If you want to contribute to this project, please ...
-## License
-
-This project is licensed under [Your License Here].
-## Contact
-
-For more information, please contact [Your Contact Information Here].
