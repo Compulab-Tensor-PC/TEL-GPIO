@@ -1,9 +1,6 @@
 # Introduction
-## TablBased on the ARM Cortex M0 CPU, this device emulates a COM port over USB and enables users to control connected GPIOs. of Contents
-- Can be used with popular coding languages like Python
-- Open software and hardware for even more flexibility
-- Built-in bidirectional isolation based on the ADM3260 chip
-- Built-in 4 isolated GPIOs expandable up to 20 with FT.V-TERM4 adapter [Introduction](#introduction)
+## Table of Contents
+1. [Introduction](#introduction)
     - [About This Document](#about-this-document)
     - [Product Description](#product-description)
     - [Overview](#overview)
@@ -19,7 +16,7 @@
 
 ## About This Document
 
-This document serves as a reference and provides usage instructions for the FT.S-GPIO device intended for the Compulab Tensor line of add-on boards.
+This document is a reference document and usage instructions for FT.S-GPIO tell intended for Compulab Tensor line of add on boards.
 
 ## Product Description
 
@@ -46,9 +43,9 @@ Compulab PN FT.S_GPIO - TELL-GPIO
 
 # Software
 
-The source code and binary files are available in the [GitHub Repository](https://github.com/Compulab-Tensor-PC/TEL-GPIO)
+The source code and Binary are available [github Repo](https://github.com/Compulab-Tensor-PC/TEL-GPIO)
 
-Bug reports and feature requests can be submitted in the GitHub repository.
+Bugs and futures can be opened in the Github repository.
 
 # Hardware
 
@@ -56,8 +53,8 @@ Bug reports and feature requests can be submitted in the GitHub repository.
 
 Each GPIO can be programmed for Output or input direction.
 
-- Output - The GPIO can be controlled for a HIGH or LOW output state.
-- Input - The user can read whether the GPIO is in a HIGH or LOW state.
+- Output - The GPIO Can be controlled for a High or LOW output state.
+- Input - The user can read if the GPIO is now in a HIGH state or LOW, state.
 
 > Note: GPIO's initial state is Output low. (0.7v - considered low ) 
 
