@@ -16,11 +16,11 @@
 
 ## About This Document
 
-This document is a reference document and usage instructions for FT.S-GPIO tell intended for Compulab Tensor line of add on boards.
+This document provides reference information and usage instructions for the FT.S-GPIO tool intended for the Compulab Tensor line of add-on boards.
 
 ## Product Description
 
-Based on the ARM Cortex M0 CPU, Emulates COM port on USB and enables the user to control connected GPIO’s.
+Based on the ARM Cortex M0 CPU, the device emulates a USB COM port and enables users to control connected GPIOs.
 
 ## Overview
 ## Prerequisites
@@ -29,34 +29,34 @@ Before you begin, ensure you have met the following requirements:
 - Operating system: Windows 10, Linux, macOS
 - Hardware: Compulab Tensor line of add-on boards
 
-Compulab PN FT.S_GPIO - TELL-GPIO
+Compulab PN FT.S_GPIO - TEL-GPIO
 
 ## Highlights
 
-- Implementation of USB to GPIO without the need for special drivers or deep system knowledge.
-- Enables fast prototyping and fast time to market.
-- Can be used with popular coding language’s like Python
-- Open software and Hardware for even more flexibility
-- Build-in bidirectional isolation based on the ADM3260 chip.
-- Build-in 4 Isolated GPIO’s expandable up to 20 with FT.V-TERM4 adapter.
-- Easily updatable SW using built-in USB bootloader.
+- Implementation of USB-to-GPIO without the need for special drivers or deep system knowledge.
+- Enables fast prototyping and a short time to market.
+- Works with popular programming languages such as Python.
+- Open software and hardware for even more flexibility.
+- Built-in bidirectional isolation based on the ADM3260 chip.
+- Built-in four isolated GPIOs expandable up to 20 with the FT.V-TERM4 adapter.
+- Easily updatable software using the built-in USB bootloader.
 
 # Software
 
-The source code and Binary are available [github Repo](https://github.com/Compulab-Tensor-PC/TEL-GPIO)
+The source code and binary are available in the [GitHub repository](https://github.com/Compulab-Tensor-PC/TEL-GPIO).
 
-Bugs and futures can be opened in the Github repository.
+Bug reports and feature requests can be opened in the GitHub repository.
 
 # Hardware
 
 
 
-Each GPIO can be programmed for Output or input direction.
+Each GPIO can be configured for output or input operation.
 
-- Output - The GPIO Can be controlled for a High or LOW output state.
-- Input - The user can read if the GPIO is now in a HIGH state or LOW, state.
+- Output - The GPIO can be set to a HIGH or LOW state.
+- Input - The user can read whether the GPIO is in a HIGH or LOW state.
 
-> Note: GPIO's initial state is Output low. (0.7v - considered low ) 
+> Note: GPIOs default to output low (0.7 V, considered low).
 
 # Pinout
 
@@ -111,7 +111,7 @@ To use FT.S-GPIO from a terminal, follow these steps:
 
 ## Usage Examples
 
-#### 1. Setting GPIO pin 10 to Output and then to High state
+#### 1. Setting GPIO pin 10 to Output and then High
 ```bash
 &10  # Set GPIO pin 10 to Output
 ^10  # Set GPIO pin 10 to High state
@@ -130,30 +130,30 @@ To use FT.S-GPIO from a terminal, follow these steps:
 _7  # Set GPIO pin 7 to Low state
 ```
 
-#### 4. Setting Multiple GPIOs (pin 1 and pin 2) to High
+#### 4. Setting multiple GPIOs (pin 1 and pin 2) to High
 ```bash
 &1  # Set GPIO pin 1 to Output
 &2  # Set GPIO pin 2 to Output
 ^1  # Set GPIO pin 1 to High state
 ^2  # Set GPIO pin 2 to High state
 ```
-#### 5. Disable Serial Echo
+#### 5. Disable serial echo
 -D
 
-#### 6. Enable Serial Echo
+#### 6. Enable serial echo
 -E
 
-#### 7. Enter boot loader for Firmware update
+#### 7. Enter the bootloader for a firmware update
 -B
 
-#### 8. Enable output to console on GPIO level change
+#### 8. Enable console output on GPIO level changes
 -G
 
-#### 9. Disable output to console on GPIO level change
+#### 9. Disable console output on GPIO level changes
 -R
 
 ## Troubleshooting
 
-Issue: The GPIO pins are not responsive
-Solution: Make sure the drivers are up-to-date and that the board is properly connected.
+Issue: The GPIO pins are not responsive.
+Solution: Ensure the drivers are up to date and that the board is properly connected.
 
